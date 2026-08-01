@@ -14,6 +14,7 @@ use App\Http\Controllers\Auth\ForgotPasswordController;
 // ===== FRONTEND / PUBLIC ROUTES =====
 Route::controller(SiteController::class)->group(function () {
     Route::get('/', 'index')->name('home');
+    // Shop renders the Livewire ShopCatalog component inside the store layout.
     Route::get('/shop', 'shop')->name('shop');
     Route::get('/product/{slug}', 'product')->name('product.show');
     Route::get('/contact', 'contact')->name('contact');

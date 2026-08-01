@@ -17,6 +17,7 @@ use App\Http\Controllers\admin\SettingsController;
 use App\Http\Controllers\admin\ContactController;
 use App\Http\Controllers\admin\SliderController;
 use App\Http\Controllers\admin\PromoCodeController;
+use App\Http\Controllers\admin\AdminProductImportController;
 
 Route::prefix('admin')->middleware('admin')->group(function () {
 
@@ -35,11 +36,20 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('/delete-image/{id}', 'deleteImage')->name('admin.products.deleteImage');
     });
 
+    // ===== PRODUCT IMPORT (CSV) =====
+    Route::prefix('import')->controller(AdminProductImportController::class)->group(function () {
+        Route::get('/', 'index')->name('admin.products.import');
+        Route::post('/', 'store')->name('admin.products.import.store');
+        Route::get('/{import}/report', 'report')->name('admin.products.import.report');
+    });
+
     // ===== ORDERS =====
     Route::prefix('orders')->controller(AdminOrderController::class)->group(function () {
         Route::get('/', 'index')->name('admin.orders.index');
         Route::get('/fees', 'fees')->name('admin.orders.fees');
         Route::post('/fees/{fee}', 'updateFee')->name('admin.orders.fees.update');
+        Route::post('/fees/override/store', 'storeFeeOverride')->name('admin.orders.fees.override.store');
+        Route::post('/fees/override/{override}/delete', 'destroyFeeOverride')->name('admin.orders.fees.override.delete');
         Route::get('/export/csv', 'export')->name('admin.orders.export');
         Route::get('/{order}', 'show')->name('admin.orders.show');
         Route::post('/{order}/status', 'updateStatus')->name('admin.orders.status');

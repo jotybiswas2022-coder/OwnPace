@@ -44,7 +44,8 @@
                     $nav = [
                         ['route' => 'admin.dashboard', 'icon' => 'bi-speedometer2', 'label' => 'Dashboard', 'active' => request()->routeIs('admin.dashboard')],
                         ['section' => 'Shop'],
-                        ['route' => 'admin.products.index', 'icon' => 'bi-box-seam-fill', 'label' => 'Products', 'active' => request()->routeIs('admin.products.*')],
+                        ['route' => 'admin.products.index', 'icon' => 'bi-box-seam-fill', 'label' => 'Products', 'active' => request()->routeIs('admin.products.*') && !request()->routeIs('admin.products.import*')],
+                        ['route' => 'admin.products.import', 'icon' => 'bi-upload', 'label' => 'Import Products', 'active' => request()->routeIs('admin.products.import*')],
                         ['route' => 'admin.category.index', 'icon' => 'bi-tag-fill', 'label' => 'Categories', 'active' => request()->routeIs('admin.category.*')],
                         ['route' => 'admin.brands.index', 'icon' => 'bi-building', 'label' => 'Brands', 'active' => request()->routeIs('admin.brands.*')],
                         ['route' => 'admin.suppliers.index', 'icon' => 'bi-truck', 'label' => 'Suppliers', 'active' => request()->routeIs('admin.suppliers.*')],

@@ -10,6 +10,8 @@ use App\Http\Requests\Admin\FeeRequest;
 use App\Models\Order;
 use App\Models\InstallmentPlan;
 use App\Models\ProductFee;
+use App\Models\ProductFeeOverride;
+use App\Models\Product;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class AdminOrderController extends Controller
@@ -68,7 +70,9 @@ class AdminOrderController extends Controller
     public function fees()
     {
         $fees = ProductFee::all();
-        return view('backend.orders.fees', compact('fees'));
+        $overrides = ProductFeeOverride::with('product')->latest()->get();
+        $products = Product::where('status', 'active')->orderBy('name')->get();
+        return view('backend.orders.fees', compact('fees', 'overrides', 'products'));
     }
 
     public function updateFee(FeeRequest $request, ProductFee $fee)
@@ -81,6 +85,36 @@ class AdminOrderController extends Controller
         ]);
 
         return back()->with('success', 'Fee updated successfully!');
+    }
+
+    /**
+     * Save (upsert) a per-product fee override.
+     */
+    public function storeFeeOverride(Request $request)
+    {
+        $this->authorize('manage', ProductFee::class);
+
+        $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'fee_slug' => 'required|string|exists:product_fees,slug',
+            'amount' => 'required|numeric|min:0',
+            'type' => 'required|in:fixed,percentage',
+        ]);
+
+        ProductFeeOverride::updateOrCreate(
+            ['product_id' => $request->product_id, 'fee_slug' => $request->fee_slug],
+            ['amount' => $request->amount, 'type' => $request->type]
+        );
+
+        return back()->with('success', 'Per-product fee override saved!');
+    }
+
+    public function destroyFeeOverride(ProductFeeOverride $override)
+    {
+        $this->authorize('manage', ProductFee::class);
+
+        $override->delete();
+        return back()->with('success', 'Override removed — product falls back to the global fee.');
     }
 
     public function export()

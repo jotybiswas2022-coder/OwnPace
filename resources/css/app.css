@@ -352,6 +352,50 @@
         color: var(--mango-deep);
     }
 
+    /* Tables (admin console + report views) */
+    .os-table { width: 100%; border-collapse: collapse; }
+    .os-table th {
+        text-align: left;
+        padding: 0.65rem 0.75rem;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--slate);
+        border-bottom: 1px solid rgba(26, 27, 35, 0.08);
+        white-space: nowrap;
+    }
+    .os-table td {
+        padding: 0.7rem 0.75rem;
+        border-bottom: 1px solid rgba(26, 27, 35, 0.06);
+        vertical-align: middle;
+    }
+    .os-table tbody tr { transition: background 0.15s; }
+    .os-table tbody tr:hover { background: rgba(46, 42, 107, 0.03); }
+    .os-table tbody tr:last-child td { border-bottom: none; }
+
+    @media (max-width: 640px) {
+        .os-table thead { display: none; }
+        .os-table tbody, .os-table tr, .os-table td { display: block; }
+        .os-table tr { padding: 0.5rem 0; }
+        .os-table td {
+            display: flex;
+            justify-content: space-between;
+            gap: 0.75rem;
+            padding: 0.4rem 0.5rem;
+        }
+        .os-table td:before {
+            content: attr(data-label);
+            font-weight: 600;
+            color: var(--slate);
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            flex-shrink: 0;
+        }
+        .os-table td:last-child { border-bottom: none; }
+    }
+
     .os-focus-ring:focus-visible {
         outline: 3px solid rgba(245, 166, 35, 0.55);
         outline-offset: 2px;

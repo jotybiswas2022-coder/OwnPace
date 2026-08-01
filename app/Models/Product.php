@@ -70,4 +70,9 @@ class Product extends Model
     {
         return $this->morphMany(Review::class, 'reviewable');
     }
+
+    public function feeOverrides()
+    {
+        return $this->hasMany(ProductFeeOverride::class);
+    }
 }

@@ -42,45 +42,13 @@ class SiteController extends Controller
         ));
     }
 
-    // Shop page
+    // Shop page now lives in the Livewire ShopCatalog component (see
+    // app/Livewire/ShopCatalog.php + routes/web.php) — debounced search,
+    // URL-synced multi-select filters and infinite scroll. Kept only as the
+    // canonical catalog entry for any legacy references.
     public function shop(Request $request)
     {
-        $query = Product::where('status', 'active')->with(['category', 'brand', 'primaryImage', 'images']);
-
-        if ($request->search) {
-            $query->where(function($q) use ($request) {
-                $q->where('name', 'LIKE', '%' . $request->search . '%')
-                  ->orWhere('description', 'LIKE', '%' . $request->search . '%');
-            });
-        }
-        if ($request->category_id) {
-            $query->where('category_id', $request->category_id);
-        }
-        if ($request->brand_id) {
-            $query->where('brand_id', $request->brand_id);
-        }
-        if ($request->min_price) {
-            $query->where('price', '>=', $request->min_price);
-        }
-        if ($request->max_price) {
-            $query->where('price', '<=', $request->max_price);
-        }
-
-        // Sort
-        switch ($request->sort) {
-            case 'price_asc': $query->orderBy('price', 'asc'); break;
-            case 'price_desc': $query->orderBy('price', 'desc'); break;
-            case 'newest': $query->latest(); break;
-            case 'oldest': $query->oldest(); break;
-            case 'name': $query->orderBy('name', 'asc'); break;
-            default: $query->latest(); break;
-        }
-
-        $products = $query->paginate(12)->withQueryString();
-        $categories = Category::all();
-        $brands = Brand::where('is_active', true)->get();
-
-        return view('frontend.shop', compact('products', 'categories', 'brands'));
+        return view('frontend.shop');
     }
 
     // Single Product page
@@ -103,7 +71,15 @@ class SiteController extends Controller
             ->take(8)
             ->get();
 
-        return view('frontend.product', compact('product', 'relatedProducts', 'inWishlist'));
+        // Gallery: primary image first, then the rest.
+        $gallery = collect()
+            ->merge($product->images->where('is_primary', true))
+            ->merge($product->images->where('is_primary', false))
+            ->map(fn ($img) => imageUrl($img->image_path))
+            ->values()
+            ->all();
+
+        return view('frontend.product', compact('product', 'relatedProducts', 'inWishlist', 'gallery'));
     }
 
     // Checkout page

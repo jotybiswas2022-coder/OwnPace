@@ -38,6 +38,23 @@ function cartCount()
     return count($cart);
 }
 
+/**
+ * Resolve an image path for display. Accepts either a storage-relative path
+ * (storage/...) or an absolute URL (e.g. a remote image imported via CSV).
+ */
+function imageUrl($path)
+{
+    if (!$path) {
+        return null;
+    }
+
+    if (preg_match('/^https?:\/\//i', $path)) {
+        return $path;
+    }
+
+    return asset('storage/' . $path);
+}
+
 function getFee($slug)
 {
     $fee = ProductFee::where('slug', $slug)->first();
