@@ -5,13 +5,15 @@ namespace App\Http\Controllers\admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\SettingsRequest;
 use App\Models\Setting;
+use App\Models\InsuranceSetting;
 
 class SettingsController extends Controller
 {
     public function index()
     {
         $settings = Setting::first();
-        return view('backend.settings', compact('settings'));
+        $insurance = InsuranceSetting::first();
+        return view('backend.settings', compact('settings', 'insurance'));
     }
 
     public function update(SettingsRequest $request)
@@ -38,6 +40,14 @@ class SettingsController extends Controller
         $settings->gateway_config = $gatewayConfig;
 
         $settings->save();
+
+        // Insurance is storewide: enable/disable + rate, read at checkout.
+        $insurance = InsuranceSetting::first() ?? new InsuranceSetting();
+        $insurance->name = 'Insurance Fee';
+        $insurance->rate = $request->insurance_rate ?? $insurance->rate ?? 10;
+        $insurance->type = 'percentage';
+        $insurance->is_enabled = $request->boolean('insurance_enabled');
+        $insurance->save();
 
         return redirect()->back()->with('success', 'Settings updated successfully.');
     }

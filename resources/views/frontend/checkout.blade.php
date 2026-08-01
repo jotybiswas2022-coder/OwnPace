@@ -369,31 +369,20 @@
                         @error('payment_type')<small class="fp-chk-field-error">{{ $message }}</small>@enderror
 
                         <div id="planSelect" style="display:{{ $pmType == 'installment' ? 'block' : 'none' }};">
-                            <label style="display:block;font-size:12px;color:var(--text-dim);margin-bottom:8px;font-weight:600;">Select Installment Plan</label>
-                            <select name="installment_plan_id" class="fp-chk-select">
-                                <option value="">Choose a plan</option>
-                                @foreach($installmentPlans as $plan)
-                                <option value="{{ $plan->id }}" {{ old('installment_plan_id') == $plan->id ? 'selected' : '' }}>{{ $plan->name }} ({{ $plan->interest_rate }}% interest)</option>
-                                @endforeach
-                            </select>
-                            @error('installment_plan_id')<small class="fp-chk-field-error">{{ $message }}</small>@enderror
+                            <livewire:checkout-breakdown
+                                :subtotal="(float) max($total - $discount, 0)"
+                                :shipping-fee="(float) $shippingFee"
+                                wire:key="checkout-breakdown"
+                            />
                         </div>
                     </div>
 
                     <div class="fp-chk-card reveal-left" style="transition-delay:0.3s;">
                         <h5 class="fp-chk-card-title"><i class="bi bi-shield-fill-check"></i> Extras</h5>
-                        @if($insurance && $insurance->is_enabled)
-                        <label class="fp-chk-checkbox">
-                            <input type="checkbox" name="has_insurance" value="1" {{ old('has_insurance') ? 'checked' : '' }}>
-                            <span style="color:var(--text-muted);font-size:14px;">Add Insurance <span style="color:var(--gold-400);font-weight:600;">({{ $insurance->rate }}% of total)</span></span>
-                        </label>
-                        <p style="color:var(--text-dim);font-size:12px;margin:8px 0 0 30px;">Protect your purchase against damage, loss, or theft.</p>
-                        @else
                         <div style="display:flex;align-items:center;gap:10px;">
                             <i class="bi bi-shield-check" style="color:var(--text-dim);font-size:20px;"></i>
-                            <span style="color:var(--text-dim);font-size:14px;">Insurance not available for this order.</span>
+                            <span style="color:var(--text-dim);font-size:14px;">Add insurance in the payment step above to protect your purchase.</span>
                         </div>
-                        @endif
                     </div>
 
                     <div class="fp-chk-card reveal-left" style="transition-delay:0.4s;">

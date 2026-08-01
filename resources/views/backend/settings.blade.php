@@ -153,6 +153,43 @@
         </div>
     </div>
 
+    <!-- ===== INSURANCE ===== -->
+    <div class="row justify-content-center mb-4">
+        <div class="col-12 col-lg-10">
+            <div class="fp-table-wrap">
+                <div class="fp-table-header">
+                    <h5><i class="bi bi-shield-fill-check"></i> Purchase Insurance</h5>
+                    <span class="fp-badge {{ ($insurance->is_enabled ?? true) ? 'fp-badge-active' : 'fp-badge-inactive' }}">{{ ($insurance->is_enabled ?? true) ? 'Enabled' : 'Disabled' }}</span>
+                </div>
+                <div style="padding:24px;">
+                    <p style="color:var(--text-dim);font-size:13px;margin-bottom:16px;">
+                        Customers can add insurance at checkout (e.g. 10% of the order total) to protect purchases against damage, loss or theft.
+                    </p>
+                    <div class="row g-4 align-items-end">
+                        <div class="col-sm-4">
+                            <label style="display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px;">
+                                <i class="bi bi-shield-check" style="color:var(--gold-500);"></i> Status
+                            </label>
+                            <select name="insurance_enabled" class="fp-form-control">
+                                <option value="1" {{ ($insurance->is_enabled ?? true) ? 'selected' : '' }}>Enabled</option>
+                                <option value="0" {{ !($insurance->is_enabled ?? true) ? 'selected' : '' }}>Disabled</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-4">
+                            <label style="display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px;">
+                                <i class="bi bi-percent" style="color:var(--gold-500);"></i> Insurance Rate (% of order total)
+                            </label>
+                            <input type="number" name="insurance_rate" class="fp-form-control" value="{{ $insurance->rate ?? 10 }}" min="0" max="100" step="0.01">
+                        </div>
+                        <div class="col-sm-4">
+                            <button type="submit" class="fp-btn fp-btn-gold" style="padding:10px 28px;"><i class="bi bi-check-lg"></i> Save All Settings</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- SAVE BUTTON -->
     <div class="row justify-content-center">
         <div class="col-12 col-lg-10 text-end">

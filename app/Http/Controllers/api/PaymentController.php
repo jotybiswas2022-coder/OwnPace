@@ -10,6 +10,7 @@ use App\Models\InstallmentPayment;
 use App\Models\Wallet;
 use App\Models\WalletTransaction;
 use App\Models\Setting;
+use App\Services\InstallmentScheduleService;
 use Illuminate\Support\Facades\Http;
 
 class PaymentController extends Controller
@@ -249,37 +250,24 @@ class PaymentController extends Controller
         if ($transaction->order_id) {
             $order = Order::find($transaction->order_id);
             if ($order) {
-                $newPaid = $order->paid_amount + $transaction->amount;
-                $newRemaining = max(0, $order->grand_total - $newPaid);
+                // Single source of truth for the money math — advances paid/remaining
+                // exactly once and keeps the remaining schedule summing to the balance.
+                $installmentPayment = $transaction->installment_payment_id
+                    ? InstallmentPayment::find($transaction->installment_payment_id)
+                    : null;
 
-                $newStatus = $newRemaining <= 0 ? 'processing' : 'partial_paid';
-                if ($newStatus === 'processing') {
-                    // Check if 70% threshold met for delivery
-                    $threshold = ($order->grand_total * 70) / 100;
-                    if ($newPaid >= $threshold) {
-                        $order->update([
-                            'delivery_status' => 'processing',
-                        ]);
-                    }
-                }
+                InstallmentScheduleService::recordPayment(
+                    $order,
+                    (float) $transaction->amount,
+                    $transaction->gateway,
+                    $installmentPayment
+                );
 
-                $order->update([
-                    'paid_amount' => $newPaid,
-                    'remaining_amount' => $newRemaining,
-                    'status' => $newStatus,
-                ]);
-
-                // Mark installment payments
-                if ($transaction->installment_payment_id) {
-                    $installmentPayment = InstallmentPayment::find($transaction->installment_payment_id);
-                    if ($installmentPayment) {
-                        $installmentPayment->update([
-                            'status' => 'paid',
-                            'paid_date' => now(),
-                            'paid_amount' => $transaction->amount,
-                            'payment_method' => $transaction->gateway,
-                        ]);
-                    }
+                // Delivery unlocks at the 70% payment threshold (grand_total based).
+                $order = $order->fresh();
+                $threshold = ($order->grand_total * 70) / 100;
+                if ((float) $order->paid_amount >= $threshold && $order->delivery_status === 'pending') {
+                    $order->update(['delivery_status' => 'processing']);
                 }
 
                 return redirect()->route('order.confirmation', $order->id)

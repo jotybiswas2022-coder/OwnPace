@@ -89,11 +89,18 @@
                         <p>Select your preferred payment gateway</p>
                     </div>
 
+                    @php $pending = session('pending_payment'); @endphp
                     <div class="fp-pay-summary">
                         <div class="fp-ps-row"><span>Order Amount</span><span>₦{{ number_format($order->total_amount, 0) }}</span></div>
                         <div class="fp-ps-row"><span>Paid</span><span style="color:#4ade80">₦{{ number_format($order->paid_amount ?? 0, 0) }}</span></div>
+                        @if($pending && $pending['amount'] > 0)
+                            <div class="fp-ps-row"><span>{{ $pending['label'] }}</span><span>₦{{ number_format($pending['amount'], 2) }}</span></div>
+                            @if(!empty($pending['late_fee']))
+                            <div class="fp-ps-row"><span>Late fee</span><span style="color:#f87171">₦{{ number_format($pending['late_fee'], 2) }}</span></div>
+                            @endif
+                        @endif
                         <div class="fp-ps-divider"></div>
-                        <div class="fp-ps-row fp-ps-total"><span>Due Now</span><span>₦{{ number_format($order->remaining_amount - ($order->paid_amount ?? 0), 0) }}</span></div>
+                        <div class="fp-ps-row fp-ps-total"><span>Due Now</span><span>₦{{ number_format($pending['amount'] ?? $order->remaining_amount, 2) }}</span></div>
                     </div>
 
                     <form action="{{ route('payment.process', $order->id) }}" method="POST" class="mt-4">

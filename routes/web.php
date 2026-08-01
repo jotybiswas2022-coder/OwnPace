@@ -56,6 +56,7 @@ Route::middleware(['auth'])->prefix('orders')->controller(OrderController::class
     Route::post('/{order}/pay-installment', 'payInstallment')->name('orders.pay.installment');
     Route::post('/{order}/pay-partial', 'payPartial')->name('orders.pay.partial');
     Route::post('/{order}/pay-full', 'payFull')->name('orders.pay.full');
+    Route::post('/{order}/pay-wallet', 'payWallet')->name('orders.pay.wallet');
     Route::post('/{order}/change-plan', 'requestPlanChange')->name('orders.change.plan');
     Route::post('/{order}/cancel', 'cancelOrder')->name('orders.cancel');
     Route::get('/{order}/tracking', 'tracking')->name('orders.tracking');

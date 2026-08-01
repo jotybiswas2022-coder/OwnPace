@@ -25,6 +25,8 @@ class SettingsRequest extends FormRequest
             'flutterwave_encryption' => 'nullable|string',
             'korapay_public' => 'nullable|string',
             'korapay_secret' => 'nullable|string',
+            'insurance_enabled' => 'boolean',
+            'insurance_rate' => 'nullable|numeric|min:0|max:100',
         ];
     }
 }

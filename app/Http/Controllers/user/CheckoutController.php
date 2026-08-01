@@ -15,6 +15,8 @@ use App\Models\DeliveryAddress;
 use App\Models\Setting;
 use App\Models\InsuranceSetting;
 use App\Models\PromoCode;
+use App\Services\InstallmentCalculatorService;
+use App\Services\InstallmentScheduleService;
 use Illuminate\Support\Str;
 
 class CheckoutController extends Controller
@@ -42,6 +44,8 @@ class CheckoutController extends Controller
             $total += $item['price'] * $item['quantity'];
         }
 
+        $shippingFee = \App\Models\ProductFee::where('slug', 'delivery_fee')->first()?->amount ?? 0;
+
         $promoCode = null;
         $discount = 0;
         $promoSession = session('promo_code');
@@ -55,7 +59,7 @@ class CheckoutController extends Controller
         }
 
         return view('frontend.checkout', compact(
-            'cart', 'total', 'installmentPlans',
+            'cart', 'total', 'installmentPlans', 'shippingFee',
             'addresses', 'settings', 'insurance', 'wallet',
             'promoCode', 'discount'
         ));
@@ -65,7 +69,10 @@ class CheckoutController extends Controller
     {
         $request->validate([
             'payment_type' => 'required|in:full,installment',
-            'installment_plan_id' => 'required_if:payment_type,installment|nullable|exists:installment_plans,id',
+            // exclude_unless drops the field for full payments — the plan select
+            // is hidden (display:none) but still submits "0", which must not
+            // fail min:1 on a pay-in-full order.
+            'installment_plan_id' => 'required_if:payment_type,installment|exclude_unless:payment_type,installment|integer|min:1|exists:installment_plans,id',
             'delivery_address_id' => 'required|exists:delivery_addresses,id',
             'has_insurance' => 'boolean',
             'payment_method' => 'required|in:wallet,paystack,flutterwave,korapay',
@@ -84,24 +91,10 @@ class CheckoutController extends Controller
         }
 
         $baseAmount = $totalAmount;
-        $interestAmount = 0;
         $shippingFee = \App\Models\ProductFee::where('slug', 'delivery_fee')->first()?->amount ?? 0;
-        $insuranceFee = 0;
         $insurance = InsuranceSetting::first();
 
-        if ($request->has_insurance && $insurance?->is_enabled) {
-            $insuranceFee = ($totalAmount * $insurance->rate) / 100;
-        }
-
-        $installmentPlan = null;
-        if ($request->payment_type === 'installment') {
-            $installmentPlan = InstallmentPlan::findOrFail($request->installment_plan_id);
-            $interestAmount = ($totalAmount * $installmentPlan->interest_rate) / 100;
-        }
-
-        $grandTotal = $baseAmount + $shippingFee + $insuranceFee + $interestAmount;
-
-        // Apply promo code discount
+        // Apply promo code discount first so every downstream number is right.
         $discountAmount = 0;
         $promoCodeId = null;
         $promoSession = session('promo_code');
@@ -109,13 +102,29 @@ class CheckoutController extends Controller
             $promoCode = PromoCode::where('code', $promoSession['code'])->first();
             if ($promoCode && $promoCode->isValid() && $totalAmount >= $promoCode->min_order_amount) {
                 $discountAmount = $promoCode->calculateDiscount($totalAmount);
-                $grandTotal -= $discountAmount;
-                if ($grandTotal < 0) $grandTotal = 0;
                 $promoCodeId = $promoCode->id;
                 $promoCode->increment('used_count');
             }
             session()->forget('promo_code');
         }
+
+        $insuranceRate = $request->has_insurance && $insurance?->is_enabled
+            ? (float) $insurance->rate
+            : null;
+
+        $installmentPlan = null;
+        if ($request->payment_type === 'installment') {
+            $installmentPlan = InstallmentPlan::findOrFail($request->installment_plan_id);
+        }
+
+        // Single source of truth for the money math — the tested service.
+        $breakdown = $installmentPlan
+            ? InstallmentCalculatorService::breakdown($totalAmount, $installmentPlan, $shippingFee, $insuranceRate, $discountAmount)
+            : InstallmentCalculatorService::payOnceBreakdown($totalAmount, $shippingFee, $insuranceRate, $discountAmount);
+
+        $interestAmount = $breakdown['interest'];
+        $insuranceFee = $breakdown['insurance_fee'];
+        $grandTotal = $breakdown['grand_total'];
 
         // Create order
         $order = Order::create([
@@ -150,20 +159,9 @@ class CheckoutController extends Controller
             ]);
         }
 
-        // Create installment payment schedule if installment
+        // Create installment payment schedule if installment — exact sums via the service.
         if ($request->payment_type === 'installment' && $installmentPlan) {
-            $perInstallment = $grandTotal / $installmentPlan->duration;
-            $dueDate = now();
-            for ($i = 1; $i <= $installmentPlan->duration; $i++) {
-                $dueDate = $dueDate->addDays($installmentPlan->type === 'weekly' ? 7 : 30);
-                InstallmentPayment::create([
-                    'order_id' => $order->id,
-                    'installment_number' => $i,
-                    'amount' => $perInstallment,
-                    'due_date' => $dueDate,
-                    'status' => $i === 1 ? 'pending' : 'pending',
-                ]);
-            }
+            InstallmentScheduleService::createSchedule($order, $installmentPlan);
         }
 
         // Clear cart
@@ -210,21 +208,8 @@ class CheckoutController extends Controller
             'status' => 'completed',
         ]);
 
-        $order->update([
-            'paid_amount' => $order->grand_total,
-            'remaining_amount' => 0,
-            'status' => 'processing',
-        ]);
-
-        // Mark first installment as paid
-        $firstInstallment = $order->installmentPayments()->first();
-        if ($firstInstallment) {
-            $firstInstallment->update([
-                'status' => 'paid',
-                'paid_date' => now(),
-                'paid_amount' => $order->grand_total,
-            ]);
-        }
+        // Advance the schedule by the full amount — closes out every row.
+        InstallmentScheduleService::recordPayment($order, (float) $order->grand_total, 'wallet');
 
         return redirect()->route('order.confirmation', $order->id)
             ->with('success', 'Payment successful via Wallet!');
@@ -240,6 +225,10 @@ class CheckoutController extends Controller
         $request->validate([
             'gateway' => 'required|in:paystack,flutterwave,korapay',
         ]);
+
+        // The pending amount (next installment / partial / full) was already
+        // staged by OrderController — clear it so a revisit can't show stale numbers.
+        session()->forget('pending_payment');
 
         $transaction = PaymentTransaction::create([
             'order_id' => $order->id,

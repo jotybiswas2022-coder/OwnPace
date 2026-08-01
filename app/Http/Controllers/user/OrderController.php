@@ -6,8 +6,15 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\InstallmentPlan;
+use App\Models\InstallmentPayment;
 use App\Models\PlanChangeRequest;
 use App\Models\PaymentTransaction;
+use App\Models\Wallet;
+use App\Models\WalletTransaction;
+use App\Services\InstallmentCalculatorService;
+use App\Services\InstallmentScheduleService;
+use App\Services\MoneyService;
+use Illuminate\Support\Str;
 use Carbon\Carbon;
 
 class OrderController extends Controller
@@ -44,29 +51,60 @@ class OrderController extends Controller
             'deliveryTrackings',
         ]);
 
-        return view('frontend.order.show', compact('order'));
+        $nextPayment = InstallmentScheduleService::nextUnpaid($order);
+        $nextLateFee = $nextPayment ? InstallmentScheduleService::lateFeeFor($nextPayment) : 0.0;
+
+        return view('frontend.order.show', compact('order'))->with([
+            'nextPayment' => $nextPayment,
+            'nextDue' => InstallmentScheduleService::nextDueAmount($order),
+            'nextLateFee' => $nextLateFee,
+            'progressPct' => InstallmentCalculatorService::progressPercent($order->paid_amount, $order->grand_total),
+            'progressLabel' => InstallmentScheduleService::progressLabel($order),
+            'walletBalance' => (float) (auth()->user()->wallet?->balance ?? 0),
+        ]);
     }
 
+    /**
+     * Pay the next unpaid installment (or a specific one) early, via gateway.
+     * Optional late fee is added when the payment is overdue and the plan
+     * enables it. Creates a pending transaction and hands off to the gateway.
+     */
     public function payInstallment(Request $request, Order $order)
     {
         if ($order->user_id !== auth()->id()) {
             abort(404);
         }
 
-        $request->validate([
-            'installment_payment_id' => 'required|exists:installment_payments,id',
-        ]);
+        $payment = $request->filled('installment_payment_id')
+            ? $order->installmentPayments()->findOrFail($request->installment_payment_id)
+            : InstallmentScheduleService::nextUnpaid($order);
 
-        $payment = $order->installmentPayments()->findOrFail($request->installment_payment_id);
+        if (!$payment) {
+            return back()->with('error', 'This order has no unpaid installments.');
+        }
 
         if ($payment->status === 'paid') {
             return back()->with('error', 'This installment is already paid.');
         }
 
-        // Redirect to payment gateway with the installment details
-        return redirect()->route('payment.installment', [$order->id, $payment->id]);
+        $lateFee = InstallmentScheduleService::lateFeeFor($payment);
+        $amount = MoneyService::round($payment->amount + $lateFee);
+
+        $this->createPaymentTransaction($order, $amount, 'payment', $payment);
+
+        session(['pending_payment' => [
+            'label' => 'Installment #' . $payment->installment_number . ' of ' . $order->installmentPlan?->duration,
+            'amount' => $amount,
+            'late_fee' => $lateFee,
+        ]]);
+
+        return redirect()->route('payment.gateway', $order->id)
+            ->with('info', 'Continue to pay installment #' . $payment->installment_number . ' of ₦' . number_format($amount, 2) . '.');
     }
 
+    /**
+     * Pay any custom partial amount (min ₦100) via gateway.
+     */
     public function payPartial(Request $request, Order $order)
     {
         if ($order->user_id !== auth()->id()) {
@@ -81,43 +119,122 @@ class OrderController extends Controller
             return back()->with('error', 'Amount exceeds remaining balance.');
         }
 
-        // Create transaction and redirect to payment
-        $reference = 'PART-' . strtoupper(\Illuminate\Support\Str::random(12));
-        PaymentTransaction::create([
-            'user_id' => auth()->id(),
-            'order_id' => $order->id,
-            'transaction_reference' => $reference,
-            'gateway' => 'paystack',
-            'amount' => $request->amount,
-            'currency' => 'NGN',
-            'status' => 'pending',
-            'type' => 'payment',
-        ]);
+        $amount = MoneyService::round($request->amount);
+
+        $this->createPaymentTransaction($order, $amount, 'payment');
+
+        session(['pending_payment' => [
+            'label' => 'Partial payment',
+            'amount' => $amount,
+            'late_fee' => 0,
+        ]]);
 
         return redirect()->route('payment.gateway', $order->id)
-            ->with('info', 'Partial payment of ₦' . number_format($request->amount, 2) . ' initiated.');
+            ->with('info', 'Partial payment of ₦' . number_format($amount, 2) . ' initiated.');
     }
 
+    /**
+     * Pay off the entire remaining balance in one go, via gateway.
+     */
     public function payFull(Order $order)
     {
         if ($order->user_id !== auth()->id()) {
             abort(404);
         }
 
-        $reference = 'FULL-' . strtoupper(\Illuminate\Support\Str::random(12));
-        PaymentTransaction::create([
-            'user_id' => auth()->id(),
-            'order_id' => $order->id,
-            'transaction_reference' => $reference,
-            'gateway' => 'paystack',
-            'amount' => $order->remaining_amount,
-            'currency' => 'NGN',
-            'status' => 'pending',
-            'type' => 'payment',
-        ]);
+        $amount = (float) $order->remaining_amount;
+
+        if ($amount <= 0) {
+            return back()->with('error', 'This order is already fully paid.');
+        }
+
+        $this->createPaymentTransaction($order, $amount, 'payment');
+
+        session(['pending_payment' => [
+            'label' => 'Full balance',
+            'amount' => $amount,
+            'late_fee' => 0,
+        ]]);
 
         return redirect()->route('payment.gateway', $order->id)
-            ->with('info', 'Full payment of ₦' . number_format($order->remaining_amount, 2) . ' initiated.');
+            ->with('info', 'Full payment of ₦' . number_format($amount, 2) . ' initiated.');
+    }
+
+    /**
+     * Pay from the wallet — fully functional, no external gateway. The amount
+     * clears the next unpaid installment(s) and the schedule is recalculated.
+     */
+    public function payWallet(Request $request, Order $order)
+    {
+        if ($order->user_id !== auth()->id()) {
+            abort(404);
+        }
+
+        $amount = MoneyService::round($request->amount ?? InstallmentScheduleService::nextDueAmount($order));
+
+        if ($amount <= 0) {
+            return back()->with('error', 'There is nothing left to pay on this order.');
+        }
+
+        if ($amount > (float) $order->remaining_amount) {
+            return back()->with('error', 'Amount exceeds remaining balance.');
+        }
+
+        $wallet = auth()->user()->wallet;
+        if (!$wallet || (float) $wallet->balance < $amount) {
+            return back()->with('error', 'Insufficient wallet balance.');
+        }
+
+        $balanceBefore = (float) $wallet->balance;
+        $wallet->decrement('balance', $amount);
+
+        WalletTransaction::create([
+            'wallet_id' => $wallet->id,
+            'user_id' => auth()->id(),
+            'amount' => $amount,
+            'balance_before' => $balanceBefore,
+            'balance_after' => (float) $wallet->balance,
+            'type' => 'payment',
+            'description' => 'Payment on order #' . $order->order_number,
+            'status' => 'completed',
+        ]);
+
+        $this->createPaymentTransaction($order, $amount, 'payment', null, 'wallet', 'success');
+
+        // Advance the schedule: the next unpaid installment is marked paid; if
+        // the amount clears the whole balance, recalculate closes out the rest.
+        InstallmentScheduleService::recordPayment(
+            $order,
+            $amount,
+            'wallet',
+            InstallmentScheduleService::nextUnpaid($order)
+        );
+
+        return back()->with('success', 'Payment of ₦' . number_format($amount, 2) . ' received via wallet.');
+    }
+
+    /**
+     * Shared transaction creation for order payments.
+     */
+    private function createPaymentTransaction(
+        Order $order,
+        float $amount,
+        string $type = 'payment',
+        ?InstallmentPayment $installment = null,
+        string $gateway = 'paystack',
+        string $status = 'pending'
+    ): PaymentTransaction {
+        return PaymentTransaction::create([
+            'user_id' => auth()->id(),
+            'order_id' => $order->id,
+            'installment_payment_id' => $installment?->id,
+            'transaction_reference' => strtoupper($type) . '-' . Str::random(12),
+            'gateway' => $gateway,
+            'amount' => $amount,
+            'currency' => 'NGN',
+            'status' => $status,
+            'type' => $type,
+        ]);
     }
 
     public function requestPlanChange(Request $request, Order $order)

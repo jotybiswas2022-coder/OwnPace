@@ -18,6 +18,7 @@ use App\Http\Controllers\admin\ContactController;
 use App\Http\Controllers\admin\SliderController;
 use App\Http\Controllers\admin\PromoCodeController;
 use App\Http\Controllers\admin\AdminProductImportController;
+use App\Http\Controllers\admin\AdminInstallmentPlanController;
 
 Route::prefix('admin')->middleware('admin')->group(function () {
 
@@ -41,6 +42,15 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('/', 'index')->name('admin.products.import');
         Route::post('/', 'store')->name('admin.products.import.store');
         Route::get('/{import}/report', 'report')->name('admin.products.import.report');
+    });
+
+    // ===== INSTALLMENT PLANS =====
+    Route::prefix('plans')->controller(AdminInstallmentPlanController::class)->group(function () {
+        Route::get('/', 'index')->name('admin.plans.index');
+        Route::post('/', 'store')->name('admin.plans.store');
+        Route::get('/{plan}/edit', 'edit')->name('admin.plans.edit');
+        Route::post('/{plan}', 'update')->name('admin.plans.update');
+        Route::post('/{plan}/delete', 'destroy')->name('admin.plans.delete');
     });
 
     // ===== ORDERS =====

@@ -50,6 +50,8 @@
                         ['route' => 'admin.brands.index', 'icon' => 'bi-building', 'label' => 'Brands', 'active' => request()->routeIs('admin.brands.*')],
                         ['route' => 'admin.suppliers.index', 'icon' => 'bi-truck', 'label' => 'Suppliers', 'active' => request()->routeIs('admin.suppliers.*')],
                         ['route' => 'admin.promo-codes.index', 'icon' => 'bi-percent', 'label' => 'Promo Codes', 'active' => request()->routeIs('admin.promo-codes.*')],
+                        ['section' => 'Financing'],
+                        ['route' => 'admin.plans.index', 'icon' => 'bi-calendar2-week', 'label' => 'Installment Plans', 'active' => request()->routeIs('admin.plans.*')],
                         ['section' => 'Orders'],
                         ['route' => 'admin.orders.index', 'icon' => 'bi-receipt', 'label' => 'Orders', 'active' => request()->routeIs('admin.orders.*') && !request()->routeIs('admin.orders.fees*')],
                         ['route' => 'admin.orders.fees', 'icon' => 'bi-cash-coin', 'label' => 'Product Fees', 'active' => request()->routeIs('admin.orders.fees*')],
