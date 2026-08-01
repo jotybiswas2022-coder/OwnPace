@@ -47,6 +47,10 @@ use App\Policies\ProductFeePolicy;
 use App\Policies\DashboardPolicy;
 use App\Policies\AnalyticsPolicy;
 use App\Policies\ContactPolicy;
+use App\Services\Payments\PaymentGatewayManager;
+use App\Services\Payments\PaystackGateway;
+use App\Services\Payments\FlutterwaveGateway;
+use App\Services\Payments\KorapayGateway;
 
 use Illuminate\Support\Facades\Schema;
 
@@ -57,7 +61,19 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Payment gateways are resolved by key through the manager — swapping a
+        // provider means touching this one registration, nowhere else.
+        $this->app->singleton(PaystackGateway::class);
+        $this->app->singleton(FlutterwaveGateway::class);
+        $this->app->singleton(KorapayGateway::class);
+
+        $this->app->singleton(PaymentGatewayManager::class, function ($app) {
+            return new PaymentGatewayManager([
+                'paystack' => $app->make(PaystackGateway::class),
+                'flutterwave' => $app->make(FlutterwaveGateway::class),
+                'korapay' => $app->make(KorapayGateway::class),
+            ]);
+        });
     }
 
     /**

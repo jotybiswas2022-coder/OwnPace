@@ -41,7 +41,7 @@ class AdminOrderController extends Controller
 
     public function show(Order $order)
     {
-        $order->load(['user', 'installmentPlan', 'items.product', 'installmentPayments', 'transactions', 'deliveryAddress', 'deliveryTrackings']);
+        $order->load(['user', 'installmentPlan', 'items.product', 'installmentPayments', 'transactions', 'deliveryAddress', 'deliveryTrackings', 'deliveryProxyUser']);
         return view('backend.orders.show', compact('order'));
     }
 
@@ -58,11 +58,8 @@ class AdminOrderController extends Controller
     {
         $this->authorize('manage', $order);
 
-        $order->update(['delivery_status' => $request->delivery_status]);
-
-        if ($request->delivery_status === 'delivered') {
-            $order->update(['delivered_at' => now()]);
-        }
+        // Records the status change + a timeline event for the customer page.
+        \App\Services\DeliveryStatusService::transition($order, $request->delivery_status);
 
         return back()->with('success', 'Delivery status updated!');
     }

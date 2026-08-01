@@ -14,7 +14,7 @@ class DeliveryStatusRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'delivery_status' => 'required|in:pending,processing,shipped,in_transit,out_for_delivery,delivered,failed',
+            'delivery_status' => 'required|in:pending,eligible,processing,shipped,in_transit,out_for_delivery,delivered,failed',
         ];
     }
 }

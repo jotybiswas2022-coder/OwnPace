@@ -347,6 +347,35 @@
                             </div>
                         @endif
                         @error('delivery_address_id')<small class="fp-chk-field-error">{{ $message }}</small>@enderror
+
+                        <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--card-border);">
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#addCheckoutAddress" class="fp-btn fp-btn-ghost" style="font-size:12px;">
+                                <i class="bi bi-plus-lg"></i> Add a new address
+                            </a>
+                        </div>
+
+                        {{-- ===== DELIVERY PROXY ===== --}}
+                        <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--card-border);">
+                            <h5 class="fp-chk-card-title" style="margin-bottom:8px;"><i class="bi bi-person-check"></i> Receive for Someone Else?</h5>
+                            <p style="color:var(--text-dim);font-size:12px;margin-bottom:10px;">
+                                Assign another store member to receive this delivery on your behalf.
+                            </p>
+                            <input type="hidden" name="delivery_proxy_user_id" id="deliveryProxyUserId" value="{{ old('delivery_proxy_user_id') }}">
+                            <div class="fp-partial-form" style="display:flex;gap:8px;">
+                                <input type="text" id="proxySearchInput" placeholder="Search by phone, email or name"
+                                       style="flex:1;background:var(--surface-dark);border:1.5px solid var(--card-border);color:var(--text-primary);padding:10px 12px;border-radius:var(--radius-sm);font-size:13px;outline:none;min-width:0;">
+                                <button type="button" class="fp-action-btn outline" style="padding:10px 16px;font-size:12px;" id="proxySearchBtn">
+                                    <i class="bi bi-search"></i> Find
+                                </button>
+                            </div>
+                            <div id="proxyResults" style="margin-top:10px;"></div>
+                            <div id="proxyAssigned" style="margin-top:10px;display:none;">
+                                <div class="fp-chk-promo-applied">
+                                    <span><i class="bi bi-person-check-fill"></i> <strong id="proxyAssignedName"></strong> will receive your delivery</span>
+                                    <a href="#" id="proxyClear" style="color:#ef4444;font-size:11px;text-decoration:none;">Remove</a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="fp-chk-card reveal-left" style="transition-delay:0.2s;">
@@ -478,13 +507,17 @@
                             </div>
                             @endif
                             <div class="fp-chk-total-line">
-                                <span>Shipping</span>
-                                <span style="color:var(--gold-400);">Calculated at checkout</span>
+                                <span>Delivery fee</span>
+                                <span class="fp-mono" style="color:var(--gold-400);">₦{{ number_format((float) $shippingFee, 2) }}</span>
                             </div>
                             <div class="fp-chk-total-line final">
                                 <span>Total</span>
-                                <span>₦{{ number_format(max($total - $discount, 0), 0) }}</span>
+                                <span class="fp-mono">₦{{ number_format(max($total - $discount + $shippingFee, 0), 0) }}</span>
                             </div>
+                            <p style="margin-top:12px;padding:10px 12px;background:rgba(234,179,8,0.05);border:1px dashed rgba(234,179,8,0.25);border-radius:var(--radius-sm);font-size:11px;color:var(--text-dim);line-height:1.6;">
+                                <i class="bi bi-truck-front-fill" style="color:var(--gold-500);"></i>
+                                Your delivery fee is included here and covered within your first 70% of payments — it is never charged as a separate line later.
+                            </p>
                         </div>
 
                         <button type="submit" class="fp-chk-place-btn" id="placeOrderBtn">
@@ -511,6 +544,34 @@
 
 @include('frontend.partials.footer')
 @endsection
+
+{{-- ===== ADD-ADDRESS MODAL (keeps checkout to one page) ===== --}}
+<div class="modal fade" id="addCheckoutAddress" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background:var(--card-dark);border:1px solid var(--card-border);border-radius:var(--radius-lg);">
+            <div class="modal-header" style="border-bottom:1px solid var(--card-border);padding:20px 24px;">
+                <h5 class="modal-title" style="color:var(--text-primary);font-family:'Syne',sans-serif;font-size:16px;font-weight:700;"><i class="bi bi-geo-alt-fill" style="color:var(--gold-500);"></i> Add Delivery Address</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ route('profile.addresses.store') }}">
+                @csrf
+                <div class="modal-body" style="padding:24px;">
+                    <div class="row g-3">
+                        <div class="col-6"><input type="text" name="recipient_name" class="fp-chk-select" style="padding:10px 12px;" placeholder="Recipient name" required></div>
+                        <div class="col-6"><input type="text" name="label" class="fp-chk-select" style="padding:10px 12px;" placeholder="Label (Home, Office)"></div>
+                        <div class="col-12"><input type="text" name="address_line1" class="fp-chk-select" style="padding:10px 12px;" placeholder="Street address" required></div>
+                        <div class="col-6"><input type="text" name="city" class="fp-chk-select" style="padding:10px 12px;" placeholder="City" required></div>
+                        <div class="col-6"><input type="text" name="state" class="fp-chk-select" style="padding:10px 12px;" placeholder="State" required></div>
+                        <div class="col-12"><input type="text" name="phone" class="fp-chk-select" style="padding:10px 12px;" placeholder="Phone number" required></div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top:1px solid var(--card-border);padding:16px 24px;">
+                    <button type="submit" class="btn-primary-gold w-100 justify-content-center">Save Address</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 <script>
 function selectAddr(el, id) {
@@ -550,4 +611,82 @@ document.getElementById('checkoutForm')?.addEventListener('submit', function(e) 
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner-border spinner-border-sm" style="width:16px;height:16px;"></span> Processing...';
 });
+
+// ===== DELIVERY PROXY: search a registered user, confirm, assign =====
+(function () {
+    const searchInput = document.getElementById('proxySearchInput');
+    const searchBtn = document.getElementById('proxySearchBtn');
+    const results = document.getElementById('proxyResults');
+    const assigned = document.getElementById('proxyAssigned');
+    const assignedName = document.getElementById('proxyAssignedName');
+    const hidden = document.getElementById('deliveryProxyUserId');
+    const clearBtn = document.getElementById('proxyClear');
+    const csrf = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
+
+    async function search() {
+        const q = searchInput.value.trim();
+        if (q.length < 3) { results.innerHTML = '<small style="color:var(--text-dim);font-size:12px;">Type at least 3 characters to search.</small>'; return; }
+        searchBtn.disabled = true;
+        searchBtn.innerHTML = '<span class="spinner-border spinner-border-sm" style="width:12px;height:12px;"></span>';
+        try {
+            const res = await fetch('/checkout/proxy/search?q=' + encodeURIComponent(q), {
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrf }
+            });
+            const data = await res.json();
+            renderResults(data.users || []);
+        } catch (e) {
+            results.innerHTML = '<small style="color:#ef4444;font-size:12px;">Could not search. Try again.</small>';
+        } finally {
+            searchBtn.disabled = false;
+            searchBtn.innerHTML = '<i class="bi bi-search"></i> Find';
+        }
+    }
+
+    function renderResults(users) {
+        if (!users.length) {
+            results.innerHTML = '<small style="color:var(--text-dim);font-size:12px;">No matching store members found.</small>';
+            return;
+        }
+        results.innerHTML = users.map(u => `
+            <div class="fp-chk-radio-card mb-2" style="padding:12px 14px;cursor:default;">
+                <div style="flex:1;min-width:0;">
+                    <strong style="color:var(--text-primary);font-size:13px;display:block;">${esc(u.name)}</strong>
+                    <span style="color:var(--text-dim);font-size:12px;">${esc(u.email || '')}${u.phone ? ' · ' + esc(u.phone) : ''}</span>
+                </div>
+                <button type="button" class="fp-btn fp-btn-gold" data-id="${u.id}" data-name="${escAttr(u.name)}" style="padding:6px 14px;font-size:12px;flex-shrink:0;">Assign</button>
+            </div>
+        `).join('');
+        results.querySelectorAll('button[data-id]').forEach(btn => {
+            btn.addEventListener('click', () => confirmAssign(btn.dataset.id, btn.dataset.name));
+        });
+    }
+
+    function confirmAssign(id, name) {
+        // Confirmation step before the proxy is actually assigned.
+        const ok = window.confirm('Assign ' + name + ' to receive this delivery on your behalf?');
+        if (!ok) return;
+        hidden.value = id;
+        assignedName.textContent = name;
+        assigned.style.display = 'block';
+        results.innerHTML = '';
+        searchInput.value = '';
+    }
+
+    function esc(s) {
+        const d = document.createElement('div');
+        d.textContent = s || '';
+        return d.innerHTML;
+    }
+    function escAttr(s) {
+        return esc(s).replace(/"/g, '&quot;');
+    }
+
+    searchBtn?.addEventListener('click', search);
+    searchInput?.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); search(); } });
+    clearBtn?.addEventListener('click', e => {
+        e.preventDefault();
+        hidden.value = '';
+        assigned.style.display = 'none';
+    });
+})();
 </script>

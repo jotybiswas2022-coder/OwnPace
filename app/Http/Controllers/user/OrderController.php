@@ -9,6 +9,7 @@ use App\Models\InstallmentPlan;
 use App\Models\InstallmentPayment;
 use App\Models\PlanChangeRequest;
 use App\Models\PaymentTransaction;
+use App\Models\Review;
 use App\Models\Wallet;
 use App\Models\WalletTransaction;
 use App\Services\InstallmentCalculatorService;
@@ -49,10 +50,16 @@ class OrderController extends Controller
             'transactions',
             'deliveryAddress',
             'deliveryTrackings',
+            'deliveryProxyUser',
         ]);
 
         $nextPayment = InstallmentScheduleService::nextUnpaid($order);
         $nextLateFee = $nextPayment ? InstallmentScheduleService::lateFeeFor($nextPayment) : 0.0;
+
+        $deliveryReviewDone = Review::where('user_id', auth()->id())
+            ->where('order_id', $order->id)
+            ->where('reviewable_type', 'delivery')
+            ->exists();
 
         return view('frontend.order.show', compact('order'))->with([
             'nextPayment' => $nextPayment,
@@ -61,7 +68,64 @@ class OrderController extends Controller
             'progressPct' => InstallmentCalculatorService::progressPercent($order->paid_amount, $order->grand_total),
             'progressLabel' => InstallmentScheduleService::progressLabel($order),
             'walletBalance' => (float) (auth()->user()->wallet?->balance ?? 0),
+            'deliveryReviewDone' => $deliveryReviewDone,
         ]);
+    }
+
+    /**
+     * One-time post-delivery review: rate the delivery person and satisfaction
+     * with the product. The reviews table's unique constraint keeps it to once.
+     */
+    public function submitReview(Request $request, Order $order)
+    {
+        if ($order->user_id !== auth()->id()) {
+            abort(404);
+        }
+
+        if ($order->delivery_status !== 'delivered') {
+            return back()->with('error', 'You can only review after delivery.');
+        }
+
+        $request->validate([
+            'delivery_rating' => 'required|integer|min:1|max:5',
+            'delivery_comment' => 'nullable|string|max:1000',
+            'product_rating' => 'nullable|integer|min:1|max:5',
+            'product_comment' => 'nullable|string|max:1000',
+        ]);
+
+        // Delivery person rating — reviewable_id is the order (no delivery
+        // entity exists); the unique constraint blocks a second submission.
+        Review::updateOrCreate(
+            [
+                'user_id' => auth()->id(),
+                'order_id' => $order->id,
+                'reviewable_type' => 'delivery',
+                'reviewable_id' => $order->id,
+            ],
+            [
+                'rating' => $request->delivery_rating,
+                'comment' => $request->delivery_comment,
+            ]
+        );
+
+        // Product satisfaction — rated on the first item, once per product.
+        $product = $order->items->first()?->product;
+        if ($product && $request->filled('product_rating')) {
+            Review::updateOrCreate(
+                [
+                    'user_id' => auth()->id(),
+                    'order_id' => $order->id,
+                    'reviewable_type' => 'product',
+                    'reviewable_id' => $product->id,
+                ],
+                [
+                    'rating' => $request->product_rating,
+                    'comment' => $request->product_comment,
+                ]
+            );
+        }
+
+        return back()->with('success', 'Thanks for your feedback!');
     }
 
     /**
@@ -96,6 +160,7 @@ class OrderController extends Controller
             'label' => 'Installment #' . $payment->installment_number . ' of ' . $order->installmentPlan?->duration,
             'amount' => $amount,
             'late_fee' => $lateFee,
+            'installment_payment_id' => $payment->id,
         ]]);
 
         return redirect()->route('payment.gateway', $order->id)

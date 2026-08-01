@@ -17,6 +17,7 @@ use App\Models\InsuranceSetting;
 use App\Models\PromoCode;
 use App\Services\InstallmentCalculatorService;
 use App\Services\InstallmentScheduleService;
+use App\Services\Payments\PaymentGatewayManager;
 use Illuminate\Support\Str;
 
 class CheckoutController extends Controller
@@ -77,6 +78,7 @@ class CheckoutController extends Controller
             'has_insurance' => 'boolean',
             'payment_method' => 'required|in:wallet,paystack,flutterwave,korapay',
             'agree_terms' => 'required|accepted',
+            'delivery_proxy_user_id' => 'nullable|integer|min:1|exists:users,id',
         ]);
 
         $cart = session()->get('cart', []);
@@ -145,6 +147,7 @@ class CheckoutController extends Controller
             'payment_type' => $request->payment_type,
             'has_insurance' => $request->has_insurance ?? false,
             'delivery_address_id' => $request->delivery_address_id,
+            'delivery_proxy_user_id' => $request->delivery_proxy_user_id,
         ]);
 
         // Create order items
@@ -172,47 +175,127 @@ class CheckoutController extends Controller
             return $this->processWalletPayment($order);
         }
 
-        // Create transaction with selected gateway
-        PaymentTransaction::create([
+        // Fast fintech checkout — the amount due NOW is the first installment
+        // (down payment) for installment orders, or the full total for Pay Once.
+        // The chosen gateway is initialized immediately, no separate step.
+        $targetInstallment = $request->payment_type === 'installment' && $installmentPlan
+            ? $order->installmentPayments()->orderBy('installment_number')->first()
+            : null;
+
+        $dueNow = $targetInstallment
+            ? (float) $targetInstallment->amount
+            : (float) $order->grand_total;
+
+        $transaction = PaymentTransaction::create([
             'order_id' => $order->id,
             'user_id' => auth()->id(),
-            'amount' => $order->remaining_amount ?? $order->grand_total,
+            'amount' => $dueNow,
+            'installment_payment_id' => $targetInstallment?->id,
             'transaction_reference' => 'TXN-' . strtoupper(Str::random(15)),
             'gateway' => $request->payment_method,
             'status' => 'pending',
         ]);
 
-        return redirect()->route('order.confirmation', $order->id)
-            ->with('success', 'Order placed successfully!');
+        try {
+            $result = app(PaymentGatewayManager::class)
+                ->driver($request->payment_method)
+                ->initialize($transaction);
+
+            if ($result['success'] && $result['url']) {
+                return redirect($result['url']);
+            }
+        } catch (\Throwable $e) {
+            // Gateway unavailable — log it and fall through to the gateway page.
+            report($e);
+        }
+
+        // Fallback: let the customer pick a gateway on the payment page.
+        session(['pending_payment' => [
+            'label' => $targetInstallment ? 'First installment (down payment)' : 'Order total',
+            'amount' => $dueNow,
+            'late_fee' => 0,
+            'installment_payment_id' => $targetInstallment?->id,
+        ]]);
+
+        return redirect()->route('payment.gateway', $order->id)
+            ->with('info', 'Choose a payment method below to complete your order.');
     }
 
     private function processWalletPayment(Order $order)
     {
         $wallet = auth()->user()->wallet;
-        if (!$wallet || $wallet->balance < $order->grand_total) {
+
+        // Amount due now: the first unpaid installment for installment orders,
+        // the full total for Pay Once — never the whole balance on an installment.
+        $target = InstallmentScheduleService::nextUnpaid($order);
+        $dueNow = $order->payment_type === 'installment' && $target
+            ? (float) $target->amount
+            : (float) $order->grand_total;
+
+        if (!$wallet || (float) $wallet->balance < $dueNow) {
+            // Keep the amount due-now consistent — stage it so the gateway page
+            // doesn't fall back to the full remaining balance on an installment.
+            session(['pending_payment' => [
+                'label' => $target ? 'First installment (down payment)' : 'Order total',
+                'amount' => $dueNow,
+                'late_fee' => 0,
+                'installment_payment_id' => $target?->id,
+            ]]);
+
             return redirect()->route('payment.gateway', $order->id)
                 ->with('error', 'Insufficient wallet balance.');
         }
 
         $balanceBefore = $wallet->balance;
-        $wallet->decrement('balance', $order->grand_total);
+        $wallet->decrement('balance', $dueNow);
 
         \App\Models\WalletTransaction::create([
             'wallet_id' => $wallet->id,
             'user_id' => auth()->id(),
-            'amount' => $order->grand_total,
+            'amount' => $dueNow,
             'balance_before' => $balanceBefore,
             'balance_after' => $wallet->balance,
             'type' => 'payment',
-            'description' => 'Payment for order #' . $order->order_number,
+            'description' => 'Down payment for order #' . $order->order_number,
             'status' => 'completed',
         ]);
 
-        // Advance the schedule by the full amount — closes out every row.
-        InstallmentScheduleService::recordPayment($order, (float) $order->grand_total, 'wallet');
+        // Mark the first unpaid installment paid, or close out for Pay Once.
+        InstallmentScheduleService::recordPayment(
+            $order,
+            $dueNow,
+            'wallet',
+            $order->payment_type === 'installment' ? $target : null
+        );
 
         return redirect()->route('order.confirmation', $order->id)
             ->with('success', 'Payment successful via Wallet!');
+    }
+
+    /**
+     * Search registered store users by phone/email/name to assign as the
+     * delivery proxy. Never returns the current user.
+     */
+    public function searchProxy(Request $request)
+    {
+        $request->validate(['q' => 'required|string|max:100']);
+
+        $q = trim($request->q);
+        if (mb_strlen($q) < 3) {
+            return response()->json(['users' => []]);
+        }
+
+        $users = \App\Models\User::where('id', '!=', auth()->id())
+            ->where('is_active', true)
+            ->where(function ($query) use ($q) {
+                $query->where('name', 'like', "%{$q}%")
+                    ->orWhere('email', 'like', "%{$q}%")
+                    ->orWhere('phone', 'like', "%{$q}%");
+            })
+            ->limit(8)
+            ->get(['id', 'name', 'email', 'phone']);
+
+        return response()->json(['users' => $users]);
     }
 
     public function paymentGateway(Order $order)
@@ -226,21 +309,50 @@ class CheckoutController extends Controller
             'gateway' => 'required|in:paystack,flutterwave,korapay',
         ]);
 
-        // The pending amount (next installment / partial / full) was already
-        // staged by OrderController — clear it so a revisit can't show stale numbers.
+        // The exact amount was staged by OrderController (next installment /
+        // partial / full). Capture it BEFORE clearing so a revisit can't show
+        // stale numbers and so we never charge the full balance by mistake.
+        $pending = session('pending_payment');
+
+        // Due-now semantics: the staged amount wins; otherwise an installment
+        // order is due its next installment (+ late fee), never the whole
+        // remaining balance; pay-once orders fall back to the full balance.
+        $dueFallback = $order->payment_type === 'installment'
+            ? InstallmentScheduleService::nextDueAmount($order)
+            : 0;
+
+        $amount = $pending['amount']
+            ?? ($dueFallback > 0 ? $dueFallback : $order->remaining_amount)
+            ?? $order->grand_total;
+
+        $installmentPaymentId = $pending['installment_payment_id'] ?? null;
         session()->forget('pending_payment');
 
         $transaction = PaymentTransaction::create([
             'order_id' => $order->id,
             'user_id' => auth()->id(),
-            'amount' => $order->remaining_amount ?? $order->grand_total,
+            'amount' => $amount,
+            'installment_payment_id' => $installmentPaymentId,
             'transaction_reference' => 'TXN-' . strtoupper(Str::random(15)),
             'gateway' => $request->gateway,
             'status' => 'pending',
         ]);
 
+        // Hand off to the gateway adapter — one interface, any provider.
+        try {
+            $result = app(PaymentGatewayManager::class)
+                ->driver($request->gateway)
+                ->initialize($transaction);
+        } catch (\Throwable $e) {
+            $result = ['success' => false, 'url' => null, 'message' => 'Payment could not be started. Please try again.'];
+        }
+
+        if ($result['success'] && $result['url']) {
+            return redirect($result['url']);
+        }
+
         return redirect()->route('order.confirmation', $order->id)
-            ->with('success', 'Order placed successfully!');
+            ->with('error', $result['message'] ?? 'Payment could not be initialized. Please try again.');
     }
 
     public function applyPromoCode(Request $request)

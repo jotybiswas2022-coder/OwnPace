@@ -148,6 +148,19 @@
     padding:32px 20px 24px; text-align:center;
 }
 .fp-ring-copy { color:var(--text-muted); font-size:14px; max-width:340px; margin-top:18px; line-height:1.6; }
+.fp-shippable-badge {
+    display: flex; align-items: center; gap: 12px;
+    margin-top: 16px; padding: 12px 18px;
+    background: rgba(74,222,128,0.08);
+    border: 1px solid rgba(74,222,128,0.3);
+    border-radius: var(--radius-sm); text-align: left;
+    max-width: 360px;
+}
+.fp-shippable-badge i { font-size: 22px; color: #4ade80; flex-shrink: 0; }
+.fp-shippable-badge strong { display: block; color: #4ade80; font-size: 13px; }
+.fp-shippable-badge small { color: var(--text-dim); font-size: 11px; }
+.fp-star-input .bi-star-fill { color: var(--gold-500); text-shadow: 0 0 12px rgba(234,179,8,0.4); }
+
 .fp-ring-stats {
     display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:20px;
 }
@@ -220,6 +233,15 @@
                             :size="220"
                             :stroke="14"
                         />
+                        @if($order->isEligibleForShipping() && $order->delivery_status !== 'delivered')
+                        <div class="fp-shippable-badge">
+                            <i class="bi bi-truck-front-fill"></i>
+                            <div>
+                                <strong>Your item can be shipped here</strong>
+                                <small>You've reached {{ \App\Services\DeliveryStatusService::thresholdPercent() }}% paid — delivery is unlocked.</small>
+                            </div>
+                        </div>
+                        @endif
                         <p class="fp-ring-copy">{{ $progressLabel }}</p>
                         <div class="fp-ring-stats">
                             <div class="fp-ring-stat">
@@ -329,6 +351,9 @@
                             <div class="col-md-4"><label>Remaining</label><span class="fp-mono">₦{{ number_format((float) $order->remaining_amount, 2) }}</span></div>
                             <div class="col-md-4"><label>Payment Plan</label><span>{{ $order->installmentPlan?->name ?? ($order->payment_type === 'full' ? 'Paid in full' : '—') }}</span></div>
                             <div class="col-md-4"><label>Delivery Status</label><span>{{ ucfirst(str_replace('_', ' ', $order->delivery_status ?? 'pending')) }}</span></div>
+                            @if($order->deliveryProxyUser)
+                            <div class="col-md-4"><label>Delivery Proxy</label><span>{{ $order->deliveryProxyUser->name }} <small style="display:block;color:var(--text-dim);font-size:11px;">{{ $order->deliveryProxyUser->phone ?? $order->deliveryProxyUser->email }}</small></span></div>
+                            @endif
                         </div>
                         @if($order->installmentPlan && $order->interest_amount > 0)
                         <div style="margin-top:14px;padding:12px 16px;background:var(--surface-dark);border-radius:var(--radius-sm);font-size:12px;color:var(--text-dim);">
@@ -340,6 +365,100 @@
                         @endif
                     </div>
                 </div>
+
+                {{-- ===== DELIVERY TRACKING TIMELINE ===== --}}
+                @if($order->deliveryTrackings && $order->deliveryTrackings->count() > 0)
+                <div class="fp-detail-card mt-4 reveal-left" style="transition-delay:0.12s;">
+                    <div class="fp-dc-header">
+                        <h4><i class="bi bi-truck-front-fill"></i> Delivery tracking</h4>
+                        @if($order->delivery_status === 'delivered')
+                            <span class="fp-order-status completed">Delivered</span>
+                        @elseif($order->delivery_status === 'eligible')
+                            <span class="fp-order-status" style="background:rgba(74,222,128,0.15);color:#4ade80;">Eligible</span>
+                        @else
+                            <span class="fp-order-status {{ $order->delivery_status ?? 'pending' }}">{{ ucfirst(str_replace('_', ' ', $order->delivery_status ?? 'pending')) }}</span>
+                        @endif
+                    </div>
+                    <div style="padding:24px 20px;">
+                        @php
+                            $steps = [
+                                ['key' => 'processing', 'icon' => 'bi-gear-fill', 'label' => 'Processing', 'desc' => 'Your order is being prepared'],
+                                ['key' => 'shipped', 'icon' => 'bi-truck-front-fill', 'label' => 'Shipped', 'desc' => 'On its way to you'],
+                                ['key' => 'delivered', 'icon' => 'bi-check-circle-fill', 'label' => 'Delivered', 'desc' => 'Handed over to you'],
+                            ];
+                            $current = $order->delivery_status ?? 'pending';
+                            $reached = ['processing' => $current !== 'pending', 'shipped' => in_array($current, ['shipped','in_transit','out_for_delivery','delivered','failed']), 'delivered' => in_array($current, ['delivered']) || ($current === 'failed')];
+                        @endphp
+                        <div style="display:flex;align-items:flex-start;gap:0;">
+                            @foreach($steps as $i => $st)
+                            <div style="flex:1;text-align:center;position:relative;">
+                                @if($i < count($steps) - 1)
+                                <div style="position:absolute;top:18px;left:calc(50% + 22px);right:calc(-50% + 22px);height:2px;background:{{ $reached[$steps[$i+1]['key']] ? '#4ade80' : 'var(--card-border)' }};"></div>
+                                @endif
+                                <div style="width:38px;height:38px;border-radius:50%;margin:0 auto 8px;display:flex;align-items:center;justify-content:center;font-size:15px;background:{{ $reached[$st['key']] ? 'linear-gradient(135deg,var(--gold-500),var(--gold-600))' : 'var(--surface-dark)' }};color:{{ $reached[$st['key']] ? 'var(--near-black)' : 'var(--text-dim)' }};border:1px solid {{ $reached[$st['key']] ? 'transparent' : 'var(--card-border)' }};box-shadow:{{ ($current === $st['key']) ? '0 0 0 6px rgba(234,179,8,0.12)' : 'none' }};">
+                                    <i class="bi {{ $st['icon'] }}"></i>
+                                </div>
+                                <strong style="display:block;font-size:12px;color:var(--text-primary);">{{ $st['label'] }}</strong>
+                                <small style="font-size:10px;color:var(--text-dim);">{{ $reached[$st['key']] ? $st['desc'] : 'Pending' }}</small>
+                            </div>
+                            @endforeach
+                        </div>
+
+                        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--card-border);">
+                            @foreach($order->deliveryTrackings->sortByDesc('tracked_at') as $dt)
+                            <div class="fp-tracking-item">
+                                <div class="fp-tracking-dot {{ $dt->status === 'delivered' || $dt->status === 'eligible' ? 'completed' : ($dt->status === 'shipped' ? 'shipped' : 'pending') }}"></div>
+                                <div>
+                                    <strong style="color:var(--text-primary);font-size:13px;">{{ $dt->description }}</strong>
+                                    <small style="display:block;color:var(--text-dim);font-size:11px;">{{ ($dt->tracked_at ?? $dt->created_at)->format('M d, Y h:i A') }}</small>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+                @endif
+
+                {{-- ===== POST-DELIVERY REVIEW PROMPT (once) ===== --}}
+                @if($order->delivery_status === 'delivered' && !$deliveryReviewDone)
+                <div class="fp-detail-card mt-4 reveal-left" style="transition-delay:0.14s;border-color:rgba(74,222,128,0.3);">
+                    <div class="fp-dc-header">
+                        <h4><i class="bi bi-stars" style="color:#4ade80;"></i> How was your delivery?</h4>
+                    </div>
+                    <div class="fp-dc-body">
+                        <form action="{{ route('orders.review', $order) }}" method="POST">
+                            @csrf
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label style="display:block;font-size:11px;color:var(--text-dim);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Delivery person</label>
+                                    <div class="fp-star-input" data-target="delivery_rating">
+                                        @for($s = 1; $s <= 5; $s++)
+                                        <i class="bi bi-star" data-star="{{ $s }}" style="font-size:22px;cursor:pointer;color:var(--card-border);transition:all 0.2s;"></i>
+                                        @endfor
+                                    </div>
+                                    <input type="hidden" name="delivery_rating" id="delivery_rating" value="5">
+                                </div>
+                                <div class="col-md-6">
+                                    <label style="display:block;font-size:11px;color:var(--text-dim);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Product satisfaction</label>
+                                    <div class="fp-star-input" data-target="product_rating">
+                                        @for($s = 1; $s <= 5; $s++)
+                                        <i class="bi bi-star" data-star="{{ $s }}" style="font-size:22px;cursor:pointer;color:var(--card-border);transition:all 0.2s;"></i>
+                                        @endfor
+                                    </div>
+                                    <input type="hidden" name="product_rating" id="product_rating" value="5">
+                                </div>
+                                <div class="col-12">
+                                    <label style="display:block;font-size:11px;color:var(--text-dim);margin-bottom:6px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Comments (optional)</label>
+                                    <input type="text" name="delivery_comment" class="fp-chk-select" style="padding:10px 12px;" placeholder="Anything to share about the delivery or the product?">
+                                </div>
+                                <div class="col-12">
+                                    <button type="submit" class="fp-action-btn gold"><i class="bi bi-stars"></i> Submit feedback</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                @endif
 
                 {{-- ===== ORDER ITEMS ===== --}}
                 <div class="fp-detail-card mt-4 reveal-left" style="transition-delay:0.15s;">
@@ -483,6 +602,22 @@ document.addEventListener('DOMContentLoaded', function() {
     @if(session('info'))
         swalDark.fire({ icon:'info', title:'Info', text:"{{ session('info') }}" });
     @endif
+
+    // Star ratings for the post-delivery review prompt
+    document.querySelectorAll('.fp-star-input').forEach(group => {
+        const targetId = group.dataset.target;
+        const input = document.getElementById(targetId);
+        const stars = group.querySelectorAll('i[data-star]');
+        const paint = (value) => {
+            stars.forEach(s => s.classList.toggle('bi-star-fill', parseInt(s.dataset.star) <= value));
+            stars.forEach(s => s.classList.toggle('bi-star', parseInt(s.dataset.star) > value));
+        };
+        stars.forEach(star => {
+            star.addEventListener('mouseenter', () => paint(parseInt(star.dataset.star)));
+            star.addEventListener('click', () => { input.value = star.dataset.star; paint(parseInt(star.dataset.star)); });
+        });
+        group.addEventListener('mouseleave', () => paint(parseInt(input.value || 5)));
+    });
 
     document.getElementById('cancelOrderBtn')?.addEventListener('click', function() {
         swalDark.fire({

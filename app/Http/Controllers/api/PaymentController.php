@@ -9,212 +9,126 @@ use App\Models\Order;
 use App\Models\InstallmentPayment;
 use App\Models\Wallet;
 use App\Models\WalletTransaction;
-use App\Models\Setting;
 use App\Services\InstallmentScheduleService;
-use Illuminate\Support\Facades\Http;
+use App\Services\Payments\PaymentGatewayManager;
 
+/**
+ * PaymentController — gateway-agnostic. Every provider-specific call is
+ * delegated to the PaymentGatewayInterface adapters via PaymentGatewayManager,
+ * so adding or removing a gateway is a one-file change.
+ */
 class PaymentController extends Controller
 {
-    // ===== PAYSTACK =====
-    public function paystackInitialize(Request $request)
+    public function __construct(private PaymentGatewayManager $gateways)
+    {
+    }
+
+    // ===== INITIALIZE (shared by all gateways) =====
+    public function initialize(Request $request)
     {
         $request->validate([
             'transaction_reference' => 'required|exists:payment_transactions,transaction_reference',
+            'gateway' => 'required|string',
         ]);
 
         $transaction = PaymentTransaction::where('transaction_reference', $request->transaction_reference)
             ->firstOrFail();
 
-        $settings = Setting::first();
-        $gatewayConfig = json_decode($settings?->gateway_config ?? '{}', true);
-        $secretKey = $gatewayConfig['paystack_secret'] ?? env('PAYSTACK_SECRET_KEY');
+        if (!$this->gateways->has($request->gateway)) {
+            return response()->json(['success' => false, 'message' => 'Unknown gateway'], 400);
+        }
 
-        $response = Http::withToken($secretKey)
-            ->post('https://api.paystack.co/transaction/initialize', [
-                'email' => auth()->user()->email,
-                'amount' => $transaction->amount * 100, // Paystack uses kobo
-                'reference' => $transaction->transaction_reference,
-                'callback_url' => route('payment.paystack.callback'),
-                'metadata' => [
-                    'transaction_id' => $transaction->id,
-                    'user_id' => auth()->id(),
-                ],
-            ]);
+        $result = $this->gateways->driver($request->gateway)->initialize($transaction);
 
-        if ($response->successful() && $response['status']) {
-            $transaction->update([
-                'gateway_reference' => $response['data']['reference'],
-                'gateway' => 'paystack',
-            ]);
-
+        if ($result['success']) {
             return response()->json([
                 'success' => true,
-                'authorization_url' => $response['data']['authorization_url'],
+                'url' => $result['url'],
             ]);
         }
 
-        return response()->json(['success' => false, 'message' => $response['message'] ?? 'Payment initialization failed'], 400);
+        return response()->json([
+            'success' => false,
+            'message' => $result['message'] ?? 'Payment initialization failed',
+        ], 400);
     }
 
+    // ===== CALLBACKS =====
     public function paystackCallback(Request $request)
     {
-        $reference = $request->reference;
-        $transaction = PaymentTransaction::where('transaction_reference', $reference)->first();
+        $transaction = PaymentTransaction::where('transaction_reference', $request->reference)->first();
 
         if (!$transaction) {
             return redirect('/')->with('error', 'Transaction not found.');
         }
 
-        $settings = Setting::first();
-        $gatewayConfig = json_decode($settings?->gateway_config ?? '{}', true);
-        $secretKey = $gatewayConfig['paystack_secret'] ?? env('PAYSTACK_SECRET_KEY');
+        $result = $this->gateways->driver('paystack')->verify($transaction, $request->all());
 
-        $response = Http::withToken($secretKey)
-            ->get("https://api.paystack.co/transaction/verify/{$reference}");
-
-        if ($response->successful() && $response['status'] && $response['data']['status'] === 'success') {
-            return $this->completePayment($transaction, $response['data']);
+        if ($result['success']) {
+            return $this->completePayment($transaction, $result['data']);
         }
 
-        $transaction->update(['status' => 'failed', 'gateway_response' => $response->json()]);
+        $transaction->update(['status' => 'failed', 'gateway_response' => $result['data']]);
         return redirect()->route('profile.index')->with('error', 'Payment verification failed.');
-    }
-
-    // ===== FLUTTERWAVE =====
-    public function flutterwaveInitialize(Request $request)
-    {
-        $request->validate([
-            'transaction_reference' => 'required|exists:payment_transactions,transaction_reference',
-        ]);
-
-        $transaction = PaymentTransaction::where('transaction_reference', $request->transaction_reference)
-            ->firstOrFail();
-
-        $settings = Setting::first();
-        $gatewayConfig = json_decode($settings?->gateway_config ?? '{}', true);
-        $secretKey = $gatewayConfig['flutterwave_secret'] ?? env('FLUTTERWAVE_SECRET_KEY');
-
-        $response = Http::withToken($secretKey)
-            ->post('https://api.flutterwave.com/v3/payments', [
-                'tx_ref' => $transaction->transaction_reference,
-                'amount' => $transaction->amount,
-                'currency' => $transaction->currency,
-                'redirect_url' => route('payment.flutterwave.callback'),
-                'customer' => [
-                    'email' => auth()->user()->email,
-                    'name' => auth()->user()->name,
-                ],
-                'meta' => [
-                    'transaction_id' => $transaction->id,
-                ],
-            ]);
-
-        if ($response->successful() && $response['status'] === 'success') {
-            $transaction->update([
-                'gateway_reference' => $response['data']['id'] ?? null,
-                'gateway' => 'flutterwave',
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'link' => $response['data']['link'],
-            ]);
-        }
-
-        return response()->json(['success' => false, 'message' => 'Payment initialization failed'], 400);
     }
 
     public function flutterwaveCallback(Request $request)
     {
-        $transactionId = $request->transaction_id;
-        $transaction = PaymentTransaction::find($transactionId);
+        $transaction = PaymentTransaction::find($request->transaction_id);
 
         if (!$transaction) {
             return redirect('/')->with('error', 'Transaction not found.');
         }
 
-        $settings = Setting::first();
-        $gatewayConfig = json_decode($settings?->gateway_config ?? '{}', true);
-        $secretKey = $gatewayConfig['flutterwave_secret'] ?? env('FLUTTERWAVE_SECRET_KEY');
+        $result = $this->gateways->driver('flutterwave')->verify($transaction, $request->all());
 
-        $response = Http::withToken($secretKey)
-            ->get("https://api.flutterwave.com/v3/transactions/{$transaction->gateway_reference}/verify");
-
-        if ($response->successful() && $response['status'] === 'success' && $response['data']['status'] === 'successful') {
-            return $this->completePayment($transaction, $response['data']);
+        if ($result['success']) {
+            return $this->completePayment($transaction, $result['data']);
         }
 
-        $transaction->update(['status' => 'failed', 'gateway_response' => $response->json()]);
+        $transaction->update(['status' => 'failed', 'gateway_response' => $result['data']]);
         return redirect()->route('profile.index')->with('error', 'Payment verification failed.');
-    }
-
-    // ===== KORAPAY =====
-    public function korapayInitialize(Request $request)
-    {
-        $request->validate([
-            'transaction_reference' => 'required|exists:payment_transactions,transaction_reference',
-        ]);
-
-        $transaction = PaymentTransaction::where('transaction_reference', $request->transaction_reference)
-            ->firstOrFail();
-
-        $settings = Setting::first();
-        $gatewayConfig = json_decode($settings?->gateway_config ?? '{}', true);
-        $secretKey = $gatewayConfig['korapay_secret'] ?? env('KORAPAY_SECRET_KEY');
-
-        $response = Http::withToken($secretKey)
-            ->post('https://api.korapay.com/merchant/api/v1/charges/initialize', [
-                'reference' => $transaction->transaction_reference,
-                'amount' => $transaction->amount * 100, // Korapay uses kobo
-                'currency' => $transaction->currency,
-                'redirect_url' => route('payment.korapay.callback'),
-                'customer' => [
-                    'email' => auth()->user()->email,
-                    'name' => auth()->user()->name,
-                ],
-            ]);
-
-        if ($response->successful() && $response['status']) {
-            $transaction->update([
-                'gateway_reference' => $response['data']['reference'],
-                'gateway' => 'korapay',
-            ]);
-
-            return response()->json([
-                'success' => true,
-                'checkout_url' => $response['data']['checkout_url'],
-            ]);
-        }
-
-        return response()->json(['success' => false, 'message' => 'Payment initialization failed'], 400);
     }
 
     public function korapayCallback(Request $request)
     {
-        $reference = $request->reference;
-        $transaction = PaymentTransaction::where('transaction_reference', $reference)->first();
+        $transaction = PaymentTransaction::where('transaction_reference', $request->reference)->first();
 
         if (!$transaction) {
             return redirect('/')->with('error', 'Transaction not found.');
         }
 
-        $settings = Setting::first();
-        $gatewayConfig = json_decode($settings?->gateway_config ?? '{}', true);
-        $secretKey = $gatewayConfig['korapay_secret'] ?? env('KORAPAY_SECRET_KEY');
+        $result = $this->gateways->driver('korapay')->verify($transaction, $request->all());
 
-        $response = Http::withToken($secretKey)
-            ->get("https://api.korapay.com/merchant/api/v1/charges/{$reference}");
-
-        if ($response->successful() && $response['status'] && $response['data']['status'] === 'success') {
-            return $this->completePayment($transaction, $response['data']);
+        if ($result['success']) {
+            return $this->completePayment($transaction, $result['data']);
         }
 
-        $transaction->update(['status' => 'failed', 'gateway_response' => $response->json()]);
+        $transaction->update(['status' => 'failed', 'gateway_response' => $result['data']]);
         return redirect()->route('profile.index')->with('error', 'Payment verification failed.');
     }
 
+    // ===== WEBHOOKS =====
+    public function handleWebhook(Request $request, string $gateway)
+    {
+        if (!$this->gateways->has($gateway)) {
+            return response()->json(['status' => 'error'], 400);
+        }
+
+        $parsed = $this->gateways->driver($gateway)->parseWebhook($request);
+
+        if ($parsed['success'] && $parsed['reference']) {
+            $transaction = PaymentTransaction::where('transaction_reference', $parsed['reference'])->first();
+            if ($transaction && $transaction->status === 'pending') {
+                $this->completePayment($transaction, $parsed['data']);
+            }
+        }
+
+        return response()->json(['status' => 'ok']);
+    }
+
     // ===== COMPLETE PAYMENT =====
-    private function completePayment(PaymentTransaction $transaction, $gatewayData)
+    private function completePayment(PaymentTransaction $transaction, array $gatewayData)
     {
         $transaction->update([
             'status' => 'success',
@@ -251,7 +165,8 @@ class PaymentController extends Controller
             $order = Order::find($transaction->order_id);
             if ($order) {
                 // Single source of truth for the money math — advances paid/remaining
-                // exactly once and keeps the remaining schedule summing to the balance.
+                // exactly once, keeps the remaining schedule summing to the balance,
+                // and flips delivery eligibility at the 70% threshold.
                 $installmentPayment = $transaction->installment_payment_id
                     ? InstallmentPayment::find($transaction->installment_payment_id)
                     : null;
@@ -263,56 +178,11 @@ class PaymentController extends Controller
                     $installmentPayment
                 );
 
-                // Delivery unlocks at the 70% payment threshold (grand_total based).
-                $order = $order->fresh();
-                $threshold = ($order->grand_total * 70) / 100;
-                if ((float) $order->paid_amount >= $threshold && $order->delivery_status === 'pending') {
-                    $order->update(['delivery_status' => 'processing']);
-                }
-
                 return redirect()->route('order.confirmation', $order->id)
                     ->with('success', 'Payment successful!');
             }
         }
 
         return redirect()->route('profile.index')->with('success', 'Payment completed!');
-    }
-
-    // ===== WEBHOOKS =====
-    public function paystackWebhook(Request $request)
-    {
-        $event = $request->event;
-        if ($event === 'charge.success') {
-            $reference = $request->data['reference'];
-            $transaction = PaymentTransaction::where('transaction_reference', $reference)->first();
-            if ($transaction && $transaction->status === 'pending') {
-                $this->completePayment($transaction, $request->data);
-            }
-        }
-        return response()->json(['status' => 'ok']);
-    }
-
-    public function flutterwaveWebhook(Request $request)
-    {
-        if ($request->event === 'charge.completed' && $request->data['status'] === 'successful') {
-            $txRef = $request->data['tx_ref'];
-            $transaction = PaymentTransaction::where('transaction_reference', $txRef)->first();
-            if ($transaction && $transaction->status === 'pending') {
-                $this->completePayment($transaction, $request->data);
-            }
-        }
-        return response()->json(['status' => 'ok']);
-    }
-
-    public function korapayWebhook(Request $request)
-    {
-        if ($request->event === 'charge.success') {
-            $reference = $request->data['reference'];
-            $transaction = PaymentTransaction::where('transaction_reference', $reference)->first();
-            if ($transaction && $transaction->status === 'pending') {
-                $this->completePayment($transaction, $request->data);
-            }
-        }
-        return response()->json(['status' => 'ok']);
     }
 }

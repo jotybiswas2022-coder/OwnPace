@@ -46,6 +46,7 @@ Route::middleware(['auth'])->prefix('checkout')->controller(CheckoutController::
     Route::post('/payment/{order}/process', 'processPayment')->name('payment.process');
     Route::post('/apply-promo', 'applyPromoCode')->name('checkout.apply-promo');
     Route::get('/remove-promo', 'removePromoCode')->name('checkout.remove-promo');
+    Route::get('/proxy/search', 'searchProxy')->name('checkout.proxy.search');
     Route::get('/confirmation/{order}', 'confirmation')->name('order.confirmation');
 });
 
@@ -60,6 +61,7 @@ Route::middleware(['auth'])->prefix('orders')->controller(OrderController::class
     Route::post('/{order}/change-plan', 'requestPlanChange')->name('orders.change.plan');
     Route::post('/{order}/cancel', 'cancelOrder')->name('orders.cancel');
     Route::get('/{order}/tracking', 'tracking')->name('orders.tracking');
+    Route::post('/{order}/review', 'submitReview')->name('orders.review');
 });
 
 // ===== WALLET =====
@@ -99,11 +101,13 @@ Route::middleware(['auth'])->prefix('profile')->controller(ProfileController::cl
     Route::post('/deletion-request', 'requestDeletion')->name('profile.deletion.request');
 });
 
-// ===== PAYMENT GATEWAY CALLBACKS =====
+// ===== PAYMENT GATEWAY CALLBACKS & WEBHOOKS =====
 Route::prefix('payment')->controller(PaymentController::class)->group(function () {
+    Route::post('/initialize', 'initialize')->name('payment.initialize');
     Route::get('/paystack/callback', 'paystackCallback')->name('payment.paystack.callback');
     Route::get('/flutterwave/callback', 'flutterwaveCallback')->name('payment.flutterwave.callback');
     Route::get('/korapay/callback', 'korapayCallback')->name('payment.korapay.callback');
+    Route::post('/webhook/{gateway}', 'handleWebhook')->name('payment.webhook');
 });
 
 // ===== CONTACT =====

@@ -47,12 +47,24 @@
                             @csrf
                             <select name="delivery_status" class="fp-form-control" style="width:auto;">
                                 <option value="pending" {{ $order->delivery_status == 'pending' ? 'selected' : '' }}>Pending</option>
+                                <option value="eligible" {{ $order->delivery_status == 'eligible' ? 'selected' : '' }}>Eligible for Shipping</option>
                                 <option value="processing" {{ $order->delivery_status == 'processing' ? 'selected' : '' }}>Processing</option>
                                 <option value="shipped" {{ $order->delivery_status == 'shipped' ? 'selected' : '' }}>Shipped</option>
+                                <option value="in_transit" {{ $order->delivery_status == 'in_transit' ? 'selected' : '' }}>In Transit</option>
+                                <option value="out_for_delivery" {{ $order->delivery_status == 'out_for_delivery' ? 'selected' : '' }}>Out for Delivery</option>
                                 <option value="delivered" {{ $order->delivery_status == 'delivered' ? 'selected' : '' }}>Delivered</option>
+                                <option value="failed" {{ $order->delivery_status == 'failed' ? 'selected' : '' }}>Failed</option>
                             </select>
                             <button type="submit" class="fp-btn fp-btn-gold" style="padding:8px 16px;">Update</button>
                         </form>
+                    </div>
+                    <div class="col-sm-6 col-md-4"><label style="display:block;font-size:11px;color:var(--text-dim);text-transform:uppercase;">Delivery Proxy</label>
+                        @if($order->deliveryProxyUser)
+                            <strong style="color:var(--text-primary);">{{ $order->deliveryProxyUser->name }}</strong><br>
+                            <small style="color:var(--text-dim);">{{ $order->deliveryProxyUser->phone ?? $order->deliveryProxyUser->email }}</small>
+                        @else
+                            <strong style="color:var(--text-dim);font-weight:500;">None</strong>
+                        @endif
                     </div>
                 </div>
             </div>

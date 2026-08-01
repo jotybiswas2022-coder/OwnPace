@@ -112,6 +112,9 @@ class InstallmentScheduleService
         ]);
 
         self::recalculate($order);
+
+        // Delivery unlocks once the customer has paid the threshold share.
+        DeliveryStatusService::evaluate($order->fresh());
     }
 
     /**

@@ -111,7 +111,7 @@
                     <p>Thank you for your purchase. Your order has been placed successfully and we'll start processing it right away.</p>
                     <div class="fp-confirm-details">
                         <div><span>Order ID</span><strong>#{{ $order->id }}</strong></div>
-                        <div><span>Total</span><strong style="color:var(--gold-400);">₦{{ number_format($order->total, 0) }}</strong></div>
+                        <div><span>Total</span><strong style="color:var(--gold-400);">₦{{ number_format($order->grand_total, 0) }}</strong></div>
                         <div><span>Status</span><strong style="color:#4ade80;">{{ ucfirst($order->status) }}</strong></div>
                     </div>
                     <div class="fp-confirm-actions">

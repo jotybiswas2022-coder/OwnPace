@@ -136,8 +136,8 @@
                     @if($address->is_default)<span class="fp-addr-default-badge"><i class="bi bi-pin-fill"></i> Default</span>@endif
                     <div class="fp-addr-icon"><i class="bi bi-geo-alt-fill"></i></div>
                     <h5>{{ $address->label ?? 'Address' }}</h5>
-                    <p>{{ $address->address }}, {{ $address->city }}, {{ $address->state }}</p>
-                    <span class="fp-addr-phone">{{ $address->phone }}</span>
+                    <p>{{ $address->address_line1 }}{{ $address->address_line2 ? ', ' . $address->address_line2 : '' }}, {{ $address->city }}, {{ $address->state }}</p>
+                    <span class="fp-addr-phone"><i class="bi bi-telephone-fill"></i> {{ $address->phone }}</span>
                     <div class="fp-addr-actions">
                         <a href="#" class="fp-addr-btn edit" data-bs-toggle="modal" data-bs-target="#editAddress{{ $address->id }}"><i class="bi bi-pencil-fill"></i></a>
                         <a href="{{ route('profile.addresses.delete', $address) }}" class="fp-addr-btn delete" onclick="return confirm('Delete this address?')"><i class="bi bi-trash-fill"></i></a>
@@ -188,6 +188,42 @@
         </div>
     </div>
 </div>
+
+{{-- ===== EDIT MODALS ===== --}}
+@foreach($addresses ?? [] as $address)
+<div class="modal fade" id="editAddress{{ $address->id }}" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content fp-modal">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="bi bi-pencil-fill"></i> Edit Address</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ route('profile.addresses.update', $address) }}">
+                @csrf
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-6"><input type="text" name="recipient_name" class="fp-input" value="{{ $address->recipient_name }}" placeholder="Recipient name" required></div>
+                        <div class="col-6"><input type="text" name="label" class="fp-input" value="{{ $address->label }}" placeholder="Label (e.g. Home, Office)"></div>
+                        <div class="col-12"><input type="text" name="address_line1" class="fp-input" value="{{ $address->address_line1 }}" placeholder="Street address" required></div>
+                        <div class="col-6"><input type="text" name="city" class="fp-input" value="{{ $address->city }}" placeholder="City" required></div>
+                        <div class="col-6"><input type="text" name="state" class="fp-input" value="{{ $address->state }}" placeholder="State" required></div>
+                        <div class="col-12"><input type="text" name="phone" class="fp-input" value="{{ $address->phone }}" placeholder="Phone number" required></div>
+                        <div class="col-12">
+                            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+                                <input type="checkbox" name="is_default" value="1" {{ $address->is_default ? 'checked' : '' }} style="width:16px;height:16px;accent-color:var(--gold-500);">
+                                <span style="color:var(--text-muted);font-size:13px;">Set as default address</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn-primary-gold w-100 justify-content-center">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endforeach
 
 @include('frontend.partials.footer')
 @endsection
