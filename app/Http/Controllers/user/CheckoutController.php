@@ -17,6 +17,7 @@ use App\Models\InsuranceSetting;
 use App\Models\PromoCode;
 use App\Services\InstallmentCalculatorService;
 use App\Services\InstallmentScheduleService;
+use App\Services\MoneyService;
 use App\Services\Payments\PaymentGatewayManager;
 use Illuminate\Support\Str;
 
@@ -232,44 +233,78 @@ class CheckoutController extends Controller
             ? (float) $target->amount
             : (float) $order->grand_total;
 
-        if (!$wallet || (float) $wallet->balance < $dueNow) {
-            // Keep the amount due-now consistent — stage it so the gateway page
-            // doesn't fall back to the full remaining balance on an installment.
-            session(['pending_payment' => [
-                'label' => $target ? 'First installment (down payment)' : 'Order total',
-                'amount' => $dueNow,
-                'late_fee' => 0,
-                'installment_payment_id' => $target?->id,
-            ]]);
+        $walletBalance = $wallet ? (float) $wallet->balance : 0;
 
-            return redirect()->route('payment.gateway', $order->id)
-                ->with('error', 'Insufficient wallet balance.');
+        // Mixed payment: the wallet covers what it can, the remainder goes
+        // through the selected gateway. Wallet covers the whole due-now when
+        // possible; otherwise split into wallet portion + gateway portion.
+        $walletPortion = MoneyService::round(min($walletBalance, $dueNow));
+        $gatewayPortion = MoneyService::round($dueNow - $walletPortion);
+
+        if ($walletPortion > 0) {
+            // All wallet money moves through the tested service so the ledger
+            // invariants (balance_before/after chain, pool clamping) live in
+            // exactly one place.
+            \App\Services\WalletService::debit(
+                $wallet,
+                $walletPortion,
+                'payment',
+                'Wallet payment for order #' . $order->order_number
+            );
+
+            // Advance the schedule by the wallet portion. The installment is
+            // marked paid only if the wallet fully covered it.
+            InstallmentScheduleService::recordPayment(
+                $order,
+                $walletPortion,
+                'wallet',
+                $order->payment_type === 'installment' && $walletPortion >= $dueNow ? $target : null
+            );
         }
 
-        $balanceBefore = $wallet->balance;
-        $wallet->decrement('balance', $dueNow);
+        // All covered by wallet.
+        if ($gatewayPortion <= 0) {
+            return redirect()->route('order.confirmation', $order->id)
+                ->with('success', 'Payment successful via Wallet!');
+        }
 
-        \App\Models\WalletTransaction::create([
-            'wallet_id' => $wallet->id,
+        // Remainder via gateway — initialize immediately (fast fintech checkout).
+        // When the customer picked 'wallet' but it didn't cover the due-now,
+        // the remainder goes through the store's default gateway.
+        $gateway = Setting::first()?->default_gateway ?? 'paystack';
+        $transaction = PaymentTransaction::create([
+            'order_id' => $order->id,
             'user_id' => auth()->id(),
-            'amount' => $dueNow,
-            'balance_before' => $balanceBefore,
-            'balance_after' => $wallet->balance,
-            'type' => 'payment',
-            'description' => 'Down payment for order #' . $order->order_number,
-            'status' => 'completed',
+            'amount' => $gatewayPortion,
+            'transaction_reference' => 'TXN-' . strtoupper(Str::random(15)),
+            'gateway' => $gateway,
+            'status' => 'pending',
         ]);
 
-        // Mark the first unpaid installment paid, or close out for Pay Once.
-        InstallmentScheduleService::recordPayment(
-            $order,
-            $dueNow,
-            'wallet',
-            $order->payment_type === 'installment' ? $target : null
-        );
+        try {
+            $result = app(PaymentGatewayManager::class)
+                ->driver($gateway)
+                ->initialize($transaction);
 
-        return redirect()->route('order.confirmation', $order->id)
-            ->with('success', 'Payment successful via Wallet!');
+            if ($result['success'] && $result['url']) {
+                return redirect($result['url']);
+            }
+        } catch (\Throwable $e) {
+            report($e);
+        }
+
+        // Fallback to the gateway page — stage the EXACT remainder so the page
+        // shows (and charges) the gatewayPortion, never the full remaining
+        // balance of the order.
+        session(['pending_payment' => [
+            'label' => 'Remaining balance after wallet',
+            'amount' => $gatewayPortion,
+            'late_fee' => 0,
+        ]]);
+
+        return redirect()->route('payment.gateway', $order->id)
+            ->with('info', 'Wallet paid ₦' . number_format($walletPortion, 2)
+                . '. Pay the remaining ₦' . number_format($gatewayPortion, 2) . ' to complete.');
     }
 
     /**

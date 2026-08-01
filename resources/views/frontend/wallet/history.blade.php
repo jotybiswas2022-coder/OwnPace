@@ -180,14 +180,17 @@
                 </thead>
                 <tbody>
                     @foreach($transactions as $txn)
+                    @php
+                        $isDebit = in_array($txn->type, ['payment', 'withdrawal']);
+                    @endphp
                     <tr>
                         <td style="color:var(--text-dim);font-size:12px;">{{ $txn->created_at->format('M d, Y') }}</td>
                         <td style="color:var(--text-primary);font-weight:500;">{{ $txn->description ?? ucfirst($txn->type) }}</td>
                         <td>
-                            <span class="fp-txn-type {{ $txn->type }}">{{ ucfirst($txn->type) }}</span>
+                            <span class="fp-txn-type {{ $isDebit ? 'debit' : 'credit' }}">{{ ucfirst($txn->type) }}</span>
                         </td>
-                        <td class="text-end fp-txn-val {{ $txn->type }}">
-                            {{ $txn->type == 'credit' ? '+' : '-' }}₦{{ number_format($txn->amount, 0) }}
+                        <td class="text-end fp-txn-val {{ $isDebit ? 'debit' : 'credit' }}">
+                            {{ $isDebit ? '-' : '+' }}₦{{ number_format($txn->amount, 0) }}
                         </td>
                     </tr>
                     @endforeach

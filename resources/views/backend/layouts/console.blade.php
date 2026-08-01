@@ -52,6 +52,8 @@
                         ['route' => 'admin.promo-codes.index', 'icon' => 'bi-percent', 'label' => 'Promo Codes', 'active' => request()->routeIs('admin.promo-codes.*')],
                         ['section' => 'Financing'],
                         ['route' => 'admin.plans.index', 'icon' => 'bi-calendar2-week', 'label' => 'Installment Plans', 'active' => request()->routeIs('admin.plans.*')],
+                        ['route' => 'admin.wallet.index', 'icon' => 'bi-wallet2', 'label' => 'Wallet Management', 'active' => request()->routeIs('admin.wallet.index*') || request()->routeIs('admin.wallet.credit*')],
+                        ['route' => 'admin.wallet.withdrawals', 'icon' => 'bi-bank', 'label' => 'Withdrawals', 'active' => request()->routeIs('admin.wallet.withdrawals*')],
                         ['section' => 'Orders'],
                         ['route' => 'admin.orders.index', 'icon' => 'bi-receipt', 'label' => 'Orders', 'active' => request()->routeIs('admin.orders.*') && !request()->routeIs('admin.orders.fees*')],
                         ['route' => 'admin.orders.fees', 'icon' => 'bi-cash-coin', 'label' => 'Product Fees', 'active' => request()->routeIs('admin.orders.fees*')],

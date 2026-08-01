@@ -201,7 +201,18 @@
 
                     <div class="fp-fund-note mt-3">
                         <i class="bi bi-info-circle-fill"></i>
-                        Funds are non-withdrawable and can only be used for purchases on OwnPace Store.
+                        @php
+                            $topUpWithdrawable = \App\Services\WalletService::topUpWithdrawalAllowed();
+                            $bonusPct = (float) (\App\Models\Setting::first()?->topup_bonus_percent ?? 0);
+                        @endphp
+                        @if($bonusPct > 0)
+                            You'll receive an extra {{ $bonusPct }}% bonus store credit on this top-up. 
+                        @endif
+                        @if($topUpWithdrawable)
+                            Top-ups are withdrawable to your bank ({{ \App\Services\WalletService::withdrawalFeePercent() }}% fee applies).
+                        @else
+                            Top-up funds are store credit — spendable on purchases, not withdrawable to a bank.
+                        @endif
                     </div>
                 </div>
             </div>

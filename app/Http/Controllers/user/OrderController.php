@@ -10,8 +10,6 @@ use App\Models\InstallmentPayment;
 use App\Models\PlanChangeRequest;
 use App\Models\PaymentTransaction;
 use App\Models\Review;
-use App\Models\Wallet;
-use App\Models\WalletTransaction;
 use App\Services\InstallmentCalculatorService;
 use App\Services\InstallmentScheduleService;
 use App\Services\MoneyService;
@@ -250,19 +248,14 @@ class OrderController extends Controller
             return back()->with('error', 'Insufficient wallet balance.');
         }
 
-        $balanceBefore = (float) $wallet->balance;
-        $wallet->decrement('balance', $amount);
-
-        WalletTransaction::create([
-            'wallet_id' => $wallet->id,
-            'user_id' => auth()->id(),
-            'amount' => $amount,
-            'balance_before' => $balanceBefore,
-            'balance_after' => (float) $wallet->balance,
-            'type' => 'payment',
-            'description' => 'Payment on order #' . $order->order_number,
-            'status' => 'completed',
-        ]);
+        // All wallet money moves through the tested service so the ledger
+        // invariants live in exactly one place.
+        \App\Services\WalletService::debit(
+            $wallet,
+            $amount,
+            'payment',
+            'Payment on order #' . $order->order_number
+        );
 
         $this->createPaymentTransaction($order, $amount, 'payment', null, 'wallet', 'success');
 
@@ -335,22 +328,28 @@ class OrderController extends Controller
             return back()->with('error', 'This order cannot be cancelled.');
         }
 
-        $settings = \App\Models\Setting::first();
-        $cancellationFeePercent = $settings->cancellation_fee_percentage ?? 10;
-        $cancellationFee = ($order->grand_total * $cancellationFeePercent) / 100;
-
         $request->validate([
             'reason' => 'nullable|string|max:1000',
-            'accept_fee' => 'required|accepted',
         ]);
 
         $order->update([
             'status' => 'cancelled',
             'cancellation_reason' => $request->reason,
-            'cancellation_fee' => $cancellationFee,
+            'cancellation_fee' => 0,
         ]);
 
-        return back()->with('info', 'Order cancelled. A ' . $cancellationFeePercent . '% cancellation fee (₦' . number_format($cancellationFee, 2) . ') applies.');
+        // Refund 100% of what they've paid into the wallet (withdrawable —
+        // the 10%-fee withdrawal rule is defined for cancellation refunds).
+        $refund = \App\Services\WalletService::refundForCancellation($order);
+
+        if ($refund) {
+            return back()->with('success',
+                'Order cancelled. ₦' . number_format((float) $refund->amount, 2)
+                . ' refunded to your wallet.'
+            );
+        }
+
+        return back()->with('info', 'Order cancelled.');
     }
 
     public function tracking(Order $order)

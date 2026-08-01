@@ -39,6 +39,11 @@ class SettingsController extends Controller
         ];
         $settings->gateway_config = $gatewayConfig;
 
+        // Wallet rules.
+        $settings->allow_topup_withdrawal = $request->boolean('allow_topup_withdrawal');
+        $settings->withdrawal_fee_percent = $request->withdrawal_fee_percent ?? 10;
+        $settings->topup_bonus_percent = $request->topup_bonus_percent ?? 0;
+
         $settings->save();
 
         // Insurance is storewide: enable/disable + rate, read at checkout.

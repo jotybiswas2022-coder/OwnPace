@@ -623,12 +623,8 @@ document.addEventListener('DOMContentLoaded', function() {
         swalDark.fire({
             title: 'Cancel Order?',
             html: `
-                <p style="color:#A1A1AA;margin-bottom:16px;font-size:14px;">A 10% cancellation fee will apply.</p>
-                <textarea id="swalCancelReason" placeholder="Why are you cancelling? (min 10 chars)" style="background:#121214;color:#F4F4F5;border:1px solid #3A3A3E;border-radius:8px;padding:10px 12px;width:100%;min-height:80px;resize:vertical;font-family:inherit;font-size:14px;outline:none;box-sizing:border-box;"></textarea>
-                <label style="display:flex;align-items:center;gap:8px;margin-top:14px;color:#A1A1AA;font-size:13px;cursor:pointer;user-select:none;">
-                    <input type="checkbox" id="swalAcceptFee" style="accent-color:#EAB308;width:16px;height:16px;flex-shrink:0;">
-                    I accept the 10% cancellation fee
-                </label>
+                <p style="color:#A1A1AA;margin-bottom:16px;font-size:14px;">100% of what you've paid is refunded to your wallet as store credit.</p>
+                <textarea id="swalCancelReason" placeholder="Why are you cancelling?" style="background:#121214;color:#F4F4F5;border:1px solid #3A3A3E;border-radius:8px;padding:10px 12px;width:100%;min-height:80px;resize:vertical;font-family:inherit;font-size:14px;outline:none;box-sizing:border-box;"></textarea>
             `,
             icon: 'warning',
             iconColor: '#facc15',
@@ -640,21 +636,10 @@ document.addEventListener('DOMContentLoaded', function() {
             padding: '24px',
             didOpen: () => {
                 document.getElementById('swalCancelReason')?.focus();
-            },
-            preConfirm: () => {
-                const reason = document.getElementById('swalCancelReason')?.value.trim();
-                const accept = document.getElementById('swalAcceptFee')?.checked;
-
-                if (!accept) {
-                    Swal.showValidationMessage('Please accept the cancellation fee');
-                    return false;
-                }
-                return { reason, acceptFee: accept };
             }
         }).then((r) => {
             if (r.isConfirmed) {
-                document.getElementById('cancelReason').value = r.value.reason;
-                document.getElementById('cancelAcceptFee').value = r.value.acceptFee ? '1' : '0';
+                document.getElementById('cancelReason').value = document.getElementById('swalCancelReason')?.value.trim() ?? '';
                 document.getElementById('cancelOrderForm').submit();
             }
         });

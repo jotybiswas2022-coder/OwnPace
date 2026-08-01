@@ -7,8 +7,6 @@ use Illuminate\Http\Request;
 use App\Models\PaymentTransaction;
 use App\Models\Order;
 use App\Models\InstallmentPayment;
-use App\Models\Wallet;
-use App\Models\WalletTransaction;
 use App\Services\InstallmentScheduleService;
 use App\Services\Payments\PaymentGatewayManager;
 
@@ -137,25 +135,32 @@ class PaymentController extends Controller
 
         // Handle wallet funding
         if ($transaction->type === 'wallet_funding') {
-            $wallet = Wallet::firstOrCreate(
-                ['user_id' => $transaction->user_id],
-                ['balance' => 0]
-            );
-            $balanceBefore = $wallet->balance;
-            $wallet->increment('balance', $transaction->amount);
-            $wallet->increment('total_deposited', $transaction->amount);
+            $user = $transaction->user;
+            $wallet = \App\Services\WalletService::walletFor($user);
 
-            WalletTransaction::create([
-                'wallet_id' => $wallet->id,
-                'user_id' => $transaction->user_id,
-                'amount' => $transaction->amount,
-                'balance_before' => $balanceBefore,
-                'balance_after' => $wallet->balance,
-                'type' => 'deposit',
-                'description' => 'Wallet funding via ' . $transaction->gateway,
-                'reference' => $transaction->transaction_reference,
-                'status' => 'completed',
-            ]);
+            // Top-ups are withdrawable only when the admin setting allows it
+            // (client confirmed: default OFF — spend-only store credit).
+            \App\Services\WalletService::credit(
+                $wallet,
+                (float) $transaction->amount,
+                'deposit',
+                'Wallet funding via ' . $transaction->gateway,
+                \App\Services\WalletService::topUpWithdrawalAllowed(),
+                $transaction->transaction_reference
+            );
+
+            // Admin-configurable bonus store credit on top-ups (default 0%).
+            $bonus = \App\Services\WalletService::topUpBonus((float) $transaction->amount);
+            if ($bonus > 0) {
+                \App\Services\WalletService::credit(
+                    $wallet,
+                    $bonus,
+                    'bonus',
+                    'Top-up bonus (' . \App\Services\MoneyService::plain((float) (\App\Models\Setting::first()?->topup_bonus_percent ?? 0), 0) . '%)',
+                    false,
+                    $transaction->transaction_reference . '-BONUS'
+                );
+            }
 
             return redirect()->route('wallet.index')->with('success', 'Wallet funded successfully!');
         }

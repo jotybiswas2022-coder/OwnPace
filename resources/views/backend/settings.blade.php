@@ -153,6 +153,46 @@
         </div>
     </div>
 
+    <!-- ===== WALLET ===== -->
+    <div class="row justify-content-center mb-4">
+        <div class="col-12 col-lg-10">
+            <div class="fp-table-wrap">
+                <div class="fp-table-header">
+                    <h5><i class="bi bi-wallet2"></i> Wallet Rules</h5>
+                    <span class="fp-badge {{ ($settings->allow_topup_withdrawal ?? false) ? 'fp-badge-active' : 'fp-badge-inactive' }}">{{ ($settings->allow_topup_withdrawal ?? false) ? 'Top-ups withdrawable' : 'Top-ups spend-only' }}</span>
+                </div>
+                <div style="padding:24px;">
+                    <p style="color:var(--text-dim);font-size:13px;margin-bottom:16px;">
+                        Control how wallet money can move. Cancellation refunds are always store credit (spend-only).
+                    </p>
+                    <div class="row g-4 align-items-end">
+                        <div class="col-sm-4">
+                            <label style="display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px;">
+                                <i class="bi bi-arrow-down-up" style="color:var(--gold-500);"></i> Top-up Withdrawal
+                            </label>
+                            <select name="allow_topup_withdrawal" class="fp-form-control">
+                                <option value="0" {{ !($settings->allow_topup_withdrawal ?? false) ? 'selected' : '' }}>Spend-only (recommended)</option>
+                                <option value="1" {{ ($settings->allow_topup_withdrawal ?? false) ? 'selected' : '' }}>Withdrawable (10% fee applies)</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-4">
+                            <label style="display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px;">
+                                <i class="bi bi-percent" style="color:var(--gold-500);"></i> Withdrawal Fee (%)
+                            </label>
+                            <input type="number" name="withdrawal_fee_percent" class="fp-form-control" value="{{ $settings->withdrawal_fee_percent ?? 10 }}" min="0" max="100" step="0.01">
+                        </div>
+                        <div class="col-sm-4">
+                            <label style="display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px;">
+                                <i class="bi bi-gift" style="color:var(--gold-500);"></i> Top-up Bonus (%)
+                            </label>
+                            <input type="number" name="topup_bonus_percent" class="fp-form-control" value="{{ $settings->topup_bonus_percent ?? 0 }}" min="0" max="100" step="0.01">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- ===== INSURANCE ===== -->
     <div class="row justify-content-center mb-4">
         <div class="col-12 col-lg-10">

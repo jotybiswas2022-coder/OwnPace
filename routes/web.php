@@ -69,7 +69,8 @@ Route::middleware(['auth'])->prefix('wallet')->controller(WalletController::clas
     Route::get('/', 'index')->name('wallet.index');
     Route::get('/fund', 'showFundForm')->name('wallet.fund');
     Route::post('/fund', 'fund')->name('wallet.fund.process');
-    Route::get('/fund/{reference}', 'fundGateway')->name('wallet.fund.gateway');
+    Route::get('/withdraw', 'withdraw')->name('wallet.withdraw');
+    Route::post('/withdraw', 'requestWithdrawal')->name('wallet.withdraw.process');
     Route::get('/history', 'history')->name('wallet.history');
 });
 

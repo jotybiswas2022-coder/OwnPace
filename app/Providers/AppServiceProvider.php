@@ -26,7 +26,10 @@ use App\Models\Slider;
 use App\Models\Setting;
 use App\Models\ProductFee;
 use App\Models\InstallmentPlan;
+use App\Models\Wallet;
+use App\Models\WalletWithdrawalRequest;
 use App\Policies\InstallmentPlanPolicy;
+use App\Policies\WalletPolicy;
 use App\Policies\ProductPolicy;
 use App\Policies\BrandPolicy;
 use App\Policies\CategoryPolicy;
@@ -100,6 +103,8 @@ class AppServiceProvider extends ServiceProvider
         Gate::policy(Setting::class, SettingPolicy::class);
         Gate::policy(ProductFee::class, ProductFeePolicy::class);
         Gate::policy(InstallmentPlan::class, InstallmentPlanPolicy::class);
+        Gate::policy(Wallet::class, WalletPolicy::class);
+        Gate::policy(WalletWithdrawalRequest::class, WalletPolicy::class);
 
         // Non-model view abilities (dashboard / analytics / contacts pages).
         // Delegated to dedicated policies so they get the same schema-guarded

@@ -19,6 +19,7 @@ use App\Http\Controllers\admin\SliderController;
 use App\Http\Controllers\admin\PromoCodeController;
 use App\Http\Controllers\admin\AdminProductImportController;
 use App\Http\Controllers\admin\AdminInstallmentPlanController;
+use App\Http\Controllers\admin\AdminWalletController;
 
 Route::prefix('admin')->middleware('admin')->group(function () {
 
@@ -124,6 +125,15 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::post('/store', 'store')->name('admin.brands.store');
         Route::post('/update/{brand}', 'update')->name('admin.brands.update');
         Route::get('/delete/{brand}', 'destroy')->name('admin.brands.delete');
+    });
+
+    // ===== WALLET =====
+    Route::prefix('wallet')->controller(AdminWalletController::class)->group(function () {
+        Route::get('/', 'index')->name('admin.wallet.index');
+        Route::get('/credit/{user}', 'creditForm')->name('admin.wallet.credit-form');
+        Route::post('/credit/{user}', 'credit')->name('admin.wallet.credit');
+        Route::get('/withdrawals', 'withdrawals')->name('admin.wallet.withdrawals');
+        Route::post('/withdrawals/{withdrawal}', 'updateWithdrawal')->name('admin.wallet.withdrawals.update');
     });
 
     // ===== SETTINGS =====

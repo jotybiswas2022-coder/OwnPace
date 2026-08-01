@@ -27,6 +27,9 @@ class SettingsRequest extends FormRequest
             'korapay_secret' => 'nullable|string',
             'insurance_enabled' => 'boolean',
             'insurance_rate' => 'nullable|numeric|min:0|max:100',
+            'allow_topup_withdrawal' => 'boolean',
+            'withdrawal_fee_percent' => 'nullable|numeric|min:0|max:100',
+            'topup_bonus_percent' => 'nullable|numeric|min:0|max:100',
         ];
     }
 }

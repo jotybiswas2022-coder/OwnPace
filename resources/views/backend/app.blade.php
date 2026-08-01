@@ -301,6 +301,12 @@
                 <a href="{{ route('admin.plans.index') }}" class="{{ request()->routeIs('admin.plans.*') ? 'active' : '' }}">
                     <i class="bi bi-calendar2-week"></i> Installment Plans
                 </a>
+                <a href="{{ route('admin.wallet.index') }}" class="{{ request()->routeIs('admin.wallet.*') && !request()->routeIs('admin.wallet.withdrawals*') ? 'active' : '' }}">
+                    <i class="bi bi-wallet2"></i> Wallet Management
+                </a>
+                <a href="{{ route('admin.wallet.withdrawals') }}" class="{{ request()->routeIs('admin.wallet.withdrawals*') ? 'active' : '' }}">
+                    <i class="bi bi-bank"></i> Withdrawals
+                </a>
 
                 <div class="nav-section">Orders</div>
                 <a href="{{ route('admin.orders.index') }}" class="{{ request()->routeIs('admin.orders.*') && !request()->routeIs('admin.orders.fees*') ? 'active' : '' }}">

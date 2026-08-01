@@ -27,4 +27,17 @@ class Wallet extends Model
     {
         return $this->hasMany(WalletTransaction::class);
     }
+
+    public function withdrawalRequests()
+    {
+        return $this->hasMany(WalletWithdrawalRequest::class);
+    }
+
+    /**
+     * Money that can be moved back to a bank account (subject to the fee).
+     */
+    public function withdrawableBalance(): float
+    {
+        return \App\Services\WalletService::withdrawableBalance($this);
+    }
 }
