@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\Admin\BrandRequest;
 use App\Models\Brand;
 
 class BrandController extends Controller
@@ -19,16 +19,11 @@ class BrandController extends Controller
         return view('backend.brands.create');
     }
 
-    public function store(Request $request)
+    public function store(BrandRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'logo' => 'nullable|string|max:255',
-            'website' => 'nullable|url|max:255',
-        ]);
+        $this->authorize('manage', Brand::class);
 
-        Brand::create($request->all());
+        Brand::create($request->validated());
         return redirect()->route('admin.brands.index')->with('success', 'Brand added successfully!');
     }
 
@@ -37,21 +32,18 @@ class BrandController extends Controller
         return view('backend.brands.edit', compact('brand'));
     }
 
-    public function update(Request $request, Brand $brand)
+    public function update(BrandRequest $request, Brand $brand)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'logo' => 'nullable|string|max:255',
-            'website' => 'nullable|url|max:255',
-        ]);
+        $this->authorize('manage', $brand);
 
-        $brand->update($request->all());
+        $brand->update($request->validated());
         return redirect()->route('admin.brands.index')->with('success', 'Brand updated!');
     }
 
     public function destroy(Brand $brand)
     {
+        $this->authorize('manage', $brand);
+
         if ($brand->products()->count() > 0) {
             return back()->with('error', 'Cannot delete brand with existing products.');
         }

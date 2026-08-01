@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\Admin\PostRequest;
 use App\Models\Category;
 use App\Models\Post;
 use App\Models\User;
@@ -29,16 +29,9 @@ class PostController extends Controller
     }
 
     // ================= STORE =================
-    public function store(Request $request)
+    public function store(PostRequest $request)
     {
-        $request->validate([
-            'title'           => 'required|string|max:255',
-            'category_id'     => 'required|exists:categories,id',
-            'contact_number'  => 'required|string|max:20',
-            'division'        => 'required|string|max:100',
-            'status'          => 'nullable|in:0,1',
-            'file'            => 'required|file|mimetypes:image/jpeg,image/png,image/gif,image/webp,video/mp4|max:512000',
-        ]);
+        $this->authorize('manage', Post::class);
 
         $filePath = null;
 
@@ -66,18 +59,10 @@ class PostController extends Controller
     }
 
     // ================= UPDATE =================
-    public function update(Request $request, $id)
+    public function update(PostRequest $request, $id)
     {
         $post = Post::findOrFail($id);
-
-        $request->validate([
-            'title'          => 'required|string|max:255',
-            'category_id'    => 'required|exists:categories,id',
-            'contact_number' => 'required|string|max:20',
-            'division'       => 'required|string|max:100',
-            'status'         => 'nullable|in:0,1',
-            'file'           => 'nullable|file|mimetypes:image/jpeg,image/png,image/gif,image/webp,video/mp4|max:512000',
-        ]);
+        $this->authorize('manage', $post);
 
         if ($request->hasFile('file')) {
             $file = $request->file('file');
@@ -109,6 +94,7 @@ class PostController extends Controller
     public function delete($id)
     {
         $post = Post::findOrFail($id);
+        $this->authorize('manage', $post);
 
         if ($post->file && Storage::disk('public')->exists($post->file)) {
             Storage::disk('public')->delete($post->file);

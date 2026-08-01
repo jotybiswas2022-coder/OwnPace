@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Symfony\Component\HttpFoundation\Response;
 
 class AdminMiddleware
@@ -26,17 +27,21 @@ class AdminMiddleware
         // Legacy flag checks run FIRST: they are pure model logic and keep
         // existing admins working even before the spatie acl_* tables exist
         // (e.g. before `php artisan migrate` is run for the first time).
+        // Both the capitalized seed names and lowercase slugs are accepted.
+        // The hasTable guard prevents querying acl_* tables pre-migration.
+        $aclReady = Schema::hasTable('acl_roles');
+
         if ($role === 'super_admin') {
-            if (!$user->isSuperAdmin() && !$user->hasRole('super_admin')) {
+            if (!$user->isSuperAdmin() && !($aclReady && $user->hasAnyRole(['super_admin', 'Super Admin']))) {
                 abort(403, 'Unauthorized. Super Admin access required.');
             }
         } elseif ($role === 'admin') {
-            if (!$user->isAdmin() && !$user->hasAnyRole(['admin', 'super_admin'])) {
+            if (!$user->isAdmin() && !($aclReady && $user->hasAnyRole(['admin', 'super_admin', 'Admin', 'Super Admin']))) {
                 abort(403, 'Unauthorized. Admin access required.');
             }
         } else {
             // General admin check.
-            if (!$user->isAdmin() && !$user->hasAnyRole(['admin', 'super_admin'])) {
+            if (!$user->isAdmin() && !($aclReady && $user->hasAnyRole(['admin', 'super_admin', 'Admin', 'Super Admin']))) {
                 abort(403, 'Unauthorized. Admin access required.');
             }
         }

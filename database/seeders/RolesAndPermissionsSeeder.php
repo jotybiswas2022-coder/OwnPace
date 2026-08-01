@@ -30,6 +30,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'manage requests',
             'manage campaigns',
             'manage promo codes',
+            'manage plans',        // installment plans, plan change approvals
+            'manage wallets',      // wallet balances, refunds, cashbacks
             'manage content',      // sliders, faqs, terms, posts, contacts
             'manage settings',
             'view analytics',
@@ -51,5 +53,16 @@ class RolesAndPermissionsSeeder extends Seeder
 
         // Super Admins get everything.
         $superAdmin->syncPermissions($permissions);
+
+        // Assign spatie roles to existing users based on their legacy flags, so
+        // nobody loses admin access after the acl_* tables are migrated in.
+        // (Pre-migration the legacy flags keep everyone working via the
+        // policies' escape hatch; this makes the spatie roles authoritative.)
+        \App\Models\User::where('is_admin', true)->orWhere('role_id', 1)->get()
+            ->each(fn ($u) => $u->assignRole('Super Admin'));
+        \App\Models\User::where('role_id', 2)
+            ->where(fn ($q) => $q->where('is_admin', false)->orWhereNull('is_admin'))
+            ->get()
+            ->each(fn ($u) => $u->assignRole('Admin'));
     }
 }

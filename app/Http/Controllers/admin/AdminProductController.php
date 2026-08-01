@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\Admin\ProductRequest;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Brand;
@@ -28,21 +28,9 @@ class AdminProductController extends Controller
         return view('backend.products.create', compact('categories', 'brands', 'suppliers'));
     }
 
-    public function store(Request $request)
+    public function store(ProductRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'category_id' => 'nullable|exists:categories,id',
-            'brand_id' => 'nullable|exists:brands,id',
-            'supplier_id' => 'nullable|exists:suppliers,id',
-            'price' => 'required|numeric|min:0',
-            'base_price' => 'required|numeric|min:0',
-            'stock_quantity' => 'required|integer|min:0',
-            'sku' => 'nullable|string|unique:products,sku',
-            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:4096',
-            'description' => 'nullable|string',
-            'status' => 'nullable|in:active,inactive,draft',
-        ]);
+        $this->authorize('manage', Product::class);
 
         $slug = Str::slug($request->name);
         $counter = 1;
@@ -102,17 +90,9 @@ class AdminProductController extends Controller
         return view('backend.products.edit', compact('product', 'categories', 'brands', 'suppliers'));
     }
 
-    public function update(Request $request, Product $product)
+    public function update(ProductRequest $request, Product $product)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'category_id' => 'nullable|exists:categories,id',
-            'brand_id' => 'nullable|exists:brands,id',
-            'price' => 'required|numeric|min:0',
-            'base_price' => 'required|numeric|min:0',
-            'stock_quantity' => 'required|integer|min:0',
-            'thumbnail' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:4096',
-        ]);
+        $this->authorize('manage', $product);
 
         if ($request->hasFile('thumbnail')) {
             if ($product->thumbnail) {
@@ -121,7 +101,7 @@ class AdminProductController extends Controller
             $product->thumbnail = $request->file('thumbnail')->store('products/thumbnails', 'public');
         }
 
-        $data = $request->except('thumbnail', 'images');
+        $data = $request->validated();
         $data['featured'] = $request->featured === '1';
         $product->update($data);
 
@@ -143,6 +123,8 @@ class AdminProductController extends Controller
 
     public function destroy(Product $product)
     {
+        $this->authorize('manage', $product);
+
         // Delete images
         foreach ($product->images as $image) {
             Storage::disk('public')->delete($image->image_path);
@@ -158,6 +140,7 @@ class AdminProductController extends Controller
     public function deleteImage($id)
     {
         $image = ProductImage::findOrFail($id);
+        $this->authorize('manage', $image->product);
         Storage::disk('public')->delete($image->image_path);
         $image->delete();
         return response()->json(['success' => true]);

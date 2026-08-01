@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\Admin\PromoCodeRequest;
 use App\Models\PromoCode;
 
 class PromoCodeController extends Controller
@@ -19,20 +19,11 @@ class PromoCodeController extends Controller
         return view('backend.promo-codes.create');
     }
 
-    public function store(Request $request)
+    public function store(PromoCodeRequest $request)
     {
-        $request->validate([
-            'code' => 'required|string|max:50|unique:promo_codes,code',
-            'type' => 'required|in:percentage,fixed',
-            'value' => 'required|numeric|min:0.01',
-            'min_order_amount' => 'nullable|numeric|min:0',
-            'max_uses' => 'nullable|integer|min:1',
-            'starts_at' => 'nullable|date',
-            'expires_at' => 'nullable|date|after_or_equal:starts_at',
-            'is_active' => 'boolean',
-        ]);
+        $this->authorize('manage', PromoCode::class);
 
-        PromoCode::create($request->all());
+        PromoCode::create($request->validated());
         return redirect()->route('admin.promo-codes.index')->with('success', 'Promo code created!');
     }
 
@@ -41,25 +32,18 @@ class PromoCodeController extends Controller
         return view('backend.promo-codes.edit', compact('promoCode'));
     }
 
-    public function update(Request $request, PromoCode $promoCode)
+    public function update(PromoCodeRequest $request, PromoCode $promoCode)
     {
-        $request->validate([
-            'code' => 'required|string|max:50|unique:promo_codes,code,' . $promoCode->id,
-            'type' => 'required|in:percentage,fixed',
-            'value' => 'required|numeric|min:0.01',
-            'min_order_amount' => 'nullable|numeric|min:0',
-            'max_uses' => 'nullable|integer|min:1',
-            'starts_at' => 'nullable|date',
-            'expires_at' => 'nullable|date|after_or_equal:starts_at',
-            'is_active' => 'boolean',
-        ]);
+        $this->authorize('manage', $promoCode);
 
-        $promoCode->update($request->all());
+        $promoCode->update($request->validated());
         return redirect()->route('admin.promo-codes.index')->with('success', 'Promo code updated!');
     }
 
     public function destroy(PromoCode $promoCode)
     {
+        $this->authorize('manage', $promoCode);
+
         $promoCode->delete();
         return back()->with('success', 'Promo code deleted!');
     }

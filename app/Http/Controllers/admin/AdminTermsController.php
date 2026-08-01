@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\Admin\TermsRequest;
 use App\Models\TermsAndCondition;
 
 class AdminTermsController extends Controller
@@ -14,13 +14,9 @@ class AdminTermsController extends Controller
         return view('backend.terms.index', compact('terms'));
     }
 
-    public function update(Request $request, TermsAndCondition $term)
+    public function update(TermsRequest $request, TermsAndCondition $term)
     {
-        $request->validate([
-            'title' => 'required|string|max:255',
-            'content' => 'required|string',
-            'is_active' => 'boolean',
-        ]);
+        $this->authorize('manage', $term);
 
         $term->update([
             'title' => $request->title,

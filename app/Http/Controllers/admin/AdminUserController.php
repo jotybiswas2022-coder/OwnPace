@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\UpdateUserRoleRequest;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Role;
@@ -41,9 +42,9 @@ class AdminUserController extends Controller
         return view('backend.users.show', compact('user'));
     }
 
-    public function updateRole(Request $request, User $user)
+    public function updateRole(UpdateUserRoleRequest $request, User $user)
     {
-        $request->validate(['role_id' => 'required|exists:roles,id']);
+        $this->authorize('manage', $user);
 
         if ($user->isSuperAdmin() && !auth()->user()->isSuperAdmin()) {
             return back()->with('error', 'You cannot change a Super Admin role.');
@@ -55,6 +56,8 @@ class AdminUserController extends Controller
 
     public function suspend(User $user)
     {
+        $this->authorize('manage', $user);
+
         if ($user->isSuperAdmin() && !auth()->user()->isSuperAdmin()) {
             return back()->with('error', 'You cannot suspend a Super Admin.');
         }
@@ -69,6 +72,8 @@ class AdminUserController extends Controller
 
     public function unsuspend(User $user)
     {
+        $this->authorize('manage', $user);
+
         $user->update([
             'is_suspended' => false,
             'suspended_at' => null,
@@ -79,6 +84,8 @@ class AdminUserController extends Controller
 
     public function destroy(User $user)
     {
+        $this->authorize('manage', $user);
+
         if ($user->isSuperAdmin() && !auth()->user()->isSuperAdmin()) {
             return back()->with('error', 'You cannot delete a Super Admin.');
         }

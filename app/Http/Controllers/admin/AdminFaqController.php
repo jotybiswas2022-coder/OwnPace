@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\Admin\FaqRequest;
 use App\Models\Faq;
 
 class AdminFaqController extends Controller
@@ -14,15 +14,9 @@ class AdminFaqController extends Controller
         return view('backend.faqs.index', compact('faqs'));
     }
 
-    public function store(Request $request)
+    public function store(FaqRequest $request)
     {
-        $request->validate([
-            'question' => 'required|string|max:255',
-            'answer' => 'required|string',
-            'category' => 'nullable|string|max:255',
-            'sort_order' => 'nullable|integer|min:0',
-            'is_active' => 'boolean',
-        ]);
+        $this->authorize('manage', Faq::class);
 
         Faq::create([
             'question' => $request->question,
@@ -35,15 +29,9 @@ class AdminFaqController extends Controller
         return back()->with('success', 'FAQ created successfully!');
     }
 
-    public function update(Request $request, Faq $faq)
+    public function update(FaqRequest $request, Faq $faq)
     {
-        $request->validate([
-            'question' => 'required|string|max:255',
-            'answer' => 'required|string',
-            'category' => 'nullable|string|max:255',
-            'sort_order' => 'nullable|integer|min:0',
-            'is_active' => 'boolean',
-        ]);
+        $this->authorize('manage', $faq);
 
         $faq->update([
             'question' => $request->question,
@@ -58,6 +46,8 @@ class AdminFaqController extends Controller
 
     public function destroy(Faq $faq)
     {
+        $this->authorize('manage', $faq);
+
         $faq->delete();
         return back()->with('success', 'FAQ deleted!');
     }

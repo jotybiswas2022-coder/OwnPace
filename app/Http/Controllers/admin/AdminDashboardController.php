@@ -16,6 +16,8 @@ class AdminDashboardController extends Controller
 {
     public function index()
     {
+        $this->authorize('view dashboard');
+
         $totalProducts = Product::count();
         $totalOrders = Order::count();
         $totalUsers = User::count();
@@ -94,6 +96,8 @@ class AdminDashboardController extends Controller
      */
     public function refreshData()
     {
+        $this->authorize('view dashboard');
+
         $totalProducts = Product::count();
         $totalOrders = Order::count();
         $totalUsers = User::count();

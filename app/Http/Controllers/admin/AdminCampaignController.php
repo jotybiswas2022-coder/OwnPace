@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\Admin\CampaignRequest;
 use App\Models\Campaign;
 use App\Models\User;
 use App\Models\CampaignLog;
@@ -21,16 +21,9 @@ class AdminCampaignController extends Controller
         return view('backend.campaigns.create');
     }
 
-    public function store(Request $request)
+    public function store(CampaignRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'subject' => 'nullable|string|max:255',
-            'content' => 'required|string',
-            'channel' => 'required|in:email,sms,both',
-            'audience' => 'required|in:all,active_users,overdue_users,specific',
-            'action' => 'required|in:draft,send_now',
-        ]);
+        $this->authorize('manage', Campaign::class);
 
         $status = $request->action === 'send_now' ? 'sent' : 'draft';
 
@@ -57,6 +50,8 @@ class AdminCampaignController extends Controller
 
     public function send(Campaign $campaign)
     {
+        $this->authorize('manage', $campaign);
+
         if ($campaign->status === 'sent') {
             return back()->with('error', 'This campaign has already been sent.');
         }
@@ -113,6 +108,8 @@ class AdminCampaignController extends Controller
 
     public function destroy(Campaign $campaign)
     {
+        $this->authorize('manage', $campaign);
+
         $campaign->logs()->delete();
         $campaign->delete();
         return back()->with('success', 'Campaign deleted successfully!');

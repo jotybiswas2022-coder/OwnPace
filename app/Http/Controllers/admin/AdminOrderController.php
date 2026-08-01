@@ -4,6 +4,9 @@ namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Requests\Admin\OrderStatusRequest;
+use App\Http\Requests\Admin\DeliveryStatusRequest;
+use App\Http\Requests\Admin\FeeRequest;
 use App\Models\Order;
 use App\Models\InstallmentPlan;
 use App\Models\ProductFee;
@@ -40,22 +43,18 @@ class AdminOrderController extends Controller
         return view('backend.orders.show', compact('order'));
     }
 
-    public function updateStatus(Request $request, Order $order)
+    public function updateStatus(OrderStatusRequest $request, Order $order)
     {
-        $request->validate([
-            'status' => 'required|in:pending,processing,partial_paid,completed,cancelled',
-        ]);
+        $this->authorize('manage', $order);
 
         $order->update(['status' => $request->status]);
 
         return back()->with('success', 'Order status updated to ' . $request->status);
     }
 
-    public function updateDeliveryStatus(Request $request, Order $order)
+    public function updateDeliveryStatus(DeliveryStatusRequest $request, Order $order)
     {
-        $request->validate([
-            'delivery_status' => 'required|in:pending,processing,shipped,in_transit,out_for_delivery,delivered,failed',
-        ]);
+        $this->authorize('manage', $order);
 
         $order->update(['delivery_status' => $request->delivery_status]);
 
@@ -72,11 +71,9 @@ class AdminOrderController extends Controller
         return view('backend.orders.fees', compact('fees'));
     }
 
-    public function updateFee(Request $request, ProductFee $fee)
+    public function updateFee(FeeRequest $request, ProductFee $fee)
     {
-        $request->validate([
-            'amount' => 'required|numeric|min:0',
-        ]);
+        $this->authorize('manage', $fee);
 
         $fee->update([
             'amount' => $request->amount,

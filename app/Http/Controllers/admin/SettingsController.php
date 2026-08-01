@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\Admin\SettingsRequest;
 use App\Models\Setting;
 
 class SettingsController extends Controller
@@ -14,14 +14,9 @@ class SettingsController extends Controller
         return view('backend.settings', compact('settings'));
     }
 
-    public function update(Request $request)
+    public function update(SettingsRequest $request)
     {
-        $request->validate([
-            'email'          => 'required|string',
-            'phone'          => 'required|string',
-            'location'       => 'required|string',
-            'default_gateway' => 'nullable|string',
-        ]);
+        $this->authorize('manage', Setting::class);
 
         $settings = Setting::first() ?? new Setting();
 

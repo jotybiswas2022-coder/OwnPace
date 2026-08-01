@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\Admin\SupplierRequest;
 use App\Models\Supplier;
 
 class AdminSupplierController extends Controller
@@ -19,17 +19,11 @@ class AdminSupplierController extends Controller
         return view('backend.suppliers.create');
     }
 
-    public function store(Request $request)
+    public function store(SupplierRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'nullable|email|max:255',
-            'phone' => 'nullable|string|max:20',
-            'address' => 'nullable|string',
-            'api_endpoint' => 'nullable|url|max:255',
-        ]);
+        $this->authorize('manage', Supplier::class);
 
-        Supplier::create($request->all());
+        Supplier::create($request->validated());
         return redirect()->route('admin.suppliers.index')->with('success', 'Supplier added successfully!');
     }
 
@@ -38,20 +32,18 @@ class AdminSupplierController extends Controller
         return view('backend.suppliers.edit', compact('supplier'));
     }
 
-    public function update(Request $request, Supplier $supplier)
+    public function update(SupplierRequest $request, Supplier $supplier)
     {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'nullable|email|max:255',
-            'phone' => 'nullable|string|max:20',
-        ]);
+        $this->authorize('manage', $supplier);
 
-        $supplier->update($request->all());
+        $supplier->update($request->validated());
         return redirect()->route('admin.suppliers.index')->with('success', 'Supplier updated!');
     }
 
     public function destroy(Supplier $supplier)
     {
+        $this->authorize('manage', $supplier);
+
         if ($supplier->products()->count() > 0) {
             return back()->with('error', 'Cannot delete supplier with existing products.');
         }

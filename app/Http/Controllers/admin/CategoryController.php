@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\Admin\CategoryRequest;
 use App\Models\Category;
 
 class CategoryController extends Controller
@@ -28,11 +28,9 @@ class CategoryController extends Controller
     }
 
     // Store new category
-    public function store(Request $request)
+    public function store(CategoryRequest $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255'
-        ]);
+        $this->authorize('manage', Category::class);
 
         Category::create(['name' => $request->name]);
 
@@ -43,19 +41,18 @@ class CategoryController extends Controller
     public function delete($id)
     {
         $category = Category::findOrFail($id);
+        $this->authorize('manage', $category);
         $category->delete();
 
         return redirect('/admin/category')->with('success', 'Category deleted successfully!');
     }
 
     // Update category
-    public function update(Request $request, $id)
+    public function update(CategoryRequest $request, $id)
     {
-        $request->validate([
-            'name' => 'required|string|max:255'
-        ]);
-
         $category = Category::findOrFail($id);
+        $this->authorize('manage', $category);
+
         $category->name = $request->name;
         $category->save();
 

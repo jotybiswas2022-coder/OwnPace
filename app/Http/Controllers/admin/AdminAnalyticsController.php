@@ -13,6 +13,8 @@ class AdminAnalyticsController extends Controller
 {
     public function index()
     {
+        $this->authorize('view analytics');
+
         $totalOrders = Order::count();
         $totalRevenue = Order::where('status', 'completed')->sum('grand_total');
         $totalUsers = User::count();
@@ -91,6 +93,8 @@ class AdminAnalyticsController extends Controller
 
     public function export()
     {
+        $this->authorize('view analytics');
+
         $orders = Order::with('user')->latest()->get();
 
         $csv = "Order #,Customer,Amount,Status,Date\n";

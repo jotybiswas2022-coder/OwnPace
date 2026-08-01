@@ -3,7 +3,8 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\Admin\RequestStatusRequest;
+use App\Http\Requests\Admin\RejectRequestRequest;
 use App\Models\PlanChangeRequest;
 use App\Models\ProductRequest;
 use App\Models\ExchangeRequest;
@@ -21,6 +22,8 @@ class AdminRequestController extends Controller
 
     public function approvePlanChange(PlanChangeRequest $planChangeRequest)
     {
+        $this->authorize('manage', $planChangeRequest);
+
         $planChangeRequest->update([
             'status' => 'approved',
             'approved_at' => now(),
@@ -52,9 +55,9 @@ class AdminRequestController extends Controller
         return back()->with('success', 'Plan change approved successfully!');
     }
 
-    public function rejectPlanChange(PlanChangeRequest $planChangeRequest, Request $request)
+    public function rejectPlanChange(RejectRequestRequest $request, PlanChangeRequest $planChangeRequest)
     {
-        $request->validate(['admin_notes' => 'nullable|string']);
+        $this->authorize('manage', $planChangeRequest);
 
         $planChangeRequest->update([
             'status' => 'rejected',
@@ -71,12 +74,9 @@ class AdminRequestController extends Controller
         return view('backend.requests.product-requests', compact('requests'));
     }
 
-    public function updateProductRequest(Request $request, ProductRequest $productRequest)
+    public function updateProductRequest(RequestStatusRequest $request, ProductRequest $productRequest)
     {
-        $request->validate([
-            'status' => 'required|in:approved,rejected',
-            'admin_notes' => 'nullable|string',
-        ]);
+        $this->authorize('manage', $productRequest);
 
         $productRequest->update([
             'status' => $request->status,
@@ -95,12 +95,9 @@ class AdminRequestController extends Controller
         return view('backend.requests.exchange-requests', compact('requests'));
     }
 
-    public function updateExchangeRequest(Request $request, ExchangeRequest $exchangeRequest)
+    public function updateExchangeRequest(RequestStatusRequest $request, ExchangeRequest $exchangeRequest)
     {
-        $request->validate([
-            'status' => 'required|in:approved,rejected,completed',
-            'admin_notes' => 'nullable|string',
-        ]);
+        $this->authorize('manage', $exchangeRequest);
 
         $exchangeRequest->update([
             'status' => $request->status,

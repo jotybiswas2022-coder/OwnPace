@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\Admin\SliderRequest;
 use App\Models\Slider;
 use Illuminate\Support\Facades\Storage;
 
@@ -15,12 +15,9 @@ class SliderController extends Controller
         return view('backend.sliders', compact('sliders'));
     }
 
-    public function store(Request $request)
+    public function store(SliderRequest $request)
     {
-        $request->validate([
-            'slider1' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:4096',
-            'slider2' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:4096',
-        ]);
+        $this->authorize('manage', Slider::class);
 
         $slider = new Slider();
 
@@ -40,6 +37,7 @@ class SliderController extends Controller
     public function delete($id)
     {
         $slider = Slider::findOrFail($id);
+        $this->authorize('manage', $slider);
 
         if ($slider->slider1 && Storage::disk('public')->exists($slider->slider1)) {
             Storage::disk('public')->delete($slider->slider1);
