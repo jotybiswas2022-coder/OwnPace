@@ -1,5 +1,5 @@
 @extends('frontend.app')
-@section('title', 'My Addresses — FlexiPay Store')
+@section('title', 'My Addresses — OwnPace Store')
 
 @push('styles')
 <style>

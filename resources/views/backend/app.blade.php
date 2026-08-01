@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Admin — FlexiPay Store')</title>
+    <title>@yield('title', 'Admin — OwnPace Store')</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
@@ -46,7 +46,9 @@
             position: fixed; top: 0; left: 0; bottom: 0;
             z-index: 1050;
             transition: transform 0.3s;
+            transform: translateX(-100%);
         }
+        .fp-sidebar.open { transform: translateX(0); }
         .fp-sidebar-brand {
             padding: 20px;
             border-bottom: 1px solid var(--card-border);
@@ -99,7 +101,7 @@
         /* Main Content */
         .fp-main {
             flex: 1;
-            margin-left: 250px;
+            margin-left: 0;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
@@ -114,11 +116,21 @@
         }
         .fp-topbar-left { display: flex; align-items: center; gap: 12px; }
         .fp-sidebar-toggle {
-            display: none;
+            display: block;
             background: none; border: none;
             color: var(--text-primary); font-size: 20px;
             cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: background 0.2s;
         }
+        .fp-sidebar-toggle:hover { background: rgba(234,179,8,0.08); }
+
+        .fp-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+            z-index: 1040; display: none;
+        }
+        .fp-overlay.open { display: block; }
         .fp-topbar h5 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 16px; font-weight: 700; color: var(--text-primary); margin: 0; }
         .fp-topbar-right { display: flex; align-items: center; gap: 12px; }
         .fp-topbar-user {
@@ -223,15 +235,6 @@
         .fp-form-control option { background: var(--card-dark); color: var(--text-primary); }
 
         @media (max-width: 768px) {
-            .fp-sidebar { transform: translateX(-100%); }
-            .fp-sidebar.open { transform: translateX(0); }
-            .fp-main { margin-left: 0; }
-            .fp-sidebar-toggle { display: block; }
-            .fp-overlay {
-                position: fixed; inset: 0; background: rgba(0,0,0,0.5);
-                z-index: 1040; display: none;
-            }
-            .fp-overlay.open { display: block; }
             .fp-content { padding: 16px; }
             .fp-table th, .fp-table td { padding: 10px 14px; }
             .fp-topbar { padding: 10px 16px; }

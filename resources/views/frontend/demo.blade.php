@@ -1,5 +1,5 @@
 @extends('frontend.app')
-@section('title', 'Feature Demo — FlexiPay Redesign Showcase')
+@section('title', 'Feature Demo — OwnPace Redesign Showcase')
 
 @section('content')
 
@@ -428,7 +428,7 @@
         <div class="demo-badge">
             <i class="bi bi-stars"></i> Feature Showcase
         </div>
-        <h1>FlexiPay <span>Redesign</span> Demo</h1>
+        <h1>OwnPace <span>Redesign</span> Demo</h1>
         <p>An interactive showcase of all the frontend improvements — mobile hero, desktop enhancements, bottom navigation, and more.</p>
         <div class="demo-version">
             <i class="bi bi-check-circle-fill"></i>
@@ -846,7 +846,7 @@
 <section style="padding:40px 0;text-align:center;border-top:1px solid rgba(255,255,255,0.04);">
     <div class="container">
         <p style="color:#71717a;font-size:13px;max-width:500px;margin:0 auto;line-height:1.7;">
-            These features are <strong style="color:#f4f4f5;">live on the FlexiPay homepage</strong>. 
+            These features are <strong style="color:#f4f4f5;">live on the OwnPace homepage</strong>. 
             View them in action by visiting the main site and resizing your browser or using DevTools mobile mode.
         </p>
         <div style="margin-top:20px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">

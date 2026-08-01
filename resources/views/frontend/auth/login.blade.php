@@ -409,7 +409,7 @@
                 <button type="submit" class="fp-submit-btn" id="loginBtn">
                     <i class="bi bi-box-arrow-in-right btn-main-icon"></i>
                     <i class="bi bi-arrow-repeat btn-spinner"></i>
-                    Sign In to FlexiPay
+                    Sign In to OwnPace
                 </button>
             </form>
 
@@ -439,7 +439,7 @@
         </div>
 
         <div class="fp-card-footer">
-            <div class="fp-footer-branding"><i class="bi bi-currency-exchange"></i> FlexiPay &copy; 2025</div>
+            <div class="fp-footer-branding"><i class="bi bi-currency-exchange"></i> OwnPace &copy; 2025</div>
             <div class="fp-footer-links">
                 <a href="#">Privacy</a>
                 <a href="#">Terms</a>

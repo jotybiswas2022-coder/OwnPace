@@ -1,5 +1,5 @@
 @extends('frontend.app')
-@section('title', 'Terms & Conditions — FlexiPay Store')
+@section('title', 'Terms & Conditions — OwnPace Store')
 
 @push('styles')
 <style>
@@ -51,22 +51,22 @@
                         {!! nl2br(e($terms->content)) !!}
                     @else
                         <h4>General Terms</h4>
-                        <p>By using FlexiPay Store, you agree to the following terms and conditions. Please read them carefully.</p>
+                        <p>By using OwnPace Store, you agree to the following terms and conditions. Please read them carefully.</p>
 
                         <h5>1. Payment Plans</h5>
-                        <p>FlexiPay offers flexible installment payment plans ranging from 4 to 40 weeks or 1 to 12 months. Interest rates vary by plan. By selecting a plan, you commit to making timely payments as agreed.</p>
+                        <p>OwnPace offers flexible installment payment plans ranging from 4 to 40 weeks or 1 to 12 months. Interest rates vary by plan. By selecting a plan, you commit to making timely payments as agreed.</p>
 
                         <h5>2. Delivery</h5>
                         <p>Products will be shipped once 70% of the total order is paid. Delivery fees are calculated and included in the initial payment. Delivery timelines vary by location.</p>
 
                         <h5>3. Cancellation</h5>
-                        <p>You may cancel your installment plan at any time. A 10% cancellation fee applies. Refunds are credited to your FlexiPay wallet for future purchases.</p>
+                        <p>You may cancel your installment plan at any time. A 10% cancellation fee applies. Refunds are credited to your OwnPace wallet for future purchases.</p>
 
                         <h5>4. Insurance</h5>
                         <p>Insurance is optional and costs 10% of the total order. It covers damage, loss, or theft during the installment period.</p>
 
                         <h5>5. Account</h5>
-                        <p>You are responsible for maintaining the confidentiality of your account credentials. FlexiPay reserves the right to suspend or terminate accounts for violation of terms.</p>
+                        <p>You are responsible for maintaining the confidentiality of your account credentials. OwnPace reserves the right to suspend or terminate accounts for violation of terms.</p>
                     @endif
                 </div>
             </div>

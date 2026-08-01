@@ -1,5 +1,5 @@
 @extends('frontend.app')
-@section('title', 'About Us — FlexiPay Store')
+@section('title', 'About Us — OwnPace Store')
 
 @push('styles')
 <style>
@@ -131,7 +131,7 @@
     <div class="container">
         <div class="section-head reveal-up">
             <div class="section-badge"><i class="bi bi-info-circle-fill"></i> About Us</div>
-            <h2>Why FlexiPay?</h2>
+            <h2>Why OwnPace?</h2>
             <p>We're on a mission to make shopping accessible for everyone</p>
         </div>
 
@@ -139,7 +139,7 @@
             <div class="col-lg-6">
                 <div class="fp-ab-story reveal-left">
                     <h3>Buy Now, Pay Comfortably</h3>
-                    <p>FlexiPay Store is Nigeria's premier installment payment platform. We believe everyone deserves access to quality products without financial strain. Our platform allows you to shop thousands of products and pay over time with flexible weekly or monthly plans that fit your budget.</p>
+                    <p>OwnPace Store is Nigeria's premier installment payment platform. We believe everyone deserves access to quality products without financial strain. Our platform allows you to shop thousands of products and pay over time with flexible weekly or monthly plans that fit your budget.</p>
                     <p>With features like insurance coverage, wallet system, delivery tracking, and 24/7 support, we're here to make your shopping experience seamless and enjoyable. Our mission is simple: empower Nigerians to get what they need today while paying in a way that works for them.</p>
                     <p>Founded in 2025, we've quickly grown to serve thousands of happy customers across 36 states in Nigeria, partnering with top brands and trusted payment gateways to ensure a safe, secure shopping experience.</p>
                 </div>
@@ -264,7 +264,7 @@
                     <div class="fp-ab-tl-item">
                         <div class="fp-ab-tl-dot"></div>
                         <div class="fp-ab-tl-year">January 2025</div>
-                        <div class="fp-ab-tl-text">FlexiPay Store was founded with a vision to make quality products accessible to all Nigerians through flexible installment payments.</div>
+                        <div class="fp-ab-tl-text">OwnPace Store was founded with a vision to make quality products accessible to all Nigerians through flexible installment payments.</div>
                     </div>
                     <div class="fp-ab-tl-item">
                         <div class="fp-ab-tl-dot"></div>
@@ -291,7 +291,7 @@
     <div class="container">
         <div class="fp-ab-cta reveal-up">
             <h3>Ready to Start Shopping?</h3>
-            <p>Join thousands of Nigerians who shop flexibly with FlexiPay Store</p>
+            <p>Join thousands of Nigerians who shop flexibly with OwnPace Store</p>
             <a href="{{ url('/shop') }}" class="btn-primary-gold" style="display:inline-flex;"><i class="bi bi-grid-fill"></i> Browse Products</a>
         </div>
     </div>

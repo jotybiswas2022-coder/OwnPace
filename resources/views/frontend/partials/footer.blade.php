@@ -1,8 +1,8 @@
 @php
 use App\Models\Setting;
 $settings = Setting::first();
-$email = $settings?->email ?? 'support@flexipay.store';
-$phone = $settings?->phone ?? '+234 800-FLEXIPAY';
+$email = $settings?->email ?? 'support@ownpace.store';
+$phone = $settings?->phone ?? '+234 800-OWNPACE';
 $location = $settings?->location ?? 'Lagos, Nigeria';
 @endphp
 
@@ -110,7 +110,7 @@ $location = $settings?->location ?? 'Lagos, Nigeria';
         <div class="container">
             <div class="row align-items-center">
                 <div class="col-md-6 text-center text-md-start">
-                    <p>&copy; {{ date('Y') }} <span>FlexiPay Store</span> — All rights reserved. Made with <i class="bi bi-heart-fill"></i> in Nigeria | Developed by Joty Biswas</p>
+                    <p>&copy; {{ date('Y') }} <span>OwnPace Store</span> — All rights reserved. Made with <i class="bi bi-heart-fill"></i> in Nigeria | Developed by Joty Biswas</p>
                 </div>
                 <div class="col-md-6 text-center text-md-end mt-2 mt-md-0">
                     <a href="{{ url('/terms/privacy') }}">Privacy</a>

@@ -21,6 +21,12 @@ class CategoryController extends Controller
         return view('backend.category.create');
     }
 
+    // Show edit form (dedicated page — replaces the old Bootstrap modal)
+    public function edit(Category $category)
+    {
+        return view('backend.category.edit', compact('category'));
+    }
+
     // Store new category
     public function store(Request $request)
     {

@@ -10,6 +10,10 @@ class AdminMiddleware
 {
     /**
      * Handle an incoming request.
+     *
+     * Authorizes via spatie/laravel-permission roles (Customer, Admin, Super Admin).
+     * Falls back to the legacy `isAdmin` / `isSuperAdmin` flags so existing
+     * administrators keep access until their rows are assigned spatie roles.
      */
     public function handle(Request $request, Closure $next, string $role = null): Response
     {
@@ -19,18 +23,20 @@ class AdminMiddleware
 
         $user = auth()->user();
 
-        // If specific role is required
+        // Legacy flag checks run FIRST: they are pure model logic and keep
+        // existing admins working even before the spatie acl_* tables exist
+        // (e.g. before `php artisan migrate` is run for the first time).
         if ($role === 'super_admin') {
-            if (!$user->isSuperAdmin()) {
+            if (!$user->isSuperAdmin() && !$user->hasRole('super_admin')) {
                 abort(403, 'Unauthorized. Super Admin access required.');
             }
         } elseif ($role === 'admin') {
-            if (!$user->isAdmin()) {
+            if (!$user->isAdmin() && !$user->hasAnyRole(['admin', 'super_admin'])) {
                 abort(403, 'Unauthorized. Admin access required.');
             }
         } else {
-            // General admin check
-            if (!$user->isAdmin()) {
+            // General admin check.
+            if (!$user->isAdmin() && !$user->hasAnyRole(['admin', 'super_admin'])) {
                 abort(403, 'Unauthorized. Admin access required.');
             }
         }

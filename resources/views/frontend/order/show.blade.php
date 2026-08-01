@@ -1,5 +1,5 @@
 @extends('frontend.app')
-@section('title', 'Order #'.$order->id.' — FlexiPay Store')
+@section('title', 'Order #'.$order->id.' — OwnPace Store')
 
 @push('styles')
 <style>

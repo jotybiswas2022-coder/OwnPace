@@ -1,5 +1,5 @@
 @extends('backend.app')
-@section('title', 'Settings — FlexiPay Admin')
+@section('title', 'Settings — OwnPace Admin')
 @section('page_title', 'Settings')
 
 @section('content')
@@ -21,24 +21,24 @@
 
     <!-- ===== GENERAL SETTINGS ===== -->
     <div class="row justify-content-center mb-4">
-        <div class="col-lg-10">
+        <div class="col-12 col-lg-10">
             <div class="fp-table-wrap">
                 <div class="fp-table-header"><h5><i class="bi bi-gear-fill"></i> General Settings</h5></div>
                 <div style="padding:24px;">
                     <div class="row g-4">
-                        <div class="col-md-6">
+                        <div class="col-sm-6">
                             <label style="display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px;">
                                 <i class="bi bi-envelope-fill" style="color:var(--gold-500);"></i> Email
                             </label>
                             <input type="email" name="email" class="fp-form-control" value="{{ $settings?->email ?? '' }}" placeholder="Enter email">
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-sm-6">
                             <label style="display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px;">
                                 <i class="bi bi-telephone-fill" style="color:var(--gold-500);"></i> Phone
                             </label>
                             <input type="text" name="phone" class="fp-form-control" value="{{ $settings?->phone ?? '' }}" placeholder="Enter phone number">
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-sm-6">
                             <label style="display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px;">
                                 <i class="bi bi-geo-alt-fill" style="color:var(--gold-500);"></i> Location
                             </label>
@@ -52,7 +52,7 @@
 
     <!-- ===== PAYMENT GATEWAYS ===== -->
     <div class="row justify-content-center mb-4">
-        <div class="col-lg-10">
+        <div class="col-12 col-lg-10">
             <div class="fp-table-wrap">
                 <div class="fp-table-header">
                     <h5><i class="bi bi-credit-card"></i> Payment Gateway Configuration</h5>
@@ -87,11 +87,11 @@
                             </div>
                         </div>
                         <div class="row g-3">
-                            <div class="col-md-6">
+                            <div class="col-sm-6">
                                 <label style="display:block;font-size:11px;color:var(--text-dim);margin-bottom:4px;">Public Key</label>
                                 <input type="text" name="paystack_public" class="fp-form-control" value="{{ $gc['paystack_public'] ?? '' }}" placeholder="pk_live_xxxxxxxxx">
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-sm-6">
                                 <label style="display:block;font-size:11px;color:var(--text-dim);margin-bottom:4px;">Secret Key</label>
                                 <input type="password" name="paystack_secret" class="fp-form-control" value="{{ $gc['paystack_secret'] ?? '' }}" placeholder="sk_live_xxxxxxxxx">
                             </div>
@@ -110,15 +110,15 @@
                             </div>
                         </div>
                         <div class="row g-3">
-                            <div class="col-md-6">
+                            <div class="col-sm-6">
                                 <label style="display:block;font-size:11px;color:var(--text-dim);margin-bottom:4px;">Public Key</label>
                                 <input type="text" name="flutterwave_public" class="fp-form-control" value="{{ $gc['flutterwave_public'] ?? '' }}" placeholder="FLWPUBK-xxxxxxxxx">
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-sm-6">
                                 <label style="display:block;font-size:11px;color:var(--text-dim);margin-bottom:4px;">Secret Key</label>
                                 <input type="password" name="flutterwave_secret" class="fp-form-control" value="{{ $gc['flutterwave_secret'] ?? '' }}" placeholder="FLWSECK-xxxxxxxxx">
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-sm-6">
                                 <label style="display:block;font-size:11px;color:var(--text-dim);margin-bottom:4px;">Encryption Key</label>
                                 <input type="password" name="flutterwave_encryption" class="fp-form-control" value="{{ $gc['flutterwave_encryption'] ?? '' }}" placeholder="FLWSECK-xxxxxxxxx">
                             </div>
@@ -137,11 +137,11 @@
                             </div>
                         </div>
                         <div class="row g-3">
-                            <div class="col-md-6">
+                            <div class="col-sm-6">
                                 <label style="display:block;font-size:11px;color:var(--text-dim);margin-bottom:4px;">Public Key</label>
                                 <input type="text" name="korapay_public" class="fp-form-control" value="{{ $gc['korapay_public'] ?? '' }}" placeholder="pk_prod_xxxxxxxxx">
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-sm-6">
                                 <label style="display:block;font-size:11px;color:var(--text-dim);margin-bottom:4px;">Secret Key</label>
                                 <input type="password" name="korapay_secret" class="fp-form-control" value="{{ $gc['korapay_secret'] ?? '' }}" placeholder="sk_prod_xxxxxxxxx">
                             </div>
@@ -155,7 +155,7 @@
 
     <!-- SAVE BUTTON -->
     <div class="row justify-content-center">
-        <div class="col-lg-10 text-end">
+        <div class="col-12 col-lg-10 text-end">
             <button type="submit" class="fp-btn fp-btn-gold" style="padding:10px 28px;"><i class="bi bi-check-lg"></i> Save All Settings</button>
         </div>
     </div>

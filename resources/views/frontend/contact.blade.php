@@ -1,5 +1,5 @@
 @extends('frontend.app')
-@section('title', 'Contact Us — FlexiPay Store')
+@section('title', 'Contact Us — OwnPace Store')
 
 @push('styles')
 <style>
@@ -178,14 +178,14 @@
                             <div class="fp-ci-icon"><i class="bi bi-envelope-fill"></i></div>
                             <div>
                                 <strong>Email</strong>
-                                <span>support@flexipay.store</span>
+                                <span>support@ownpace.store</span>
                             </div>
                         </div>
                         <div class="fp-ci-card">
                             <div class="fp-ci-icon"><i class="bi bi-telephone-fill"></i></div>
                             <div>
                                 <strong>Phone</strong>
-                                <span>+234 800-FLEXIPAY</span>
+                                <span>+234 800-OWNPACE</span>
                             </div>
                         </div>
                         <div class="fp-ci-card">

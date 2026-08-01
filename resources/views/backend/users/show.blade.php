@@ -1,5 +1,5 @@
 @extends('backend.app')
-@section('title', 'User Details — FlexiPay Admin')
+@section('title', 'User Details — OwnPace Admin')
 @section('page_title', 'User: '.($user->name ?? 'N/A'))
 
 @section('content')
@@ -39,7 +39,7 @@
         </div>
     </div>
 </div>
-<div class="mt-3">
+<div class="mt-3 d-flex flex-wrap gap-2">
     <form action="{{ route('admin.users.role', $user) }}" method="POST" class="d-inline">
         @csrf
         <select name="role" class="fp-form-control" style="width:auto;display:inline;">

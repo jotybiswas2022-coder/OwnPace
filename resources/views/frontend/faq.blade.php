@@ -1,5 +1,5 @@
 @extends('frontend.app')
-@section('title', 'FAQs — FlexiPay Store')
+@section('title', 'FAQs — OwnPace Store')
 
 @push('styles')
 <style>
@@ -131,7 +131,7 @@
         <div class="section-head reveal-up">
             <div class="section-badge"><i class="bi bi-question-circle-fill"></i> FAQs</div>
             <h2>Frequently Asked Questions</h2>
-            <p>Everything you need to know about shopping with FlexiPay</p>
+            <p>Everything you need to know about shopping with OwnPace</p>
         </div>
 
         <div class="fp-faq-search reveal-up">
@@ -184,11 +184,11 @@
                         <div class="accordion-item faq-item">
                             <h2 class="accordion-header">
                                 <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
-                                    <i class="bi bi-question-circle"></i> How does FlexiPay installment work?
+                                    <i class="bi bi-question-circle"></i> How does OwnPace installment work?
                                 </button>
                             </h2>
                             <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqPayments">
-                                <div class="accordion-body">FlexiPay allows you to purchase products and pay over time. Choose from weekly (4–40 weeks) or monthly (1–12 months) plans. Pay 70% upfront to get your item shipped, then complete the remaining balance in installments.</div>
+                                <div class="accordion-body">OwnPace allows you to purchase products and pay over time. Choose from weekly (4–40 weeks) or monthly (1–12 months) plans. Pay 70% upfront to get your item shipped, then complete the remaining balance in installments.</div>
                             </div>
                         </div>
                         <div class="accordion-item faq-item">

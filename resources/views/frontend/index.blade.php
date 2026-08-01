@@ -1,1682 +1,303 @@
-@extends('frontend.app')
-@section('title', 'FlexiPay Store — Buy Now, Pay in Installments')
+@extends('frontend.layouts.store')
+@section('title', storeName().' — Own at your own pace')
 
 @section('content')
 
 @if(session('success'))
-<div class="alert-success-custom" role="status">
-    <i class="bi bi-check-circle-fill me-2"></i>{{ session('success') }}
-</div>
+<div class="bg-grass/10 border-l-4 border-grass text-grass px-4 py-3 text-sm" role="status">{{ session('success') }}</div>
 @endif
 @if(session('error'))
-<div class="alert-danger-custom" role="status">
-    <i class="bi bi-exclamation-triangle-fill me-2"></i>{{ session('error') }}
-</div>
+<div class="bg-ember/10 border-l-4 border-ember text-ember px-4 py-3 text-sm" role="status">{{ session('error') }}</div>
 @endif
 
 <!-- ===== HERO ===== -->
-<section class="fp-hero">
-    <div class="fp-hero-bg">
-        <div class="fp-hero-glow g1"></div>
-        <div class="fp-hero-glow g2"></div>
-        <div class="fp-hero-glow g3 d-none d-lg-block"></div>
-        <div class="fp-hero-glow g4 d-none d-lg-block"></div>
-        <!-- mobile hero gradient overlay -->
-        <div class="fp-hero-mobile-overlay"></div>
-        <!-- Desktop floating decorations -->
-        <div class="fp-hero-float d-none d-lg-flex">
-            <div class="fp-float-shape s1"><i class="bi bi-shield-fill-check"></i></div>
-            <div class="fp-float-shape s2"><i class="bi bi-coin"></i></div>
-            <div class="fp-float-shape s3"><i class="bi bi-lightning-fill"></i></div>
-        </div>
+<section class="relative overflow-hidden bg-brand">
+    <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+        <div class="absolute -top-24 right-0 h-96 w-96 rounded-full bg-mango/20 blur-3xl"></div>
+        <div class="absolute bottom-0 left-1/4 h-72 w-72 rounded-full bg-white/5 blur-3xl"></div>
     </div>
-    <div class="container">
-        <div class="row align-items-center g-5 flex-lg-row-reverse">
-            @if($sliders->count())
-            <div class="col-lg-6 fp-hero-slider-col">
-                <div id="heroSlider" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
-                    <div class="carousel-inner rounded-4 overflow-hidden fp-hero-slider-inner">
-                        @foreach($sliders as $slider)
-                        @if($slider->slider1)
-                        <div class="carousel-item {{ $loop->first ? 'active' : '' }}">
-                            <img src="{{ Storage::url($slider->slider1) }}" class="d-block w-100 hero-slider-img" alt="Slider">
-                        </div>
-                        @endif
-                        @if($slider->slider2)
-                        <div class="carousel-item {{ $loop->first && !$slider->slider1 ? 'active' : '' }}">
-                            <img src="{{ Storage::url($slider->slider2) }}" class="d-block w-100 hero-slider-img" alt="Slider">
-                        </div>
-                        @endif
-                        @endforeach
-                    </div>
-                    @if($sliders->sum(fn($s) => ($s->slider1 ? 1 : 0) + ($s->slider2 ? 1 : 0)) > 1)
-                    <button class="carousel-control-prev fp-hero-ctrl" type="button" data-bs-target="#heroSlider" data-bs-slide="prev" aria-label="Previous slide">
-                        <i class="bi bi-chevron-left" aria-hidden="true"></i>
-                    </button>
-                    <button class="carousel-control-next fp-hero-ctrl" type="button" data-bs-target="#heroSlider" data-bs-slide="next" aria-label="Next slide">
-                        <i class="bi bi-chevron-right" aria-hidden="true"></i>
-                    </button>
-                    @endif
-                    <!-- mobile slider indicators -->
-                    <div class="fp-hero-mobile-indicators d-lg-none">
-                        @foreach($sliders as $slider)
-                            @if($slider->slider1)
-                            <span class="fp-hero-mobile-dot {{ $loop->first ? 'active' : '' }}" data-bs-target="#heroSlider" data-bs-slide-to="{{ $loop->index * 2 }}"></span>
-                            @endif
-                            @if($slider->slider2)
-                            <span class="fp-hero-mobile-dot {{ $loop->first && !$slider->slider1 ? 'active' : '' }}" data-bs-target="#heroSlider" data-bs-slide-to="{{ $loop->index * 2 + 1 }}"></span>
-                            @endif
-                        @endforeach
-                    </div>
-                    <!-- Desktop slide counter -->
-                    <div class="fp-hero-slide-counter d-none d-lg-flex">
-                        <span class="fp-hero-slide-current">01</span>
-                        <span class="fp-hero-slide-bar"></span>
-                        <span class="fp-hero-slide-total">0{{ min($sliders->sum(fn($s) => ($s->slider1 ? 1 : 0) + ($s->slider2 ? 1 : 0)), 9) }}</span>
-                    </div>
-                </div>
-                <!-- Floating feature pill desktop -->
-                <div class="fp-hero-pill d-none d-lg-flex">
-                    <i class="bi bi-check-circle-fill"></i>
-                    <span>No credit check &bull; Instant approval</span>
-                </div>
+    <div class="relative mx-auto grid max-w-7xl items-center gap-12 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:py-28">
+        <div class="text-white">
+            <span class="os-chip os-chip-mango"><i class="bi bi-shield-fill-check"></i> 100% Secure — Flexible Installments</span>
+            <h1 class="mt-5 font-display text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
+                Own what you love,<br>
+                <span class="text-mango">at your own pace.</span>
+            </h1>
+            <p class="mt-5 max-w-md text-base leading-relaxed text-white/75 sm:text-lg">
+                Shop thousands of products from trusted brands. Pick a weekly or monthly plan that fits your budget — and watch your balance shrink until it's fully yours.
+            </p>
+            <div class="mt-8 flex flex-wrap gap-3">
+                <a href="{{ url('/shop') }}" class="os-btn os-btn-mango text-base"><i class="bi bi-grid-fill"></i> Start Shopping</a>
+                <a href="{{ url('/register') }}" class="os-btn text-base text-white" style="border:1.5px solid rgba(255,255,255,0.35);"><i class="bi bi-person-plus"></i> Create Account</a>
             </div>
-            @endif
-            <div class="col-lg-6">
-                <div class="fp-hero-content">
-                    <div class="fp-hero-badge">
-                        <i class="bi bi-shield-fill-check"></i>
-                        100% Secure — 0% Interest <span class="d-none d-sm-inline">Installments</span>
-                    </div>
-                    <h1 class="fp-hero-title">
-                        Shop What You Love,<br>
-                        <span class="fp-hero-highlight">Pay in Easy Pieces</span>
-                    </h1>
-                    <p class="fp-hero-desc">
-                        Thousands of products from trusted brands. Choose weekly or monthly installments 
-                        that fit your budget — no hidden fees, no surprises.
-                    </p>
-                    <div class="fp-hero-actions">
-                        <a href="{{ url('/shop') }}" class="fp-btn-primary">
-                            <i class="bi bi-grid-fill"></i> Start Shopping
-                        </a>
-                        <a href="{{ url('/register') }}" class="fp-btn-secondary">
-                            <i class="bi bi-person-plus"></i> Create Account
-                        </a>
-                    </div>
-                    <div class="fp-hero-search">
-                        <form action="{{ url('/shop') }}" method="GET" class="fp-hs-form" role="search">
-                            <i class="bi bi-search"></i>
-                            <input type="text" name="search" placeholder="Search products, brands, categories..." aria-label="Search products" autocomplete="off">
-                            <button type="submit">Search</button>
-                        </form>
-                    </div>
-                    <div class="fp-hero-trust">
-                        <div class="fp-ht-item">
-                            <i class="bi bi-people-fill"></i>
-                            <strong data-count="10000">0</strong><span>+ Customers</span>
-                        </div>
-                        <div class="fp-ht-divider"></div>
-                        <div class="fp-ht-item">
-                            <i class="bi bi-box-seam-fill"></i>
-                            <strong data-count="5000">0</strong><span>+ Products</span>
-                        </div>
-                        <div class="fp-ht-divider"></div>
-                        <div class="fp-ht-item">
-                            <i class="bi bi-star-fill"></i>
-                            <strong>4.8</strong><span>Rating</span>
-                        </div>
+            <div class="mt-10 grid max-w-md grid-cols-3 gap-6">
+                @php $stats = [['10k+','Customers'],['5k+','Products'],['4.8','Rating']]; @endphp
+                @foreach($stats as [$val, $label])
+                <div>
+                    <p class="font-mono text-2xl font-semibold text-mango">{{ $val }}</p>
+                    <p class="text-xs text-white/60">{{ $label }}</p>
+                </div>
+                @endforeach
+            </div>
+        </div>
+
+        <!-- Hero visual: signature progress ring -->
+        <div class="flex justify-center lg:justify-end">
+            <div class="rounded-2xl bg-white/5 p-8 ring-1 ring-white/10 backdrop-blur-sm">
+                <div class="flex flex-col items-center gap-6">
+                    <x-progress-ring :percentage="100" amount="₦" label="pay down" :size="160" :stroke="10" color="mango"/>
+                    <div class="text-center">
+                        <p class="font-display text-lg font-bold text-white">Every payment fills the ring.</p>
+                        <p class="mt-1 text-sm text-white/60">When it's full, it's yours.</p>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <!-- Scroll indicator -->
-    <div class="fp-hero-scroll d-none d-lg-flex">
-        <span class="fp-scroll-text">Scroll</span>
-        <span class="fp-scroll-line"></span>
     </div>
 </section>
 
 <!-- ===== TRUST BAR ===== -->
-<section class="fp-trust-bar">
-    <div class="container">
-        <div class="fp-trust-inner">
-            <div class="fp-trust-item">
-                <i class="bi bi-truck"></i>
-                <span>Free delivery on orders over ₦50,000</span>
-            </div>
-            <span class="fp-trust-dot"></span>
-            <div class="fp-trust-item">
-                <i class="bi bi-arrow-repeat"></i>
-                <span>30-day easy exchange</span>
-            </div>
-            <span class="fp-trust-dot"></span>
-            <div class="fp-trust-item">
-                <i class="bi bi-shield-check"></i>
-                <span>256-bit SSL secure payments</span>
-            </div>
-            <span class="fp-trust-dot"></span>
-            <div class="fp-trust-item">
-                <i class="bi bi-headset"></i>
-                <span>24/7 customer support</span>
-            </div>
-            <span class="fp-trust-dot"></span>
-            <div class="fp-trust-item">
-                <i class="bi bi-coin"></i>
-                <span>0% interest plans available</span>
-            </div>
+<section class="border-b border-ink/10 bg-white">
+    <div class="mx-auto grid max-w-7xl grid-cols-2 gap-6 px-4 py-6 sm:px-6 lg:grid-cols-4">
+        @php
+            $trust = [
+                ['bi-truck', 'Free delivery over ₦50,000'],
+                ['bi-arrow-repeat', '30-day easy exchange'],
+                ['bi-shield-check', '256-bit SSL payments'],
+                ['bi-coin', '0% interest plans available'],
+            ];
+        @endphp
+        @foreach($trust as [$icon, $text])
+        <div class="flex items-center gap-3">
+            <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-mango/15 text-lg text-mango-deep"><i class="bi {{ $icon }}"></i></span>
+            <p class="text-sm font-medium leading-snug text-ink">{{ $text }}</p>
         </div>
-    </div>
-</section>
-
-<!-- ===== MARQUEE ===== -->
-<section class="fp-marquee-section">
-    <div class="fp-marquee-track">
-        <div class="fp-marquee-content">
-            <span class="fp-marquee-item"><i class="bi bi-shield-fill-check"></i> 100% Secure</span>
-            <span class="fp-marquee-dot">✦</span>
-            <span class="fp-marquee-item"><i class="bi bi-coin"></i> 0% Interest</span>
-            <span class="fp-marquee-dot">✦</span>
-            <span class="fp-marquee-item"><i class="bi bi-truck"></i> Free Delivery</span>
-            <span class="fp-marquee-dot">✦</span>
-            <span class="fp-marquee-item"><i class="bi bi-arrow-repeat"></i> Easy Exchange</span>
-            <span class="fp-marquee-dot">✦</span>
-            <span class="fp-marquee-item"><i class="bi bi-headset"></i> 24/7 Support</span>
-            <span class="fp-marquee-dot">✦</span>
-            <span class="fp-marquee-item"><i class="bi bi-clock"></i> Instant Approval</span>
-            <span class="fp-marquee-dot">✦</span>
-            <span class="fp-marquee-item"><i class="bi bi-shield-fill-check"></i> 100% Secure</span>
-            <span class="fp-marquee-dot">✦</span>
-            <span class="fp-marquee-item"><i class="bi bi-coin"></i> 0% Interest</span>
-            <span class="fp-marquee-dot">✦</span>
-            <span class="fp-marquee-item"><i class="bi bi-truck"></i> Free Delivery</span>
-            <span class="fp-marquee-dot">✦</span>
-            <span class="fp-marquee-item"><i class="bi bi-arrow-repeat"></i> Easy Exchange</span>
-            <span class="fp-marquee-dot">✦</span>
-            <span class="fp-marquee-item"><i class="bi bi-headset"></i> 24/7 Support</span>
-            <span class="fp-marquee-dot">✦</span>
-            <span class="fp-marquee-item"><i class="bi bi-clock"></i> Instant Approval</span>
-            <span class="fp-marquee-dot">✦</span>
-        </div>
+        @endforeach
     </div>
 </section>
 
 <!-- ===== FEATURED PRODUCTS ===== -->
-<section class="fp-section">
-    <div class="container">
-        <div class="fp-section-header reveal-up">
-            <span class="fp-section-tag"><i class="bi bi-star-fill"></i> Featured Products</span>
-            <h2>Popular Items You'll Love</h2>
-            <p>Top-rated products with flexible installment plans starting from 4 weeks</p>
-        </div>
-        <div class="row g-3">
-            @forelse($featuredProducts ?? [] as $product)
-            <div class="col-lg-3 col-md-4 col-6 fp-product-col">
-                <div class="fp-card reveal-scale" style="transition-delay:{{ $loop->index * 0.06 }}s;">
-                    <a href="{{ url('/product/'.$product->slug) }}" class="fp-card-link">
-                        <div class="fp-card-img">
-                            @php $img = $product->primaryImage ?? $product->images->first(); @endphp
-                            @if($img)
-                                <img src="{{ asset('storage/'.$img->image_path) }}" alt="{{ $product->name }}" loading="lazy">
-                            @else
-                                <div class="fp-card-no-img"><i class="bi bi-image"></i></div>
-                            @endif
-                            @if($product->installment_from)
-                                <span class="fp-card-badge">From ₦{{ number_format($product->installment_from, 0) }}/mo</span>
-                            @endif
-                            @if($product->compare_price && $product->compare_price > $product->price)
-                                @php $discount = round((($product->compare_price - $product->price) / $product->compare_price) * 100); @endphp
-                                @if($discount > 0)
-                                    <span class="fp-card-discount">-{{ $discount }}%</span>
-                                @endif
-                            @endif
-                        </div>
-                        <div class="fp-card-body">
-                            <h3>{{ Str::limit($product->name, 40) }}</h3>
-                            <div class="fp-card-price">
-                                <span class="fp-price-current">₦{{ number_format($product->price, 0) }}</span>
-                                @if($product->compare_price)
-                                    <span class="fp-price-old">₦{{ number_format($product->compare_price, 0) }}</span>
-                                @endif
-                            </div>
-                            <div class="fp-card-meta">
-                                <span><i class="bi bi-coin"></i> {{ $product->installment_plans_count ?? 'Flexible' }} plans</span>
-                            </div>
-                        </div>
-                    </a>
-                </div>
+<section class="os-section">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+            <div>
+                <span class="os-eyebrow"><i class="bi bi-star-fill"></i> Featured</span>
+                <h2 class="mt-2 font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">Popular items you'll love</h2>
             </div>
-            @empty
-            <div class="col-12">
-                <div class="fp-empty">
-                    <i class="bi bi-box"></i>
-                    <p>Featured products coming soon!</p>
+            <a href="{{ url('/shop') }}" class="os-btn os-btn-ghost os-btn-sm">Browse all <i class="bi bi-arrow-right"></i></a>
+        </div>
+
+        <div class="mt-10 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
+            @forelse($featuredProducts ?? [] as $product)
+            <a href="{{ url('/product/'.$product->slug) }}" class="os-card os-card-hover group flex flex-col overflow-hidden">
+                <div class="relative aspect-square overflow-hidden bg-paper-deep">
+                    @php $img = $product->primaryImage ?? $product->images->first(); @endphp
+                    @if($img)
+                        <img src="{{ asset('storage/'.$img->image_path) }}" alt="{{ $product->name }}" loading="lazy" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105">
+                    @else
+                        <div class="flex h-full w-full items-center justify-center text-4xl text-ink/20"><i class="bi bi-image"></i></div>
+                    @endif
+                    @if($product->compare_price && $product->compare_price > $product->price)
+                        @php $discount = round((($product->compare_price - $product->price) / $product->compare_price) * 100); @endphp
+                        @if($discount > 0)
+                            <span class="absolute left-3 top-3 os-chip os-chip-ember">-{{ $discount }}%</span>
+                        @endif
+                    @endif
                 </div>
+                <div class="flex flex-1 flex-col p-4">
+                    <h3 class="line-clamp-2 text-sm font-semibold leading-snug text-ink">{{ Str::limit($product->name, 46) }}</h3>
+                    <div class="mt-2 flex items-baseline gap-2">
+                        <span class="font-mono text-lg font-semibold text-brand">{{ formatPrice($product->price, 0) }}</span>
+                        @if($product->compare_price)
+                            <span class="font-mono text-xs text-slate line-through">{{ formatPrice($product->compare_price, 0) }}</span>
+                        @endif
+                    </div>
+                    <div class="mt-3 flex items-center justify-between border-t border-ink/5 pt-3">
+                        <span class="os-chip os-chip-brand"><i class="bi bi-coin"></i> {{ $product->installment_plans_count ?? ($product->installmentPlans->count() ?? 'Flexible') }} plans</span>
+                        <x-progress-ring :percentage="25" amount="from" label="{{ $product->installment_from ? '₦'.number_format($product->installment_from, 0).'/mo' : '₦0/mo' }}" :size="44" :stroke="4" :animate="false"/>
+                    </div>
+                </div>
+            </a>
+            @empty
+            <div class="col-span-full rounded-2xl border border-dashed border-ink/15 bg-white p-12 text-center">
+                <i class="bi bi-box text-4xl text-ink/15"></i>
+                <p class="mt-3 text-sm text-slate">Featured products coming soon!</p>
             </div>
             @endforelse
-        </div>
-        <div class="fp-section-cta reveal-up">
-            <a href="{{ url('/shop') }}" class="fp-btn-primary">
-                <i class="bi bi-grid-fill"></i> Browse All Products
-            </a>
         </div>
     </div>
 </section>
 
 <!-- ===== HOW IT WORKS ===== -->
-<section class="fp-section fp-section-alt">
-    <div class="container">
-        <div class="fp-section-header reveal-up">
-            <span class="fp-section-tag"><i class="bi bi-info-circle"></i> How It Works</span>
-            <h2>Three Simple Steps</h2>
-            <p>Get started in minutes — no paperwork, no delays</p>
+<section class="os-section bg-white">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6">
+        <div class="text-center">
+            <span class="os-eyebrow"><i class="bi bi-info-circle"></i> How it works</span>
+            <h2 class="mt-2 font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">Three simple steps</h2>
+            <p class="mx-auto mt-3 max-w-md text-slate">Get started in minutes — no paperwork, no delays.</p>
         </div>
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="fp-step reveal-up" style="transition-delay:0.1s;">
-                    <div class="fp-step-num">01</div>
-                    <div class="fp-step-icon"><i class="bi bi-hand-index-thumb"></i></div>
-                    <h3>Choose Product</h3>
-                    <p>Browse thousands of items from trusted brands and find what you need.</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="fp-step reveal-up" style="transition-delay:0.2s;">
-                    <div class="fp-step-num">02</div>
-                    <div class="fp-step-icon"><i class="bi bi-calendar-check"></i></div>
-                    <h3>Pick Your Plan</h3>
-                    <p>Weekly, bi-weekly, or monthly — choose the payment schedule that works for you.</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="fp-step reveal-up" style="transition-delay:0.3s;">
-                    <div class="fp-step-num">03</div>
-                    <div class="fp-step-icon"><i class="bi bi-truck"></i></div>
-                    <h3>Get Delivered</h3>
-                    <p>Pay 70% upfront and your item ships immediately. Pay the rest at your pace.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- ===== WHY CHOOSE US ===== -->
-<section class="fp-section">
-    <div class="container">
-        <div class="fp-section-header reveal-up">
-            <span class="fp-section-tag"><i class="bi bi-shield-check"></i> Why FlexiPay</span>
-            <h2>Built for Your Convenience</h2>
-            <p>Everything you need in one seamless platform</p>
-        </div>
-        <div class="row g-3">
-            @foreach([
-                ['icon' => 'bi-arrow-repeat', 'title' => 'Flexible Plans', 'desc' => 'Change your plan anytime, hassle-free'],
-                ['icon' => 'bi-shield-check', 'title' => 'Insurance', 'desc' => 'Protect items for just 10% of the value'],
-                ['icon' => 'bi-wallet2', 'title' => 'Wallet', 'desc' => 'Fund and earn cashback rewards'],
-                ['icon' => 'bi-truck', 'title' => 'Fast Delivery', 'desc' => 'Track your order every step of the way'],
-                ['icon' => 'bi-arrow-left-right', 'title' => 'Easy Exchanges', 'desc' => 'Request exchanges with quick approval'],
-                ['icon' => 'bi-headset', 'title' => '24/7 Support', 'desc' => 'Always here when you need us'],
-            ] as $fcard)
-            <div class="col-md-4 col-6">
-                <div class="fp-fcard reveal-up" style="transition-delay:{{ $loop->index * 0.07 }}s;">
-                    <div class="fp-fcard-icon"><i class="bi {{ $fcard['icon'] }}"></i></div>
-                    <h3>{{ $fcard['title'] }}</h3>
-                    <p>{{ $fcard['desc'] }}</p>
-                </div>
-            </div>
-            @endforeach
-        </div>
-    </div>
-</section>
-
-<!-- ===== STATS ===== -->
-<section class="fp-stats">
-    <div class="container">
-        <div class="row g-3">
-            @php $stats = [['icon' => 'bi-box-seam-fill', 'count' => 5000, 'label' => 'Products Available'], ['icon' => 'bi-emoji-smile-fill', 'count' => 15000, 'label' => 'Happy Customers'], ['icon' => 'bi-coin', 'count' => 36, 'label' => 'Payment Plans'], ['icon' => 'bi-building', 'count' => 100, 'label' => 'Trusted Brands']]; @endphp
-            @foreach($stats as $stat)
-            <div class="col-md-3 col-6">
-                <div class="fp-stat reveal-up" style="transition-delay:{{ $loop->index * 0.08 }}s;">
-                    <i class="bi {{ $stat['icon'] }}"></i>
-                    <div class="fp-stat-num counter-num" data-count="{{ $stat['count'] }}">0</div>
-                    <span>{{ $stat['label'] }}</span>
-                </div>
-            </div>
-            @endforeach
-        </div>
-    </div>
-</section>
-
-
-
-<!-- ===== TESTIMONIALS ===== -->
-<section class="fp-section">
-    <div class="container">
-        <div class="fp-section-header reveal-up">
-            <span class="fp-section-tag"><i class="bi bi-chat-quote"></i> Testimonials</span>
-            <h2>What Our Customers Say</h2>
-            <p>Real stories from real people</p>
-        </div>
-        <div class="row g-3">
+        <div class="mt-12 grid gap-6 md:grid-cols-3">
             @php
-                $testimonials = [
-                    ['name' => 'Amara O.', 'role' => 'Lagos', 'text' => 'I got my dream laptop without breaking the bank. The installment plan was super flexible and the process was seamless!', 'rating' => 5],
-                    ['name' => 'Chidi E.', 'role' => 'Abuja', 'text' => 'Finally a platform that understands budgeting. I\'ve recommended FlexiPay to all my friends and family.', 'rating' => 5],
-                    ['name' => 'Zainab K.', 'role' => 'Kano', 'text' => 'The delivery was faster than expected and setting up the payment plan took less than 5 minutes. Absolutely love it!', 'rating' => 4],
+                $steps = [
+                    ['bi-hand-index-thumb', 'Choose your product', 'Browse thousands of items from trusted brands and find what you need.'],
+                    ['bi-calendar-check', 'Pick your plan', 'Weekly, bi-weekly or monthly — a schedule that works for your budget.'],
+                    ['bi-truck', 'Pay it down, get it now', 'A deposit ships your item immediately. Pay the rest at your own pace.'],
                 ];
             @endphp
-            @foreach($testimonials as $t)
-            <div class="col-md-4">
-                <div class="fp-testi reveal-up" style="transition-delay:{{ $loop->index * 0.1 }}s;">
-                    <div class="fp-testi-stars">
-                        @for($s = 0; $s < 5; $s++)
-                            <i class="bi {{ $s < $t['rating'] ? 'bi-star-fill' : 'bi-star' }}"></i>
-                        @endfor
-                    </div>
-                    <p>"{{ $t['text'] }}"</p>
-                    <div class="fp-testi-author">
-                        <div class="fp-testi-avatar">{{ substr($t['name'], 0, 1) }}</div>
-                        <div>
-                            <strong>{{ $t['name'] }}</strong>
-                            <small>{{ $t['role'] }}</small>
-                        </div>
-                    </div>
+            @foreach($steps as [$icon, $title, $desc])
+            <div class="os-card os-card-hover p-8 text-center">
+                <div class="relative mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-mango/15 text-2xl text-mango-deep">
+                    <i class="bi {{ $icon }}"></i>
+                    <span class="absolute -right-1.5 -top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-brand font-mono text-[11px] font-bold text-white">{{ $loop->iteration }}</span>
                 </div>
+                <h3 class="mt-5 font-display text-lg font-bold text-ink">{{ $title }}</h3>
+                <p class="mt-2 text-sm leading-relaxed text-slate">{{ $desc }}</p>
             </div>
             @endforeach
+        </div>
+    </div>
+</section>
+
+<!-- ===== WHY OWN PACE ===== -->
+<section class="os-section">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6">
+        <div class="grid items-center gap-12 lg:grid-cols-2">
+            <div>
+                <span class="os-eyebrow"><i class="bi bi-shield-check"></i> Why {{ storeName() }}</span>
+                <h2 class="mt-2 font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">Built around your balance</h2>
+                <p class="mt-4 max-w-md leading-relaxed text-slate">We built {{ storeName() }} around one idea: things become yours when you pay them down. The Progress Ring on every plan shows exactly where you stand.</p>
+                <ul class="mt-8 space-y-5">
+                    @php
+                        $features = [
+                            ['bi-arrow-repeat', 'Flexible plans', 'Change your plan anytime, hassle-free.'],
+                            ['bi-shield-check', 'Insurance', 'Protect items for just a fraction of the value.'],
+                            ['bi-wallet2', 'Wallet', 'Fund your wallet and earn rewards as you go.'],
+                            ['bi-headset', '24/7 support', 'Always here when you need us.'],
+                        ];
+                    @endphp
+                    @foreach($features as [$icon, $title, $desc])
+                    <li class="flex gap-4">
+                        <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-brand/10 text-lg text-brand"><i class="bi {{ $icon }}"></i></span>
+                        <div>
+                            <p class="font-semibold text-ink">{{ $title }}</p>
+                            <p class="text-sm text-slate">{{ $desc }}</p>
+                        </div>
+                    </li>
+                    @endforeach
+                </ul>
+            </div>
+
+            <div class="relative">
+                <div class="rounded-2xl bg-white p-8 ring-1 ring-ink/10 shadow-lift">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm text-slate">Example plan — 60% paid off</p>
+                            <p class="mt-1 font-display text-lg font-bold text-ink">Smartphone Pro X</p>
+                        </div>
+                        <span class="os-chip os-chip-grass"><i class="bi bi-check-circle-fill"></i> On track</span>
+                    </div>
+                    <div class="mt-8 flex items-center justify-center">
+                        <x-progress-ring :percentage="60" :amount="'₦' . number_format(132000, 0)" label="of ₦220,000" :size="150" :stroke="10"/>
+                    </div>
+                    <div class="mt-8 grid grid-cols-3 gap-4 text-center">
+                        <div><p class="font-mono text-sm font-semibold text-ink">₦6,250</p><p class="text-[11px] text-slate">per week</p></div>
+                        <div><p class="font-mono text-sm font-semibold text-ink">16 wks</p><p class="text-[11px] text-slate">remaining</p></div>
+                        <div><p class="font-mono text-sm font-semibold text-grass">₦88,000</p><p class="text-[11px] text-slate">to go</p></div>
+                    </div>
+                </div>
+                <div class="absolute -bottom-5 -left-5 -z-10 h-40 w-40 rounded-3xl bg-mango/20 blur-2xl" aria-hidden="true"></div>
+            </div>
         </div>
     </div>
 </section>
 
 <!-- ===== NEW ARRIVALS ===== -->
-<section class="fp-section fp-section-alt">
-    <div class="container">
-        <div class="fp-section-header reveal-up">
-            <span class="fp-section-tag"><i class="bi bi-clock-history"></i> New Arrivals</span>
-            <h2>Just Dropped</h2>
-            <p>The latest additions to our catalog</p>
-        </div>
-        <div class="row g-3">
-            @forelse($newArrivals ?? [] as $product)
-            <div class="col-lg-3 col-md-4 col-6 fp-product-col">
-                <div class="fp-card reveal-scale" style="transition-delay:{{ $loop->index * 0.06 }}s;">
-                    <a href="{{ url('/product/'.$product->slug) }}" class="fp-card-link">
-                        <div class="fp-card-img">
-                            @php $img = $product->primaryImage ?? $product->images->first(); @endphp
-                            @if($img)
-                                <img src="{{ asset('storage/'.$img->image_path) }}" alt="{{ $product->name }}" loading="lazy">
-                            @else
-                                <div class="fp-card-no-img"><i class="bi bi-image"></i></div>
-                            @endif
-                            <span class="fp-card-badge fp-card-badge-new">New</span>
-                        </div>
-                        <div class="fp-card-body">
-                            <h3>{{ Str::limit($product->name, 40) }}</h3>
-                            <div class="fp-card-price">
-                                <span class="fp-price-current">₦{{ number_format($product->price, 0) }}</span>
-                            </div>
-                            <div class="fp-card-meta">
-                                <span><i class="bi bi-coin"></i> Flexible plans</span>
-                            </div>
-                        </div>
-                    </a>
-                </div>
+<section class="os-section bg-white">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+            <div>
+                <span class="os-eyebrow"><i class="bi bi-clock-history"></i> Just dropped</span>
+                <h2 class="mt-2 font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">New arrivals</h2>
             </div>
-            @empty
-            <div class="col-12">
-                <div class="fp-empty">
-                    <i class="bi bi-clock-history"></i>
-                    <p>New arrivals coming soon!</p>
+        </div>
+        <div class="mt-10 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
+            @forelse($newArrivals ?? [] as $product)
+            <a href="{{ url('/product/'.$product->slug) }}" class="os-card os-card-hover group flex flex-col overflow-hidden">
+                <div class="relative aspect-square overflow-hidden bg-paper-deep">
+                    @php $img = $product->primaryImage ?? $product->images->first(); @endphp
+                    @if($img)
+                        <img src="{{ asset('storage/'.$img->image_path) }}" alt="{{ $product->name }}" loading="lazy" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105">
+                    @else
+                        <div class="flex h-full w-full items-center justify-center text-4xl text-ink/20"><i class="bi bi-image"></i></div>
+                    @endif
+                    <span class="absolute left-3 top-3 os-chip os-chip-brand">New</span>
                 </div>
+                <div class="flex flex-1 flex-col p-4">
+                    <h3 class="line-clamp-2 text-sm font-semibold leading-snug text-ink">{{ Str::limit($product->name, 46) }}</h3>
+                    <div class="mt-2 flex items-baseline gap-2">
+                        <span class="font-mono text-lg font-semibold text-brand">{{ formatPrice($product->price, 0) }}</span>
+                    </div>
+                    <span class="os-chip os-chip-slate mt-3 w-fit"><i class="bi bi-coin"></i> Flexible plans</span>
+                </div>
+            </a>
+            @empty
+            <div class="col-span-full rounded-2xl border border-dashed border-ink/15 bg-white p-12 text-center">
+                <i class="bi bi-clock-history text-4xl text-ink/15"></i>
+                <p class="mt-3 text-sm text-slate">New arrivals coming soon!</p>
             </div>
             @endforelse
         </div>
     </div>
 </section>
 
-<!-- ===== CTA ===== -->
-<section class="fp-cta">
-    <div class="fp-cta-glow g1"></div>
-    <div class="fp-cta-glow g2"></div>
-    <div class="container text-center">
-        <span class="fp-cta-tag reveal-up"><i class="bi bi-gift-fill"></i> Limited Time</span>
-        <h2 class="fp-cta-title reveal-up" style="transition-delay:0.08s;">Ready to Start Shopping?</h2>
-        <p class="fp-cta-desc reveal-up" style="transition-delay:0.16s;">Create your free account in minutes. No credit check required, no hidden fees, cancel anytime.</p>
-        <div class="fp-cta-actions reveal-up" style="transition-delay:0.24s;">
-            <a href="{{ url('/register') }}" class="fp-btn-primary">
-                <i class="bi bi-person-plus"></i> Create Free Account
-            </a>
-            <a href="{{ url('/shop') }}" class="fp-btn-secondary">
-                <i class="bi bi-grid-fill"></i> Browse Products
-            </a>
+<!-- ===== TESTIMONIALS ===== -->
+<section class="os-section">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6">
+        <div class="text-center">
+            <span class="os-eyebrow"><i class="bi bi-chat-quote"></i> Testimonials</span>
+            <h2 class="mt-2 font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">Paid off, and proud</h2>
         </div>
-        <div class="fp-cta-features reveal-up" style="transition-delay:0.32s;">
-            <span><i class="bi bi-check-circle-fill"></i> No credit check</span>
-            <span><i class="bi bi-check-circle-fill"></i> Instant approval</span>
-            <span><i class="bi bi-check-circle-fill"></i> Cancel anytime</span>
+        <div class="mt-12 grid gap-6 md:grid-cols-3">
+            @php
+                $testimonials = [
+                    ['Amara O.', 'Lagos', 'I got my dream laptop without breaking the bank. Watching the ring fill up each week kept me motivated — it was fully mine in four months.', 5],
+                    ['Chidi E.', 'Abuja', 'Finally a platform that understands budgeting. The plan changed when I needed it, and the whole process felt honest.', 5],
+                    ['Zainab K.', 'Kano', 'Delivery was faster than expected and the Progress Ring makes it satisfying to pay. I have recommended '.storeName().' to everyone.', 4],
+                ];
+            @endphp
+            @foreach($testimonials as [$name, $city, $text, $rating])
+            <figure class="os-card os-card-hover flex flex-col p-7">
+                <div class="flex gap-1 text-mango" aria-label="{{ $rating }} out of 5 stars">
+                    @for($s = 0; $s < 5; $s++)
+                        <i class="bi {{ $s < $rating ? 'bi-star-fill' : 'bi-star' }}"></i>
+                    @endfor
+                </div>
+                <blockquote class="mt-4 flex-1 text-sm leading-relaxed text-ink/80">"{{ $text }}"</blockquote>
+                <figcaption class="mt-6 flex items-center gap-3">
+                    <span class="flex h-10 w-10 items-center justify-center rounded-full bg-brand font-display text-sm font-bold text-white">{{ substr($name, 0, 1) }}</span>
+                    <div>
+                        <p class="text-sm font-semibold text-ink">{{ $name }}</p>
+                        <p class="text-xs text-slate">{{ $city }}</p>
+                    </div>
+                </figcaption>
+            </figure>
+            @endforeach
         </div>
     </div>
 </section>
 
-@include('frontend.partials.footer')
-
-<style>
-/* ============================================================
-   HERO — Minimal, Clean, Readable
-   ============================================================ */
-.fp-hero {
-    background: linear-gradient(160deg, #0d0d11 0%, #16161d 40%, #0d0d11 100%);
-    min-height: calc(100vh - 80px);
-    display: flex; align-items: center;
-    position: relative; overflow: hidden;
-    padding: 80px 0 100px;
-}
-.fp-hero-bg { position: absolute; inset: 0; pointer-events: none; }
-.fp-hero-glow {
-    position: absolute; border-radius: 50%;
-    filter: blur(120px);
-}
-.g1 { width: 450px; height: 450px; background: rgba(234,179,8,0.06); top: -180px; right: 10%; }
-.g2 { width: 350px; height: 350px; background: rgba(234,179,8,0.03); bottom: -100px; left: 5%; }
-.g3 { width: 300px; height: 300px; background: rgba(59,130,246,0.04); top: 40%; left: -80px; filter: blur(140px); }
-.g4 { width: 250px; height: 250px; background: rgba(168,85,247,0.03); bottom: 10%; right: -40px; filter: blur(120px); }
-
-.fp-hero-content { max-width: 580px; }
-
-/* ===== Desktop Floating Decorative Shapes ===== */
-.fp-hero-float {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    z-index: 1;
-}
-.fp-float-shape {
-    position: absolute;
-    width: 44px; height: 44px;
-    border-radius: 12px;
-    background: rgba(234,179,8,0.06);
-    border: 1px solid rgba(234,179,8,0.1);
-    color: rgba(234,179,8,0.3);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 16px;
-    backdrop-filter: blur(8px);
-    animation: floatShape 6s ease-in-out infinite;
-}
-.fp-float-shape.s1 { top: 15%; right: 8%; animation-delay: 0s; width: 48px; height: 48px; }
-.fp-float-shape.s2 { bottom: 25%; left: 6%; animation-delay: 2s; width: 38px; height: 38px; font-size: 14px; }
-.fp-float-shape.s3 { top: 35%; right: 2%; animation-delay: 4s; width: 36px; height: 36px; font-size: 13px; }
-
-@keyframes floatShape {
-    0%, 100% { transform: translateY(0) rotate(0deg); }
-    33% { transform: translateY(-12px) rotate(3deg); }
-    66% { transform: translateY(6px) rotate(-2deg); }
-}
-
-/* ===== Desktop Carousel Custom Controls ===== */
-.fp-hero-ctrl {
-    width: 44px; height: 44px;
-    border-radius: 50%;
-    background: rgba(13,13,17,0.6);
-    border: 1px solid rgba(255,255,255,0.06);
-    backdrop-filter: blur(12px);
-    top: 50%; transform: translateY(-50%);
-    opacity: 0;
-    transition: all 0.3s ease;
-    font-size: 18px;
-    color: #a1a1aa;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-}
-.fp-hero-slider-col:hover .fp-hero-ctrl { opacity: 1; }
-.fp-hero-ctrl:hover {
-    background: rgba(234,179,8,0.15);
-    border-color: rgba(234,179,8,0.2);
-    color: #fbbf24;
-    transform: translateY(-50%) scale(1.08);
-}
-.fp-hero-ctrl:active { transform: translateY(-50%) scale(0.95); }
-.fp-hero-ctrl i { line-height: 1; }
-.carousel-control-prev.fp-hero-ctrl { left: 16px; }
-.carousel-control-next.fp-hero-ctrl { right: 16px; }
-
-/* ===== Desktop Slide Counter ===== */
-.fp-hero-slide-counter {
-    position: absolute;
-    bottom: 20px; right: 20px;
-    display: flex; align-items: center; gap: 8px;
-    background: rgba(13,13,17,0.5);
-    backdrop-filter: blur(8px);
-    border: 1px solid rgba(255,255,255,0.06);
-    padding: 6px 14px;
-    border-radius: 20px;
-    z-index: 5;
-}
-.fp-hero-slide-current,
-.fp-hero-slide-total {
-    font-family: 'Syne', sans-serif;
-    font-size: 12px; font-weight: 700;
-    color: #f4f4f5;
-    line-height: 1;
-}
-.fp-hero-slide-current { color: #eab308; }
-.fp-hero-slide-bar {
-    width: 24px; height: 2px;
-    background: rgba(255,255,255,0.15);
-    border-radius: 2px;
-    position: relative;
-    overflow: hidden;
-}
-.fp-hero-slide-bar::after {
-    content: '';
-    position: absolute; top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: #eab308;
-    animation: slideBarProgress 5s linear infinite;
-    transform-origin: left;
-}
-@keyframes slideBarProgress {
-    0% { transform: scaleX(0); }
-    100% { transform: scaleX(1); }
-}
-
-/* ===== Desktop Floating Feature Pill ===== */
-.fp-hero-pill {
-    position: absolute;
-    bottom: -18px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: linear-gradient(135deg, #eab308, #ca8a04);
-    color: #0A0A0B;
-    padding: 8px 20px;
-    border-radius: 20px;
-    font-size: 12px; font-weight: 700;
-    gap: 8px;
-    white-space: nowrap;
-    z-index: 4;
-    box-shadow: 0 6px 24px rgba(234,179,8,0.2);
-    align-items: center;
-    animation: pillPulse 3s ease-in-out infinite;
-}
-.fp-hero-pill i {
-    font-size: 14px;
-}
-@keyframes pillPulse {
-    0%, 100% { transform: translateX(-50%) scale(1); box-shadow: 0 6px 24px rgba(234,179,8,0.2); }
-    50% { transform: translateX(-50%) scale(1.03); box-shadow: 0 8px 32px rgba(234,179,8,0.3); }
-}
-
-/* ===== Desktop Scroll Indicator ===== */
-.fp-hero-scroll {
-    position: absolute;
-    bottom: 32px;
-    left: 50%;
-    transform: translateX(-50%);
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    z-index: 2;
-    opacity: 0.5;
-    transition: opacity 0.3s;
-}
-.fp-hero-scroll:hover { opacity: 1; }
-.fp-scroll-text {
-    font-size: 10px; font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 2px;
-    color: #71717a;
-}
-.fp-scroll-line {
-    width: 1px; height: 32px;
-    background: linear-gradient(to bottom, #eab308, transparent);
-    animation: scrollBounce 2s ease-in-out infinite;
-}
-@keyframes scrollBounce {
-    0%, 100% { transform: scaleY(1); opacity: 1; }
-    50% { transform: scaleY(0.6); opacity: 0.3; }
-}
-
-/* ===== Desktop Hero Content Entrance ===== */
-@media (min-width: 992px) {
-    .fp-hero-content > * {
-        opacity: 0;
-        transform: translateY(16px);
-        animation: desktopFadeIn 0.6s ease forwards;
-    }
-    .fp-hero-content > .fp-hero-badge { animation-delay: 0.1s; }
-    .fp-hero-content > .fp-hero-title { animation-delay: 0.2s; }
-    .fp-hero-content > .fp-hero-desc { animation-delay: 0.3s; }
-    .fp-hero-content > .fp-hero-actions { animation-delay: 0.4s; }
-    .fp-hero-content > .fp-hero-search { animation-delay: 0.5s; }
-    .fp-hero-content > .fp-hero-trust { animation-delay: 0.6s; }
-
-    @keyframes desktopFadeIn {
-        from { opacity: 0; transform: translateY(16px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Slider entrance */
-    .fp-hero-slider-col {
-        opacity: 0;
-        transform: translateX(20px);
-        animation: desktopSliderIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards;
-    }
-    @keyframes desktopSliderIn {
-        from { opacity: 0; transform: translateX(20px); }
-        to { opacity: 1; transform: translateX(0); }
-    }
-
-    /* Enhanced hover on desktop buttons */
-    .fp-btn-primary {
-        position: relative;
-        overflow: hidden;
-    }
-    .fp-btn-primary::after {
-        content: '';
-        position: absolute; inset: 0;
-        background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
-        transform: translateX(-100%);
-        transition: transform 0.4s ease;
-    }
-    .fp-btn-primary:hover::after {
-        transform: translateX(0);
-    }
-    .fp-btn-primary:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 32px rgba(234,179,8,0.3);
-    }
-    .fp-btn-secondary:hover {
-        transform: translateY(-3px);
-        background: rgba(255,255,255,0.1);
-        border-color: rgba(255,255,255,0.15);
-    }
-
-    /* Trust items hover */
-    .fp-ht-item {
-        transition: all 0.3s ease;
-        cursor: default;
-    }
-    .fp-ht-item:hover {
-        transform: translateY(-2px);
-    }
-    .fp-ht-item:hover i {
-        color: #fbbf24;
-        transform: scale(1.15);
-        transition: all 0.3s ease;
-    }
-    .fp-ht-item strong {
-        transition: color 0.3s ease;
-    }
-    .fp-ht-item:hover strong {
-        color: #eab308;
-    }
-
-    /* Search bar enhanced focus */
-    .fp-hs-form {
-        transition: all 0.3s ease;
-    }
-    .fp-hs-form:focus-within {
-        border-color: rgba(234,179,8,0.4);
-        background: rgba(255,255,255,0.08);
-        box-shadow: 0 0 0 3px rgba(234,179,8,0.06), 0 4px 24px rgba(234,179,8,0.05);
-    }
-
-    /* Glow enhancements */
-    .fp-hero-glow {
-        transition: all 1s ease;
-    }
-    .fp-hero:hover .g1 {
-        background: rgba(234,179,8,0.09);
-        filter: blur(100px);
-    }
-    .fp-hero:hover .g2 {
-        background: rgba(234,179,8,0.05);
-        filter: blur(100px);
-    }
-}
-
-.fp-hero-slider-inner {
-    border: 1px solid var(--card-border);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
-}
-
-.hero-slider-img {
-    height: 420px;
-    object-fit: cover;
-    width: 100%;
-}
-
-@media (max-width: 991px) {
-    .hero-slider-img { height: 320px; }
-}
-@media (max-width: 768px) {
-    .hero-slider-img { height: 260px; }
-}
-@media (max-width: 576px) {
-    .hero-slider-img { height: 220px; }
-}
-@media (max-width: 400px) {
-    .hero-slider-img { height: 180px; }
-}
-
-.fp-hero-badge {
-    display: inline-flex; align-items: center; gap: 6px;
-    background: rgba(234,179,8,0.1);
-    border: 1px solid rgba(234,179,8,0.15);
-    color: #fbbf24;
-    padding: 6px 14px; border-radius: 20px;
-    font-size: 12px; font-weight: 600;
-    margin-bottom: 24px;
-    letter-spacing: 0.2px;
-}
-.fp-hero-title {
-    font-family: 'Syne', sans-serif;
-    font-size: clamp(34px, 5vw, 58px);
-    font-weight: 800;
-    color: #f4f4f5;
-    line-height: 1.12;
-    margin-bottom: 18px;
-}
-.fp-hero-highlight {
-    background: linear-gradient(135deg, #fbbf24, #eab308, #ca8a04);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-.fp-hero-desc {
-    font-size: 16px;
-    color: #a1a1aa;
-    line-height: 1.75;
-    margin-bottom: 28px;
-    max-width: 480px;
-}
-.fp-hero-actions {
-    display: flex; gap: 12px; flex-wrap: wrap;
-    margin-bottom: 20px;
-}
-.fp-btn-primary, .fp-btn-secondary {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 14px 28px; border-radius: 10px;
-    font-weight: 700; font-size: 15px;
-    transition: all 0.25s ease;
-    touch-action: manipulation;
-    font-family: inherit;
-}
-.fp-btn-primary {
-    background: linear-gradient(135deg, #eab308, #ca8a04);
-    color: #0A0A0B;
-    box-shadow: 0 4px 16px rgba(234,179,8,0.15);
-}
-.fp-btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 24px rgba(234,179,8,0.25);
-    color: #0A0A0B;
-}
-.fp-btn-secondary {
-    background: rgba(255,255,255,0.05);
-    color: #f4f4f5;
-    border: 1px solid rgba(255,255,255,0.08);
-}
-.fp-btn-secondary:hover {
-    background: rgba(255,255,255,0.08);
-    transform: translateY(-2px);
-    color: #f4f4f5;
-}
-/* Hero Search */
-.fp-hero-search { margin-bottom: 24px; }
-.fp-hs-form {
-    display: flex; align-items: center;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 12px;
-    overflow: hidden;
-    max-width: 480px;
-    transition: border-color 0.25s, background 0.25s;
-}
-.fp-hs-form:focus-within {
-    border-color: rgba(234,179,8,0.25);
-    background: rgba(255,255,255,0.06);
-}
-.fp-hs-form i {
-    color: #71717a;
-    padding-left: 16px;
-    font-size: 15px;
-}
-.fp-hs-form input {
-    flex: 1;
-    border: none; outline: none;
-    background: transparent;
-    color: #f4f4f5;
-    padding: 12px 12px;
-    font-size: 14px;
-    font-family: inherit;
-}
-.fp-hs-form input::placeholder { color: #52525b; }
-.fp-hs-form button {
-    background: transparent;
-    color: #a1a1aa;
-    border: none;
-    padding: 12px 18px;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: color 0.25s;
-    font-family: inherit;
-    white-space: nowrap;
-}
-.fp-hs-form button:hover { color: #eab308; }
-
-.fp-hero-trust {
-    display: flex; align-items: center; gap: 24px;
-}
-.fp-ht-item {
-    display: flex; align-items: center; gap: 6px;
-    font-size: 14px; color: #a1a1aa;
-}
-.fp-ht-item i {
-    color: #eab308;
-    font-size: 15px;
-}
-.fp-ht-item strong {
-    font-family: 'Syne', sans-serif;
-    font-weight: 800; color: #f4f4f5; font-size: 18px;
-}
-.fp-ht-divider {
-    width: 1px; height: 24px;
-    background: rgba(255,255,255,0.08);
-}
-
-/* ============================================================
-   TRUST BAR
-   ============================================================ */
-.fp-trust-bar {
-    background: #0d0d11;
-    border-top: 1px solid rgba(255,255,255,0.04);
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-    padding: 12px 0;
-}
-.fp-trust-inner {
-    display: flex; align-items: center; justify-content: center;
-    gap: 16px; flex-wrap: wrap;
-}
-.fp-trust-item {
-    display: flex; align-items: center; gap: 6px;
-    color: #a1a1aa; font-size: 13px; font-weight: 500;
-}
-.fp-trust-item i { color: #eab308; font-size: 14px; }
-.fp-trust-dot {
-    width: 4px; height: 4px; background: rgba(234,179,8,0.3);
-    border-radius: 50%;
-}
-
-/* ============================================================
-   MARQUEE
-   ============================================================ */
-.fp-marquee-section {
-    background: #0d0d11;
-    padding: 14px 0;
-    border-top: 1px solid rgba(255,255,255,0.04);
-    border-bottom: 1px solid rgba(255,255,255,0.04);
-    overflow: hidden;
-}
-.fp-marquee-track {
-    overflow: hidden;
-    mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
-    -webkit-mask-image: linear-gradient(to right, transparent, black 5%, black 95%, transparent);
-}
-.fp-marquee-content {
-    display: flex; align-items: center;
-    animation: marqueeScroll 30s linear infinite;
-    width: max-content;
-}
-.fp-marquee-item {
-    display: inline-flex; align-items: center; gap: 6px;
-    color: #a1a1aa; font-size: 13px; font-weight: 500;
-    white-space: nowrap;
-}
-.fp-marquee-item i { color: #eab308; font-size: 14px; }
-.fp-marquee-dot {
-    color: #eab308; margin: 0 24px;
-    font-size: 8px; opacity: 0.3;
-}
-@keyframes marqueeScroll {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
-}
-
-/* ============================================================
-   SECTIONS
-   ============================================================ */
-.fp-section { padding: 70px 0; }
-.fp-section-alt { background: #0d0d11; }
-.fp-section-header {
-    text-align: center; margin-bottom: 40px;
-}
-.fp-section-tag {
-    display: inline-flex; align-items: center; gap: 5px;
-    background: rgba(234,179,8,0.08);
-    border: 1px solid rgba(234,179,8,0.12);
-    color: #fbbf24;
-    padding: 5px 14px; border-radius: 20px;
-    font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
-    text-transform: uppercase;
-    margin-bottom: 12px;
-}
-.fp-section-header h2 {
-    font-family: 'Syne', sans-serif;
-    font-size: clamp(26px, 3.5vw, 36px);
-    font-weight: 800; color: #f4f4f5;
-    margin-bottom: 8px;
-}
-.fp-section-header p {
-    color: #a1a1aa; font-size: 15px;
-    max-width: 560px; margin: 0 auto;
-}
-.fp-section-cta {
-    text-align: center; margin-top: 36px;
-}
-
-/* ============================================================
-   PRODUCT CARDS
-   ============================================================ */
-.fp-card {
-    background: #16161d;
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 12px;
-    overflow: hidden;
-    transition: all 0.25s ease;
-    height: 100%;
-}
-.fp-card:hover {
-    border-color: rgba(234,179,8,0.2);
-    transform: translateY(-3px);
-    box-shadow: 0 12px 32px rgba(0,0,0,0.3);
-}
-.fp-card-link { display: block; text-decoration: none; height: 100%; }
-.fp-card-img {
-    position: relative; height: 200px;
-    background: rgba(0,0,0,0.3);
-    overflow: hidden;
-    display: flex; align-items: center; justify-content: center;
-}
-.fp-card-img img {
-    width: 100%; height: 100%; object-fit: cover;
-    transition: transform 0.5s ease;
-}
-.fp-card:hover .fp-card-img img { transform: scale(1.08); }
-.fp-card-no-img { color: rgba(255,255,255,0.06); font-size: 36px; }
-.fp-card-badge {
-    position: absolute; bottom: 8px; left: 8px;
-    background: linear-gradient(135deg, #eab308, #ca8a04);
-    color: #0A0A0B; font-size: 11px; font-weight: 700;
-    padding: 4px 10px; border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-}
-.fp-card-badge-new { background: linear-gradient(135deg, #eab308, #f97316); }
-.fp-card-discount {
-    position: absolute; top: 8px; right: 8px;
-    background: linear-gradient(135deg, #dc2626, #b91c1c);
-    color: white; font-size: 11px; font-weight: 700;
-    padding: 4px 8px; border-radius: 6px;
-    box-shadow: 0 2px 8px rgba(220,38,38,0.2);
-}
-.fp-card-body { padding: 14px 14px 16px; }
-.fp-card-body h3 {
-    font-size: 14px; font-weight: 600; color: #f4f4f5;
-    margin-bottom: 8px;
-    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-    overflow: hidden; line-height: 1.4;
-}
-.fp-card-price { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-.fp-price-current {
-    font-size: 16px; font-weight: 700; color: #eab308;
-    font-family: 'Syne', sans-serif;
-}
-.fp-price-old { font-size: 13px; color: #71717a; text-decoration: line-through; }
-.fp-card-meta { font-size: 12px; color: #71717a; display: flex; align-items: center; gap: 4px; }
-.fp-card-meta i { color: #eab308; font-size: 11px; }
-
-/* ============================================================
-   HOW IT WORKS
-   ============================================================ */
-.fp-step {
-    background: #16161d;
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 14px;
-    padding: 32px 24px;
-    text-align: center;
-    height: 100%;
-    transition: all 0.25s ease;
-    position: relative;
-}
-.fp-step:hover {
-    border-color: rgba(234,179,8,0.15);
-    transform: translateY(-3px);
-}
-.fp-step-accent { border-color: rgba(234,179,8,0.08); }
-.fp-step-num {
-    font-family: 'Syne', sans-serif;
-    font-size: 40px; font-weight: 900;
-    color: rgba(234,179,8,0.06);
-    line-height: 1;
-    margin-bottom: 12px;
-}
-.fp-step-icon {
-    width: 60px; height: 60px;
-    background: rgba(234,179,8,0.08);
-    border-radius: 14px;
-    display: flex; align-items: center; justify-content: center;
-    color: #eab308; font-size: 24px;
-    margin: 0 auto 16px;
-    transition: all 0.3s;
-}
-.fp-step:hover .fp-step-icon {
-    background: #eab308;
-    color: #0A0A0B;
-}
-.fp-step h3 {
-    font-family: 'Syne', sans-serif;
-    font-size: 18px; font-weight: 700; color: #f4f4f5;
-    margin-bottom: 8px;
-}
-.fp-step p { color: #a1a1aa; font-size: 14px; line-height: 1.65; margin: 0; }
-
-/* ============================================================
-   FEATURE CARDS
-   ============================================================ */
-.fp-fcard {
-    background: #16161d;
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 12px;
-    padding: 22px 18px;
-    transition: all 0.25s ease;
-    height: 100%;
-}
-.fp-fcard:hover {
-    border-color: rgba(234,179,8,0.12);
-    transform: translateY(-2px);
-}
-.fp-fcard-icon {
-    width: 40px; height: 40px;
-    background: rgba(234,179,8,0.08);
-    border-radius: 10px;
-    display: flex; align-items: center; justify-content: center;
-    color: #eab308; font-size: 17px;
-    margin-bottom: 12px;
-    transition: all 0.3s;
-}
-.fp-fcard:hover .fp-fcard-icon {
-    background: #eab308;
-    color: #0A0A0B;
-}
-.fp-fcard h3 {
-    font-size: 15px; font-weight: 700; color: #f4f4f5;
-    margin-bottom: 4px;
-}
-.fp-fcard p { color: #a1a1aa; font-size: 13px; margin: 0; line-height: 1.5; }
-
-/* ============================================================
-   STATS
-   ============================================================ */
-.fp-stats {
-    background: linear-gradient(135deg, #5c3d0e, #0d0d11 40%, #0d0d11 100%);
-    padding: 60px 0;
-}
-.fp-stat {
-    text-align: center; padding: 28px 16px;
-    background: rgba(0,0,0,0.2);
-    border: 1px solid rgba(255,255,255,0.04);
-    border-radius: 12px;
-    backdrop-filter: blur(8px);
-    transition: all 0.25s ease;
-}
-.fp-stat:hover {
-    border-color: rgba(234,179,8,0.1);
-    background: rgba(0,0,0,0.3);
-}
-.fp-stat i {
-    font-size: 28px; color: rgba(255,255,255,0.12); display: block; margin-bottom: 8px;
-}
-.fp-stat:hover i { color: #eab308; }
-.fp-stat-num {
-    font-family: 'Syne', sans-serif;
-    font-size: 32px; font-weight: 800;
-    background: linear-gradient(135deg, #fbbf24, #eab308);
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    background-clip: text;
-    line-height: 1.2;
-}
-.fp-stat span {
-    display: block; font-size: 14px; color: rgba(255,255,255,0.5); font-weight: 500;
-    margin-top: 4px;
-}
-
-/* ============================================================
-   TESTIMONIALS
-   ============================================================ */
-.fp-testi {
-    background: #16161d;
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 12px;
-    padding: 24px 20px;
-    height: 100%;
-    display: flex; flex-direction: column;
-    transition: all 0.25s ease;
-}
-.fp-testi:hover {
-    border-color: rgba(234,179,8,0.1);
-    transform: translateY(-2px);
-}
-.fp-testi-stars { color: #eab308; font-size: 13px; margin-bottom: 12px; letter-spacing: 1px; }
-.fp-testi p {
-    color: #a1a1aa; font-size: 14px; line-height: 1.7;
-    flex: 1; font-style: italic;
-}
-.fp-testi-author {
-    display: flex; align-items: center; gap: 10px;
-    margin-top: 16px; padding-top: 14px;
-    border-top: 1px solid rgba(255,255,255,0.06);
-}
-.fp-testi-avatar {
-    width: 36px; height: 36px; border-radius: 10px;
-    background: linear-gradient(135deg, #eab308, #ca8a04);
-    color: #0A0A0B;
-    display: flex; align-items: center; justify-content: center;
-    font-weight: 800; font-size: 14px;
-    flex-shrink: 0;
-}
-.fp-testi-author strong { display: block; font-size: 14px; color: #f4f4f5; }
-.fp-testi-author small { font-size: 12px; color: #71717a; }
-
-/* ============================================================
-   EMPTY STATE
-   ============================================================ */
-.fp-empty {
-    text-align: center; padding: 50px 20px;
-}
-.fp-empty i {
-    font-size: 40px; color: rgba(255,255,255,0.08);
-    display: block; margin-bottom: 12px;
-}
-.fp-empty p { color: #71717a; font-size: 14px; margin: 0; }
-
-/* ============================================================
-   CTA
-   ============================================================ */
-.fp-cta {
-    padding: 80px 0;
-    background: linear-gradient(160deg, #0d0d11 0%, #1a1a1e 50%, #0d0d11 100%);
-    position: relative; overflow: hidden;
-}
-.fp-cta-glow {
-    position: absolute; border-radius: 50%; filter: blur(100px);
-    pointer-events: none;
-}
-.fp-cta .g1 { width: 350px; height: 350px; background: rgba(234,179,8,0.05); top: -100px; left: 10%; }
-.fp-cta .g2 { width: 250px; height: 250px; background: rgba(234,179,8,0.03); bottom: -80px; right: 20%; }
-
-.fp-cta-tag {
-    display: inline-flex; align-items: center; gap: 5px;
-    background: rgba(234,179,8,0.08);
-    border: 1px solid rgba(234,179,8,0.12);
-    color: #fbbf24;
-    padding: 5px 14px; border-radius: 20px;
-    font-size: 11px; font-weight: 700; letter-spacing: 0.5px;
-    text-transform: uppercase;
-    margin-bottom: 16px;
-}
-.fp-cta-title {
-    font-family: 'Syne', sans-serif;
-    font-size: clamp(28px, 4vw, 42px);
-    font-weight: 800; color: #f4f4f5;
-    margin-bottom: 12px;
-}
-.fp-cta-desc {
-    color: #a1a1aa; font-size: 15px;
-    max-width: 500px; margin: 0 auto 28px;
-    line-height: 1.7;
-}
-.fp-cta-actions {
-    display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;
-    margin-bottom: 24px;
-}
-.fp-cta-features {
-    display: flex; gap: 24px; justify-content: center; flex-wrap: wrap;
-}
-.fp-cta-features span {
-    display: flex; align-items: center; gap: 6px;
-    color: #71717a; font-size: 14px;
-}
-.fp-cta-features i {
-    color: #22c55e; font-size: 15px;
-}
-
-/* ============================================================
-   RESPONSIVE
-   ============================================================ */
-@media (max-width: 991px) {
-    .fp-hero { min-height: auto; padding: 40px 0 50px; text-align: center; }
-    .fp-hero-content { max-width: 100%; }
-    .fp-hero-actions { justify-content: center; }
-    .fp-hero-search { display: flex; justify-content: center; }
-    .fp-hs-form { width: 100%; max-width: 440px; }
-    .fp-hero-trust { justify-content: center; }
-    .fp-hero-desc { margin-left: auto; margin-right: auto; max-width: 100%; }
-    .row.g-5 { --bs-gutter-y: 1.5rem; }
-    .fp-hero .col-lg-6:last-child { margin-top: 0; }
-    .fp-section { padding: 50px 0; }
-    .fp-card-img { height: 180px; }
-}
-@media (max-width: 768px) {
-    .fp-hero { padding: 28px 0 36px; }
-    .fp-hero-title { font-size: 24px; margin-bottom: 10px; }
-    .fp-hero-desc { font-size: 13px; margin-bottom: 16px; line-height: 1.6; }
-    .fp-hero-badge { font-size: 10px; padding: 4px 10px; margin-bottom: 14px; }
-    .fp-hero-actions { flex-direction: column; gap: 8px; margin-bottom: 14px; }
-    .fp-hero-actions .fp-btn-primary,
-    .fp-hero-actions .fp-btn-secondary { width: 100%; justify-content: center; padding: 12px 20px; font-size: 14px; }
-    .fp-hero-search { margin-bottom: 14px; }
-    .fp-hs-form input { padding: 10px 10px; font-size: 13px; }
-    .fp-hs-form button { padding: 10px 14px; font-size: 12px; }
-    .fp-hero-trust { gap: 10px; justify-content: center; flex-wrap: wrap; }
-    .fp-ht-item { font-size: 11px; }
-    .fp-ht-item strong { font-size: 14px; }
-    .hero-slider-img { height: 200px; }
-    #heroSlider .carousel-inner { border-radius: 10px !important; }
-    .row.g-5 { --bs-gutter-y: 1rem; }
-    .fp-hero-glow { display: none; }
-    .fp-section { padding: 40px 0; }
-    .fp-card-img { height: 150px; }
-    .fp-section-header { margin-bottom: 24px; }
-    .fp-section-header h2 { font-size: 22px; }
-    .fp-section { padding: 40px 0; }
-    /* Mobile Stats — compact cards with accent */
-    .fp-stats {
-        padding: 30px 0;
-    }
-    .fp-stats .row {
-        --bs-gutter-x: 0.5rem;
-        --bs-gutter-y: 0.5rem;
-    }
-    .fp-stat {
-        padding: 16px 10px;
-        border-radius: 10px;
-        border: 1px solid rgba(255,255,255,0.04);
-        background: rgba(0,0,0,0.15);
-    }
-    .fp-stat-num {
-        font-size: 22px;
-    }
-    .fp-stat i {
-        font-size: 22px;
-        margin-bottom: 6px;
-        color: rgba(234,179,8,0.15);
-    }
-    .fp-stat span {
-        font-size: 11px;
-    }
-    .fp-cta { padding: 45px 0; }
-    .fp-cta-title { font-size: 24px; }
-    .fp-cta-desc { font-size: 14px; margin-bottom: 20px; }
-    .fp-cta-actions { flex-direction: column; gap: 10px; }
-    .fp-cta-actions .fp-btn-primary,
-    .fp-cta-actions .fp-btn-secondary { width: 100%; justify-content: center; }
-    .fp-cta-features { gap: 10px; flex-direction: column; align-items: center; }
-    /* Mobile Trust Bar — horizontal scrollable cards */
-    .fp-trust-bar {
-        padding: 0;
-        border-top: 1px solid rgba(234,179,8,0.06);
-        border-bottom: 1px solid rgba(234,179,8,0.06);
-    }
-    .fp-trust-inner {
-        gap: 0;
-        flex-direction: row;
-        flex-wrap: nowrap;
-        overflow-x: auto;
-        overflow-y: hidden;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        padding: 10px 12px;
-        justify-content: flex-start;
-    }
-    .fp-trust-inner::-webkit-scrollbar { display: none; }
-    .fp-trust-item {
-        flex-shrink: 0;
-        font-size: 11px;
-        background: rgba(255,255,255,0.03);
-        border: 1px solid rgba(255,255,255,0.04);
-        border-radius: 10px;
-        padding: 8px 14px;
-        gap: 8px;
-        white-space: nowrap;
-        transition: all 0.25s ease;
-    }
-    .fp-trust-item:active {
-        background: rgba(234,179,8,0.06);
-        border-color: rgba(234,179,8,0.1);
-    }
-    .fp-trust-item i {
-        font-size: 13px;
-    }
-    .fp-trust-dot { display: none; }
-    /* Mobile Marquee — faster, tighter */
-    .fp-marquee-section {
-        padding: 10px 0;
-        border-top: 1px solid rgba(234,179,8,0.04);
-        border-bottom: 1px solid rgba(234,179,8,0.04);
-    }
-    .fp-marquee-content {
-        animation: marqueeScroll 18s linear infinite;
-    }
-    .fp-marquee-item {
-        font-size: 11px;
-        gap: 5px;
-    }
-    .fp-marquee-item i { font-size: 12px; }
-    .fp-marquee-dot {
-        margin: 0 14px;
-        font-size: 6px;
-    }
-    .fp-step { padding: 24px 16px; }
-    .fp-step h3 { font-size: 16px; }
-    .fp-step p { font-size: 13px; }
-    .fp-step-icon { width: 50px; height: 50px; font-size: 20px; }
-    .fp-fcard { padding: 16px 14px; }
-    .fp-fcard h3 { font-size: 14px; }
-    .fp-fcard p { font-size: 12px; }
-
-    .fp-testi { padding: 20px 16px; }
-    .fp-testi p { font-size: 13px; }
-    .fp-testi-stars { font-size: 12px; }
-    .fp-empty { padding: 40px 16px; }
-    .fp-empty i { font-size: 32px; }
-}
-@media (max-width: 576px) {
-    /* ============================================================
-       MOBILE HERO — Complete Redesign
-       ============================================================ */
-    .fp-hero {
-        padding: 0 0 30px;
-        min-height: auto;
-        display: block;
-    }
-    .fp-hero-bg { position: absolute; inset: 0; pointer-events: none; }
-    .fp-hero-mobile-overlay {
-        display: block;
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(
-            180deg,
-            rgba(13,13,17,0) 0%,
-            rgba(13,13,17,0.85) 40%,
-            rgba(13,13,17,1) 70%
-        );
-        pointer-events: none;
-        z-index: 1;
-    }
-    .fp-hero-glow { display: none; }
-
-    /* Slider — full width hero banner */
-    .fp-hero .row {
-        --bs-gutter-y: 0;
-        position: relative;
-    }
-    .fp-hero .col-lg-6:first-child {
-        margin-bottom: -50px;
-        position: relative;
-        z-index: 2;
-    }
-    .fp-hero-slider-inner {
-        border-radius: 0 !important;
-        border: none !important;
-        box-shadow: none !important;
-    }
-    .fp-hero .hero-slider-img {
-        height: 300px;
-        object-fit: cover;
-    }
-    #heroSlider .carousel-control-prev,
-    #heroSlider .carousel-control-next {
-        display: none;
-    }
-
-    /* Mobile slider dots */
-    .fp-hero-mobile-indicators {
-        display: flex;
-        justify-content: center;
-        gap: 6px;
-        position: absolute;
-        bottom: 16px;
-        left: 50%;
-        transform: translateX(-50%);
-        z-index: 5;
-    }
-    .fp-hero-mobile-dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
-        background: rgba(255,255,255,0.3);
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-    .fp-hero-mobile-dot.active {
-        width: 20px;
-        border-radius: 3px;
-        background: #eab308;
-    }
-
-    /* Hero content — glass card style overlapping slider */
-    .fp-hero-content {
-        position: relative;
-        z-index: 3;
-        background: linear-gradient(
-            180deg,
-            rgba(22,22,29,0.95) 0%,
-            rgba(22,22,29,1) 100%
-        );
-        border: 1px solid rgba(255,255,255,0.06);
-        border-radius: 20px 20px 0 0;
-        padding: 24px 18px 18px;
-        margin-top: -40px;
-        box-shadow: 0 -20px 60px rgba(0,0,0,0.5);
-    }
-
-    .fp-hero-badge {
-        font-size: 10px;
-        padding: 5px 12px;
-        margin-bottom: 14px;
-        border-radius: 20px;
-        animation: none;
-        white-space: nowrap;
-    }
-
-    .fp-hero-title {
-        font-size: 26px;
-        margin-bottom: 10px;
-        line-height: 1.15;
-    }
-    .fp-hero-title br { display: block; }
-
-    .fp-hero-desc {
-        font-size: 13px;
-        margin-bottom: 16px;
-        line-height: 1.65;
-        max-width: 100%;
-    }
-
-    .fp-hero-actions {
-        flex-direction: row;
-        gap: 10px;
-        margin-bottom: 16px;
-    }
-    .fp-hero-actions .fp-btn-primary,
-    .fp-hero-actions .fp-btn-secondary {
-        flex: 1;
-        justify-content: center;
-        padding: 14px 16px;
-        font-size: 13px;
-        border-radius: 12px;
-        white-space: nowrap;
-    }
-    .fp-hero-actions .fp-btn-primary {
-        box-shadow: 0 4px 20px rgba(234,179,8,0.2);
-    }
-    .fp-hero-actions .fp-btn-secondary {
-        background: rgba(255,255,255,0.06);
-    }
-
-    /* Search — pill style */
-    .fp-hero-search { margin-bottom: 16px; }
-    .fp-hs-form {
-        border-radius: 14px;
-        max-width: 100%;
-        background: rgba(255,255,255,0.05);
-    }
-    .fp-hs-form:focus-within {
-        border-color: rgba(234,179,8,0.35);
-        background: rgba(255,255,255,0.08);
-    }
-    .fp-hs-form i { font-size: 13px; padding-left: 14px; }
-    .fp-hs-form input {
-        padding: 11px 10px;
-        font-size: 13px;
-    }
-    .fp-hs-form button {
-        padding: 11px 14px;
-        font-size: 12px;
-    }
-
-    /* Trust — horizontal scrollable */
-    .fp-hero-trust {
-        gap: 0;
-        justify-content: flex-start;
-        overflow-x: auto;
-        overflow-y: hidden;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        padding-bottom: 4px;
-        flex-wrap: nowrap;
-    }
-    .fp-hero-trust::-webkit-scrollbar { display: none; }
-    .fp-ht-item {
-        flex-shrink: 0;
-        font-size: 11px;
-        padding: 0 14px;
-        white-space: nowrap;
-    }
-    .fp-ht-item:first-child { padding-left: 0; }
-    .fp-ht-item strong { font-size: 14px; }
-    .fp-ht-item i { font-size: 13px; }
-    .fp-ht-divider {
-        height: 18px;
-        flex-shrink: 0;
-    }
-
-    /* Other mobile overrides */
-    .fp-card-img { height: 130px; }
-    .fp-card-body { padding: 10px 12px 14px; }
-    .fp-card-body h3 { font-size: 13px; margin-bottom: 6px; }
-    .fp-price-current { font-size: 14px; }
-    .fp-price-old { font-size: 12px; }
-    .fp-card-meta { font-size: 11px; }
-    .fp-card-badge { font-size: 10px; padding: 3px 8px; }
-    .fp-card-discount { font-size: 10px; padding: 3px 6px; }
-    .fp-section { padding: 35px 0; }
-    .fp-section-header { margin-bottom: 20px; }
-    .fp-section-header h2 { font-size: 20px; }
-    .fp-section-header p { font-size: 13px; }
-    .fp-section-tag { font-size: 10px; padding: 4px 10px; }
-    .fp-stats { padding: 24px 0; }
-    .fp-stat { padding: 14px 8px; border-radius: 8px; }
-    .fp-stat-num { font-size: 20px; }
-    .fp-stat span { font-size: 10px; }
-    .fp-stat i { font-size: 18px; margin-bottom: 4px; }
-    .fp-cta { padding: 35px 0; }
-    .fp-cta-title { font-size: 22px; }
-    .fp-cta-desc { font-size: 13px; margin-bottom: 18px; max-width: 100%; }
-    .fp-cta-tag { font-size: 10px; padding: 4px 10px; }
-    .fp-cta-actions { gap: 8px; margin-bottom: 18px; }
-    .fp-cta-actions .fp-btn-primary,
-    .fp-cta-actions .fp-btn-secondary { padding: 12px 20px; font-size: 14px; }
-    .fp-cta-features span { font-size: 13px; }
-    .fp-cta-features i { font-size: 14px; }
-    .fp-step { padding: 20px 14px; }
-    .fp-step h3 { font-size: 15px; }
-    .fp-step p { font-size: 13px; }
-    .fp-step-icon { width: 46px; height: 46px; font-size: 18px; margin-bottom: 12px; }
-    .fp-step-num { font-size: 32px; }
-    .fp-fcard { padding: 14px 12px; }
-    .fp-fcard-icon { width: 36px; height: 36px; font-size: 15px; margin-bottom: 8px; }
-    .fp-fcard h3 { font-size: 13px; }
-    .fp-fcard p { font-size: 12px; }
-
-    .fp-testi { padding: 18px 14px; }
-    .fp-testi p { font-size: 13px; }
-    .fp-testi-stars { font-size: 11px; }
-    .fp-testi-author strong { font-size: 13px; }
-    .fp-testi-author small { font-size: 11px; }
-    .fp-testi-avatar { width: 32px; height: 32px; font-size: 12px; }
-    .fp-empty { padding: 30px 16px; }
-    .fp-empty i { font-size: 28px; }
-    .fp-empty p { font-size: 13px; }
-}
-
-/* ===== Mobile Hero Entrance Animation ===== */
-@media (max-width: 576px) {
-    .fp-hero-content {
-        animation: mobileHeroSlideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-    .fp-hero-content > * {
-        opacity: 0;
-        animation: mobileHeroFadeIn 0.5s ease forwards;
-    }
-    .fp-hero-content > .fp-hero-badge { animation-delay: 0.1s; }
-    .fp-hero-content > .fp-hero-title { animation-delay: 0.18s; }
-    .fp-hero-content > .fp-hero-desc { animation-delay: 0.26s; }
-    .fp-hero-content > .fp-hero-actions { animation-delay: 0.34s; }
-    .fp-hero-content > .fp-hero-search { animation-delay: 0.42s; }
-    .fp-hero-content > .fp-hero-trust { animation-delay: 0.5s; }
-
-    @keyframes mobileHeroSlideUp {
-        from { transform: translateY(20px); opacity: 0.6; }
-        to { transform: translateY(0); opacity: 1; }
-    }
-    @keyframes mobileHeroFadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-}
-
-/* === Very small screens (under 400px) === */
-@media (max-width: 400px) {
-    .fp-hero { padding: 0 0 24px; }
-    .fp-hero .hero-slider-img { height: 230px; }
-    .fp-hero-content {
-        padding: 18px 14px 14px;
-        margin-top: -30px;
-        border-radius: 16px 16px 0 0;
-    }
-    .fp-hero-title { font-size: 22px; }
-    .fp-hero-desc { font-size: 12px; margin-bottom: 14px; }
-    .fp-hero-badge { font-size: 9px; padding: 4px 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
-    .fp-hero-actions { gap: 8px; margin-bottom: 14px; }
-    .fp-hero-actions .fp-btn-primary,
-    .fp-hero-actions .fp-btn-secondary { padding: 12px 14px; font-size: 12px; }
-    .fp-hs-form input { font-size: 12px; }
-    .fp-hs-form button { font-size: 11px; padding: 10px 10px; }
-    .fp-ht-item strong { font-size: 13px; }
-    .fp-ht-item { font-size: 10px; padding: 0 10px; }
-    .fp-card-img { height: 110px; }
-    .fp-card-body h3 { font-size: 12px; }
-    .fp-price-current { font-size: 13px; }
-    .fp-section-header h2 { font-size: 18px; }
-    .fp-stat-num { font-size: 20px; }
-    .container { padding-left: 12px; padding-right: 12px; }
-}
-
-/* === Counter animation helpers (re-use app.blade.js) === */
-[data-count] { display: inline-block; }
-</style>
-
-
+<!-- ===== CTA ===== -->
+<section class="os-section-sm bg-brand">
+    <div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-4 py-12 text-center sm:px-6 lg:flex-row lg:text-left">
+        <div class="text-white">
+            <h2 class="font-display text-2xl font-bold tracking-tight sm:text-3xl">Ready to own something new?</h2>
+            <p class="mt-2 text-white/70">Create your free account in minutes. No credit check, no hidden fees, cancel anytime.</p>
+        </div>
+        <div class="flex flex-wrap justify-center gap-3">
+            <a href="{{ url('/register') }}" class="os-btn os-btn-mango"><i class="bi bi-person-plus"></i> Create Free Account</a>
+            <a href="{{ url('/shop') }}" class="os-btn text-white" style="border:1.5px solid rgba(255,255,255,0.35);"><i class="bi bi-grid-fill"></i> Browse Products</a>
+        </div>
+    </div>
+</section>
 
 @endsection

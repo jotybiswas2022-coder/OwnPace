@@ -91,6 +91,7 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('/', 'index')->name('admin.category.index');
         Route::get('/create', 'create')->name('admin.category.create');
         Route::post('/store', 'store')->name('admin.category.store');
+        Route::get('/edit/{category}', 'edit')->name('admin.category.edit');
         Route::post('/update/{category}', 'update')->name('admin.category.update');
         Route::get('/delete/{id}', 'delete')->name('admin.category.delete');
     });

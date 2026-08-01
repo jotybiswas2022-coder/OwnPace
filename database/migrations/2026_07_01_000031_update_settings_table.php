@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('settings', function (Blueprint $table) {
-            $table->string('store_name')->default('KistiBuy');
+            $table->string('store_name')->default('OwnPace');
             $table->text('store_description')->nullable();
             $table->string('currency')->default('NGN');
             $table->string('currency_symbol')->default('₦');

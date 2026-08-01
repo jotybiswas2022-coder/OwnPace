@@ -1,5 +1,5 @@
 @extends('backend.app')
-@section('title', 'Add Category — FlexiPay Admin')
+@section('title', 'Add Category — OwnPace Admin')
 @section('page_title', 'Add Category')
 
 @section('content')
@@ -9,7 +9,7 @@
         <form action="{{ url('admin/category/store') }}" method="post">
             @csrf
             <div class="row g-3">
-                <div class="col-md-6">
+                <div class="col-sm-6">
                     <label style="display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px;">
                         <i class="bi bi-tag" style="color:var(--gold-500);"></i> Category Name <span style="color:#ef4444;">*</span>
                     </label>

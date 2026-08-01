@@ -1,22 +1,35 @@
 <?php
+
 use App\Models\Setting;
 use App\Models\ProductFee;
+use App\Services\MoneyService;
+use App\Services\InstallmentCalculatorService;
 
-function currency()
-{
-    $settings = Setting::first();
-    return $settings?->currency_symbol ?? '₦';
-}
-
-function formatPrice($amount)
-{
-    return currency() . number_format($amount, 2);
-}
-
+/**
+ * Store display name. The default is "OwnPace" — the product thesis is
+ * gradual ownership ("Own at your own pace"). The setting in the DB wins.
+ */
 function storeName()
 {
-    $settings = Setting::first();
-    return $settings?->store_name ?? 'KistiBuy';
+    return Setting::first()?->store_name ?? 'OwnPace';
+}
+
+/**
+ * Currency symbol (default ₦ for the Nigerian market).
+ */
+function currency()
+{
+    return MoneyService::symbol();
+}
+
+/**
+ * Format a price for display, e.g. ₦1,250,000.
+ *
+ * Defaults to 2 decimals for legacy pages; new pages pass 0 explicitly.
+ */
+function formatPrice($amount, $decimals = 2)
+{
+    return MoneyService::format($amount, $decimals);
 }
 
 function cartCount()
@@ -83,18 +96,10 @@ function verificationBadge($status)
     return "<span class=\"badge bg-{$color}\">{$status}</span>";
 }
 
-// Calculate installment breakdown
+/**
+ * Installment breakdown for a plan — delegates to the tested service class.
+ */
 function calculateInstallmentBreakdown($totalAmount, $installmentPlan)
 {
-    $interestAmount = ($totalAmount * $installmentPlan->interest_rate) / 100;
-    $totalWithInterest = $totalAmount + $interestAmount;
-    $perInstallment = $totalWithInterest / $installmentPlan->duration;
-
-    return [
-        'total' => $totalWithInterest,
-        'interest' => $interestAmount,
-        'per_installment' => $perInstallment,
-        'duration' => $installmentPlan->duration,
-        'type' => $installmentPlan->type,
-    ];
+    return InstallmentCalculatorService::breakdown($totalAmount, $installmentPlan);
 }

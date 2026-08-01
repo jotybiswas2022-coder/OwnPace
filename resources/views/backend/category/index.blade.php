@@ -1,113 +1,96 @@
-@extends('backend.app')
-@section('title', 'Categories — FlexiPay Admin')
+@extends('backend.layouts.console')
+@section('title', 'Categories — '.storeName().' Admin')
 @section('page_title', 'Categories')
 
 @section('content')
 
-@if (session('success'))
-<div class="fp-table-wrap mb-4" style="border-left:3px solid #4ade80;">
-    <div class="p-3" style="color:#4ade80;font-size:14px;">
-        <i class="bi bi-check-circle-fill me-1"></i> {{ session('success') }}
-    </div>
+@if(session('success'))
+<div class="mb-4 flex items-center gap-2 rounded-lg border-l-4 border-grass bg-grass/10 px-4 py-3 text-sm text-grass" role="status">
+    <i class="bi bi-check-circle-fill"></i> {{ session('success') }}
+</div>
+@endif
+@if(session('error'))
+<div class="mb-4 flex items-center gap-2 rounded-lg border-l-4 border-ember bg-ember/10 px-4 py-3 text-sm text-ember" role="status">
+    <i class="bi bi-exclamation-triangle-fill"></i> {{ session('error') }}
 </div>
 @endif
 
-<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+<div class="mb-6 flex flex-wrap items-center justify-between gap-4">
     <div>
-        <p class="mb-0" style="color:var(--text-muted);">{{ $categories->count() ?? 0 }} categories</p>
+        <h2 class="font-display text-xl font-bold text-ink">All Categories</h2>
+        <p class="text-sm text-slate">{{ $categories->count() ?? 0 }} categories</p>
     </div>
-    <a href="{{ url('admin/category/create') }}" class="fp-btn fp-btn-gold"><i class="bi bi-plus-lg"></i> Add Category</a>
-</div>
-
-<div class="fp-table-wrap">
-    <div class="fp-table-header">
-        <h5>All Categories</h5>
-        <input type="text" id="categorySearch" class="fp-form-control" placeholder="Search..." style="width:220px;padding:6px 12px;font-size:13px;">
-    </div>
-    <div class="table-responsive">
-        <table class="fp-table">
-            <thead><tr><th>#</th><th>Name</th><th>Created</th><th>Actions</th></tr></thead>
-            <tbody>
-                @forelse($categories as $category)
-                    <tr>
-                        <td style="color:var(--text-dim);">{{ $loop->iteration }}</td>
-                        <td><strong style="color:var(--text-primary);">{{ $category->name }}</strong></td>
-                        <td style="color:var(--text-dim);font-size:12px;">{{ $category->created_at->format('M d, Y H:i') }}</td>
-                        <td>
-                            <div class="d-flex gap-1">
-                                <button class="fp-btn fp-btn-ghost" style="padding:4px 10px;" data-bs-toggle="modal" data-bs-target="#editModal{{ $category->id }}">
-                                    <i class="bi bi-pencil-fill"></i>
-                                </button>
-                                <button class="fp-btn fp-btn-ghost" style="padding:4px 10px;color:#ef4444;" onclick="confirmation({{ $category->id }})">
-                                    <i class="bi bi-trash-fill"></i>
-                                </button>
-                            </div>
-
-                            <!-- Edit Modal -->
-                            <div class="modal fade" id="editModal{{ $category->id }}" tabindex="-1">
-                                <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content" style="background:var(--card-dark);border:1px solid var(--card-border);border-radius:16px;">
-                                        <div class="modal-header" style="border-bottom:1px solid var(--card-border);padding:18px 24px;">
-                                            <h5 class="modal-title fw-semibold" style="color:var(--text-primary);font-family:'Syne',sans-serif;font-size:15px;">
-                                                <i class="bi bi-pencil-square me-2" style="color:var(--gold-500);"></i>Edit Category
-                                            </h5>
-                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="filter:invert(0.6);"></button>
-                                        </div>
-                                        <form action="{{ url('admin/category/update/'.$category->id) }}" method="POST">
-                                            @csrf
-                                            <div class="modal-body p-4">
-                                                <label style="display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px;">Category Name <span style="color:#ef4444;">*</span></label>
-                                                <input type="text" class="fp-form-control" name="name" value="{{ $category->name }}" required>
-                                            </div>
-                                            <div class="modal-footer" style="border-top:1px solid var(--card-border);padding:16px 24px;">
-                                                <button type="button" class="fp-btn fp-btn-ghost" data-bs-dismiss="modal"><i class="bi bi-x-circle me-1"></i> Cancel</button>
-                                                <button type="submit" class="fp-btn fp-btn-gold"><i class="bi bi-check-lg me-1"></i> Save Changes</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </td>
-                    </tr>
-                @empty
-                    <tr><td colspan="4" class="text-center py-4" style="color:var(--text-dim);">No categories found</td></tr>
-                @endforelse
-            </tbody>
-        </table>
+    <div class="flex flex-wrap items-center gap-3">
+        <input type="text" id="categorySearch" class="os-input" placeholder="Search categories…" style="max-width: 220px;" aria-label="Search categories">
+        <a href="{{ url('admin/category/create') }}" class="os-btn os-btn-mango os-btn-sm"><i class="bi bi-plus-lg"></i> Add Category</a>
     </div>
 </div>
 
+<!-- Card grid — no tables, no modals -->
+<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    @forelse($categories as $category)
+    <div class="os-card os-card-hover flex flex-col p-5 category-row">
+        <div class="flex items-start justify-between gap-3">
+            <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-mango/15 text-xl text-mango-deep">
+                <i class="bi bi-tag-fill"></i>
+            </span>
+            <span class="os-chip os-chip-slate">{{ $loop->iteration }}</span>
+        </div>
+        <h3 class="mt-4 font-display text-base font-bold text-ink">{{ $category->name }}</h3>
+        <p class="mt-1 text-xs text-slate">Created {{ $category->created_at->format('M d, Y H:i') }}</p>
+        <div class="mt-4 flex items-center gap-2 border-t border-ink/5 pt-4">
+            <a href="{{ url('admin/category/edit/'.$category->id) }}" class="os-btn os-btn-ghost os-btn-sm"><i class="bi bi-pencil-fill"></i> Edit</a>
+            <a href="{{ url('admin/category/delete/'.$category->id) }}" class="os-btn os-btn-danger os-btn-sm" onclick="return confirmDelete(event, 'Delete this category? This cannot be undone.')"><i class="bi bi-trash-fill"></i> Delete</a>
+        </div>
+    </div>
+    @empty
+    <div class="col-span-full rounded-2xl border border-dashed border-ink/15 bg-white p-14 text-center">
+        <i class="bi bi-tags text-4xl text-ink/15"></i>
+        <p class="mt-3 text-sm font-medium text-ink">No categories yet</p>
+        <a href="{{ url('admin/category/create') }}" class="os-btn os-btn-mango os-btn-sm mt-5"><i class="bi bi-plus-lg"></i> Add your first category</a>
+    </div>
+    @endforelse
+</div>
+
+@endsection
+
+@push('scripts')
 <script>
-function confirmation(id) {
-    Swal.fire({
-        title: 'Delete Category?',
-        text: 'This action cannot be undone.',
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#ef4444',
-        cancelButtonColor: '#71717A',
-        confirmButtonText: 'Yes, delete it',
-        background: '#1A1A1E',
-        color: '#F4F4F5'
-    }).then((result) => {
-        if (result.isConfirmed) {
-            window.location.href = '/admin/category/delete/' + id;
-        }
-    });
-}
-
-document.addEventListener('DOMContentLoaded', function () {
-    const searchInput = document.getElementById('categorySearch');
-    if (searchInput) {
+    // Lightweight search across category cards — no modals, no tables.
+    document.addEventListener('DOMContentLoaded', function () {
+        const searchInput = document.getElementById('categorySearch');
+        if (!searchInput) return;
         searchInput.addEventListener('keyup', function () {
             const filter = searchInput.value.toLowerCase();
-            const rows = document.querySelectorAll('table tbody tr');
-            rows.forEach(row => {
-                const name = row.querySelector('td:nth-child(2)')?.textContent.toLowerCase() ?? '';
-                row.style.display = name.includes(filter) ? '' : 'none';
+            document.querySelectorAll('.category-row').forEach(row => {
+                row.style.display = row.textContent.toLowerCase().includes(filter) ? '' : 'none';
             });
         });
+    });
+
+    // Confirm before delete (SweetAlert toast style, no Bootstrap modal).
+    function confirmDelete(event, message) {
+        event.preventDefault();
+        const href = event.currentTarget.getAttribute('href');
+        if (typeof Swal !== 'undefined') {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: message,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, delete it',
+                cancelButtonText: 'Cancel',
+                confirmButtonColor: '#E0483E',
+                cancelButtonColor: '#6B7280',
+                background: '#ffffff',
+                color: '#1A1B23',
+            }).then(result => {
+                if (result.isConfirmed) window.location.href = href;
+            });
+        } else if (window.confirm(message)) {
+            window.location.href = href;
+        }
+        return false;
     }
-});
 </script>
-@endsection
+@endpush

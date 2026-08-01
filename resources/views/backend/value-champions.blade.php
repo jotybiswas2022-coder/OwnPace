@@ -202,6 +202,18 @@ $coreValues = [
     .fp-podium { gap: 8px; }
     .fp-podium-bar { width: 60px; }
 }
+@media (max-width: 576px) {
+    .fp-champ-stat { width: 100%; text-align: left; display: flex; justify-content: space-between; align-items: center; }
+    .fp-champ-stat strong { margin-right: 8px; }
+    .fp-podium-item { width: 30%; }
+    .fp-podium-rank { width: 44px; height: 44px; font-size: 18px; }
+    .fp-podium-avatar { width: 44px; height: 44px; font-size: 14px; }
+    .fp-podium-item:nth-child(1) .fp-podium-avatar { width: 52px; height: 52px; font-size: 16px; }
+    .fp-podium-item:nth-child(2) .fp-podium-avatar { width: 48px; height: 48px; font-size: 15px; }
+    .fp-podium-item:nth-child(3) .fp-podium-avatar { width: 44px; height: 44px; font-size: 14px; }
+    .fp-podium-bar { width: 40px; height: 40px !important; }
+    .fp-values-grid { grid-template-columns: 1fr 1fr; }
+}
 
 .fp-confetti {
     position: fixed; top: -10px; left: 0; width: 100%; height: 10px;
@@ -222,7 +234,7 @@ $coreValues = [
 <div class="fp-leaderboard-header">
     <div class="fp-lh-info">
         <h4><i class="bi bi-trophy-fill" style="color:var(--gold-500);"></i> Top Value Champions</h4>
-        <p>Recognizing team members who exemplify FlexiPay's core values every day</p>
+        <p>Recognizing team members who exemplify OwnPace's core values every day</p>
     </div>
     <div class="fp-lh-actions">
         <span class="fp-badge fp-badge-active"><i class="bi bi-calendar-week"></i> This Quarter</span>
@@ -277,7 +289,7 @@ $coreValues = [
 
 <div style="margin-top:28px;">
     <div class="fp-table-header" style="border:1px solid var(--card-border);border-radius:var(--radius);">
-        <h5><i class="bi bi-heart-fill" style="color:#ef4444;"></i> FlexiPay Core Values</h5>
+        <h5><i class="bi bi-heart-fill" style="color:#ef4444;"></i> OwnPace Core Values</h5>
     </div>
     <div style="margin-top:12px;">
         <div class="fp-values-grid">
@@ -299,7 +311,7 @@ $coreValues = [
         <i class="bi bi-info-circle-fill" style="color:var(--gold-500);"></i> About This Leaderboard
     </h5>
     <p style="font-size:13px;color:var(--text-dim);margin:0;line-height:1.7;">
-        The Value Champion leaderboard recognizes team members who demonstrate FlexiPay's core values.
+        The Value Champion leaderboard recognizes team members who demonstrate OwnPace's core values.
         Points are earned through positive customer feedback, successful issue resolution, team collaboration,
         and innovative contributions. Top champions are celebrated quarterly with rewards and recognition.
     </p>

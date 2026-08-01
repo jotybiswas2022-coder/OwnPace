@@ -1,0 +1,378 @@
+/* ============================================================
+   OWN PACE — Design System
+   Theme: gradual ownership. Pay down a balance until it's yours.
+   Tokens per product spec: --ink --paper --indigo --mango
+   --grass --ember --slate
+   Tailwind v4 — theme + utilities only (no preflight) so it can
+   coexist with Bootstrap 5 while pages migrate one-by-one.
+   ============================================================ */
+
+@import "tailwindcss/theme" layer(theme);
+@import "tailwindcss/utilities" layer(utilities);
+
+@layer theme {
+    :root {
+        /* ---- Spec color tokens ---- */
+        --ink: #1a1b23;
+        --paper: #f6f6f4;
+        --indigo: #2e2a6b;
+        --mango: #f5a623;
+        --grass: #2f9e44;
+        --ember: #e0483e;
+        --slate: #6b7280;
+
+        /* ---- Derived shades ---- */
+        --indigo-deep: #211e52;
+        --indigo-soft: #4a4599;
+        --mango-soft: #ffd28a;
+        --mango-deep: #d98c0f;
+        --paper-deep: #ececea;
+        --paper-card: #ffffff;
+
+        /* ---- Shape / depth ---- */
+        --radius-lg: 1rem;      /* rounded-2xl */
+        --radius-md: 0.625rem;
+        --radius-sm: 0.375rem;
+        --shadow-soft: 0 10px 30px -12px rgba(26, 27, 35, 0.18);
+        --shadow-lift: 0 24px 48px -20px rgba(46, 42, 107, 0.28);
+        --ring-gold: 0 0 0 4px rgba(245, 166, 35, 0.18);
+
+        /* ---- Fonts ---- */
+        --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+        --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+        --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", monospace;
+    }
+}
+
+/* ============================================================
+   Theme tokens for Tailwind utilities (bg-brand, text-mango,
+   font-display, font-mono ...)
+   ============================================================ */
+/* NOTE: values are literal, not var() references — a custom property that
+   references itself is a CSS cycle and resolves to invalid. */
+@theme {
+    --color-brand: #2e2a6b;
+    --color-brand-deep: #211e52;
+    --color-brand-soft: #4a4599;
+    --color-mango: #f5a623;
+    --color-mango-soft: #ffd28a;
+    --color-mango-deep: #d98c0f;
+    --color-grass: #2f9e44;
+    --color-ember: #e0483e;
+    --color-slate: #6b7280;
+    --color-paper: #f6f6f4;
+    --color-paper-deep: #ececea;
+    --color-ink: #1a1b23;
+
+    --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+    --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", monospace;
+
+    --shadow-soft: 0 10px 30px -12px rgba(26, 27, 35, 0.18);
+    --shadow-lift: 0 24px 48px -20px rgba(46, 42, 107, 0.28);
+
+    --radius-2xl: 1rem;
+}
+
+/* ============================================================
+   Base typography
+   ============================================================ */
+@layer base {
+    body {
+        font-family: var(--font-sans);
+        background: var(--paper);
+        color: var(--ink);
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+    }
+
+    h1, h2, h3, h4, h5, h6,
+    .font-display {
+        font-family: var(--font-display);
+        letter-spacing: -0.02em;
+    }
+
+    /* Elements hidden until Alpine boots — prevents flash of menus. */
+    [x-cloak] {
+        display: none !important;
+    }
+
+    /* Visible keyboard focus everywhere, per the quality bar. */
+    :focus-visible {
+        outline: 3px solid rgba(245, 166, 35, 0.55);
+        outline-offset: 2px;
+        border-radius: 4px;
+    }
+}
+
+/* ============================================================
+   Money — tabular-figure monospace for every amount.
+   Digits align; prices read precisely. Functional, not decor.
+   ============================================================ */
+@utility money {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+    letter-spacing: -0.02em;
+}
+
+/* ============================================================
+   Progress Ring — the signature element.
+   A circular ring showing % of a plan paid off, with the
+   tabular-mono amount centered inside. Animated fill tied to
+   real payment progress. Respects prefers-reduced-motion.
+   ============================================================ */
+.progress-ring {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    line-height: 1;
+}
+
+.progress-ring svg {
+    transform: rotate(-90deg);
+    display: block;
+}
+
+.progress-ring .pr-track {
+    fill: none;
+    stroke: rgba(46, 42, 107, 0.12);
+}
+
+.progress-ring .pr-bar {
+    fill: none;
+    stroke-linecap: round;
+    stroke: var(--mango);
+    transition: stroke-dashoffset 1s cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: stroke-dashoffset;
+}
+
+.progress-ring .pr-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.progress-ring .pr-value {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    color: var(--indigo);
+    line-height: 1.1;
+}
+
+.progress-ring .pr-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--slate);
+}
+
+/* Paid-off variant */
+.progress-ring.pr-done .pr-bar {
+    stroke: var(--grass);
+}
+
+/* ============================================================
+   Shared components — buttons, cards, chips, forms
+   ============================================================ */
+@layer components {
+    .os-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: var(--radius-md);
+        font-weight: 600;
+        font-size: 0.875rem;
+        line-height: 1;
+        transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
+        cursor: pointer;
+        border: none;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .os-btn:active {
+        transform: translateY(1px) scale(0.99);
+    }
+
+    .os-btn-mango {
+        background: var(--mango);
+        color: var(--ink);
+        box-shadow: 0 8px 20px -8px rgba(245, 166, 35, 0.7);
+    }
+
+    .os-btn-mango:hover {
+        background: var(--mango-deep);
+        box-shadow: var(--shadow-lift);
+        transform: translateY(-1px);
+    }
+
+    .os-btn-brand {
+        background: var(--indigo);
+        color: #fff;
+        box-shadow: 0 8px 20px -10px rgba(46, 42, 107, 0.7);
+    }
+
+    .os-btn-brand:hover {
+        background: var(--indigo-deep);
+        box-shadow: var(--shadow-lift);
+        transform: translateY(-1px);
+    }
+
+    .os-btn-ghost {
+        background: transparent;
+        color: var(--indigo);
+        border: 1.5px solid rgba(46, 42, 107, 0.25);
+    }
+
+    .os-btn-ghost:hover {
+        border-color: var(--indigo);
+        background: rgba(46, 42, 107, 0.05);
+    }
+
+    .os-btn-danger {
+        background: rgba(224, 72, 62, 0.1);
+        color: var(--ember);
+        border: 1.5px solid rgba(224, 72, 62, 0.25);
+    }
+
+    .os-btn-danger:hover {
+        background: rgba(224, 72, 62, 0.18);
+    }
+
+    .os-btn-sm {
+        padding: 0.5rem 1rem;
+        font-size: 0.8125rem;
+        border-radius: var(--radius-sm);
+    }
+
+    /* ---- Cards ---- */
+    .os-card {
+        background: var(--paper-card);
+        border: 1px solid rgba(26, 27, 35, 0.08);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-soft);
+    }
+
+    .os-card-hover {
+        transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+    }
+
+    .os-card-hover:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--shadow-lift);
+        border-color: rgba(245, 166, 35, 0.45);
+    }
+
+    /* ---- Chips / badges ---- */
+    .os-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.3rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .os-chip-mango {
+        background: rgba(245, 166, 35, 0.16);
+        color: var(--mango-deep);
+    }
+
+    .os-chip-brand {
+        background: rgba(46, 42, 107, 0.1);
+        color: var(--indigo);
+    }
+
+    .os-chip-grass {
+        background: rgba(47, 158, 68, 0.14);
+        color: var(--grass);
+    }
+
+    .os-chip-ember {
+        background: rgba(224, 72, 62, 0.14);
+        color: var(--ember);
+    }
+
+    .os-chip-slate {
+        background: rgba(107, 114, 128, 0.12);
+        color: var(--slate);
+    }
+
+    /* ---- Forms ---- */
+    .os-input {
+        width: 100%;
+        padding: 0.625rem 0.875rem;
+        background: #fff;
+        border: 1.5px solid rgba(26, 27, 35, 0.16);
+        border-radius: var(--radius-sm);
+        font-size: 0.875rem;
+        color: var(--ink);
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        outline: none;
+    }
+
+    .os-input:focus {
+        border-color: var(--mango);
+        box-shadow: var(--ring-gold);
+    }
+
+    .os-input::placeholder {
+        color: #9aa0ad;
+    }
+
+    /* ---- Section shell ---- */
+    .os-section {
+        padding: 4.5rem 0;
+    }
+
+    .os-section-sm {
+        padding: 2.5rem 0;
+    }
+
+    .os-eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--mango-deep);
+    }
+
+    .os-focus-ring:focus-visible {
+        outline: 3px solid rgba(245, 166, 35, 0.55);
+        outline-offset: 2px;
+        border-radius: 4px;
+    }
+}
+
+/* ============================================================
+   Motion — respect reduced motion globally
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+
+    .progress-ring .pr-bar {
+        transition: none;
+    }
+}

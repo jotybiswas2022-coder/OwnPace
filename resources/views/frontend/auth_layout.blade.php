@@ -6,7 +6,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="theme-color" content="#0A0A0B">
     <meta name="color-scheme" content="dark">
-    <title>FlexiPay — @yield('title', 'Account')</title>
+    <title>OwnPace — @yield('title', 'Account')</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="preconnect" href="https://cdn.jsdelivr.net">

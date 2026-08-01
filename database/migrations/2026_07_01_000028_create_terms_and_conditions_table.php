@@ -19,7 +19,7 @@ return new class extends Migration
 
         DB::table('terms_and_conditions')->insert([
             'title' => 'General Terms & Conditions',
-            'content' => 'Welcome to KistiBuy. By using our platform, you agree to these terms...',
+            'content' => 'Welcome to OwnPace. By using our platform, you agree to these terms...',
             'type' => 'general',
             'is_active' => true,
             'created_at' => now(),

@@ -1,5 +1,5 @@
 @extends('backend.app')
-@section('title', 'New Campaign — FlexiPay Admin')
+@section('title', 'New Campaign — OwnPace Admin')
 @section('page_title', 'New Campaign')
 
 @section('content')
@@ -16,11 +16,11 @@
         <form action="{{ route('admin.campaigns.store') }}" method="POST">
             @csrf
             <div class="row g-3">
-                <div class="col-md-6">
+                <div class="col-sm-6">
                     <label style="display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px;">Campaign Name <span style="color:#ef4444;">*</span></label>
                     <input type="text" name="name" class="fp-form-control" value="{{ old('name') }}" required placeholder="e.g. Summer Sale 2026">
                 </div>
-                <div class="col-md-6">
+                <div class="col-sm-6">
                     <label style="display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px;">Subject Line</label>
                     <input type="text" name="subject" class="fp-form-control" value="{{ old('subject') }}" placeholder="e.g. Don't miss our biggest sale!">
                 </div>
@@ -28,7 +28,7 @@
                     <label style="display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px;">Message Content <span style="color:#ef4444;">*</span></label>
                     <textarea name="content" class="fp-form-control" rows="8" required placeholder="Write your campaign message here...">{{ old('content') }}</textarea>
                 </div>
-                <div class="col-md-4">
+                <div class="col-sm-6 col-md-4">
                     <label style="display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px;">Channel <span style="color:#ef4444;">*</span></label>
                     <select name="channel" class="fp-form-control">
                         <option value="email" {{ old('channel')=='email'?'selected':'' }}>Email</option>
@@ -36,7 +36,7 @@
                         <option value="both" {{ old('channel')=='both'?'selected':'' }}>Email + SMS</option>
                     </select>
                 </div>
-                <div class="col-md-4">
+                <div class="col-sm-6 col-md-4">
                     <label style="display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px;">Target Audience <span style="color:#ef4444;">*</span></label>
                     <select name="audience" class="fp-form-control">
                         <option value="all" {{ old('audience')=='all'?'selected':'' }}>All Customers</option>
@@ -44,7 +44,7 @@
                         <option value="overdue_users" {{ old('audience')=='overdue_users'?'selected':'' }}>Overdue Payments</option>
                     </select>
                 </div>
-                <div class="col-md-4">
+                <div class="col-sm-6 col-md-4">
                     <label style="display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px;">Action</label>
                     <select name="action" class="fp-form-control">
                         <option value="draft">Save as Draft</option>

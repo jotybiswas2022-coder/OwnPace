@@ -825,7 +825,7 @@ CREATE TABLE `settings` (
   `location` varchar(255) NOT NULL DEFAULT '',
   `created_at` timestamp NULL DEFAULT NULL,
   `updated_at` timestamp NULL DEFAULT NULL,
-  `store_name` varchar(255) NOT NULL DEFAULT 'KistiBuy',
+  `store_name` varchar(255) NOT NULL DEFAULT 'OwnPace',
   `store_description` text DEFAULT NULL,
   `currency` varchar(255) NOT NULL DEFAULT 'NGN',
   `currency_symbol` varchar(255) NOT NULL DEFAULT '₦',
@@ -911,7 +911,7 @@ CREATE TABLE `terms_and_conditions` (
 --
 
 INSERT INTO `terms_and_conditions` (`id`, `title`, `content`, `type`, `is_active`, `created_at`, `updated_at`) VALUES
-(1, 'General Terms & Conditions', 'Welcome to KistiBuy. By using our platform, you agree to these terms...', 'general', 1, '2026-07-22 05:25:18', '2026-07-22 05:25:18');
+(1, 'General Terms & Conditions', 'Welcome to OwnPace. By using our platform, you agree to these terms...', 'general', 1, '2026-07-22 05:25:18', '2026-07-22 05:25:18');
 
 -- --------------------------------------------------------
 

@@ -1,5 +1,5 @@
 @extends('backend.app')
-@section('title', 'Add Post — FlexiPay Admin')
+@section('title', 'Add Post — OwnPace Admin')
 @section('page_title', 'Add Post')
 
 @section('content')
@@ -9,13 +9,13 @@
         <form action="{{ url('/admin/workers/store') }}" method="post" enctype="multipart/form-data">
             @csrf
             <div class="row g-4">
-                <div class="col-md-6">
+                <div class="col-sm-6">
                     <label style="display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px;">
                         <i class="bi bi-person" style="color:var(--gold-500);"></i> Name <span style="color:#ef4444;">*</span>
                     </label>
                     <input type="text" class="fp-form-control" name="title" placeholder="Enter name" required>
                 </div>
-                <div class="col-md-6">
+                <div class="col-sm-6">
                     <label style="display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px;">
                         <i class="bi bi-tags" style="color:var(--gold-500);"></i> Category <span style="color:#ef4444;">*</span>
                     </label>
@@ -26,13 +26,13 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="col-md-6">
+                <div class="col-sm-6">
                     <label style="display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px;">
                         <i class="bi bi-telephone" style="color:var(--gold-500);"></i> Contact Number <span style="color:#ef4444;">*</span>
                     </label>
                     <input type="number" class="fp-form-control" name="contact_number" placeholder="Enter contact number" required>
                 </div>
-                <div class="col-md-6">
+                <div class="col-sm-6">
                     <label style="display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px;">
                         <i class="bi bi-geo-alt" style="color:var(--gold-500);"></i> Division <span style="color:#ef4444;">*</span>
                     </label>
@@ -48,7 +48,7 @@
                         <option value="Rangpur">Rangpur</option>
                     </select>
                 </div>
-                <div class="col-md-6">
+                <div class="col-sm-6">
                     <label style="display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px;">
                         <i class="bi bi-list-check" style="color:var(--gold-500);"></i> Status <span style="color:#ef4444;">*</span>
                     </label>
@@ -58,7 +58,7 @@
                         <option value="0">Inactive</option>
                     </select>
                 </div>
-                <div class="col-md-6">
+                <div class="col-sm-6">
                     <label style="display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px;">
                         <i class="bi bi-image" style="color:var(--gold-500);"></i> Profile Image <span style="color:#ef4444;">*</span>
                     </label>

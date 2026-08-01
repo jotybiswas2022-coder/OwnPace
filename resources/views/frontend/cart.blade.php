@@ -1,5 +1,5 @@
 @extends('frontend.app')
-@section('title', 'Shopping Cart — FlexiPay Store')
+@section('title', 'Shopping Cart — OwnPace Store')
 
 @section('content')
 <section class="fp-cart-section">

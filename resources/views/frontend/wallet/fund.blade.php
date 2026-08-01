@@ -1,5 +1,5 @@
 @extends('frontend.app')
-@section('title', 'Fund Wallet — FlexiPay Store')
+@section('title', 'Fund Wallet — OwnPace Store')
 
 @push('styles')
 <style>
@@ -201,7 +201,7 @@
 
                     <div class="fp-fund-note mt-3">
                         <i class="bi bi-info-circle-fill"></i>
-                        Funds are non-withdrawable and can only be used for purchases on FlexiPay Store.
+                        Funds are non-withdrawable and can only be used for purchases on OwnPace Store.
                     </div>
                 </div>
             </div>

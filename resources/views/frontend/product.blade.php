@@ -1,5 +1,5 @@
 @extends('frontend.app')
-@section('title', $product->name . ' — FlexiPay Store')
+@section('title', $product->name . ' — OwnPace Store')
 
 @section('content')
 <section class="fp-prod-section">
@@ -62,7 +62,7 @@
             <div class="col-lg-6">
                 <div class="fp-prod-info reveal-right">
                     <div class="fp-prod-tags">
-                        <span class="fp-prod-brand"><i class="bi bi-building"></i> {{ $product->brand?->name ?? 'FlexiPay' }}</span>
+                        <span class="fp-prod-brand"><i class="bi bi-building"></i> {{ $product->brand?->name ?? 'OwnPace' }}</span>
                         @if($product->category)
                             <span class="fp-prod-category">{{ $product->category->name }}</span>
                         @endif

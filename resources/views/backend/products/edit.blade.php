@@ -1,5 +1,5 @@
 @extends('backend.app')
-@section('title', 'Edit Product — FlexiPay Admin')
+@section('title', 'Edit Product — OwnPace Admin')
 @section('page_title', 'Edit Product')
 
 @push('styles')

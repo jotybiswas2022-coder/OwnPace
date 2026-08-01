@@ -1,6 +1,44 @@
 @extends('backend.app')
-@section('title', 'Contacts — FlexiPay Admin')
+@section('title', 'Contacts — OwnPace Admin')
 @section('page_title', 'Contact Messages')
+
+@push('styles')
+<style>
+@media (max-width: 768px) {
+    .fp-table thead { display: none; }
+    .fp-table tbody, .fp-table tr, .fp-table td { display: block; }
+    .fp-table tr {
+        background: var(--card-dark);
+        border: 1px solid var(--card-border);
+        border-radius: var(--radius-sm);
+        padding: 12px;
+        margin-bottom: 12px;
+    }
+    .fp-table td {
+        padding: 8px 0;
+        border-bottom: 1px solid var(--card-border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+    }
+    .fp-table td:last-child { border-bottom: none; }
+    .fp-table td:before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: var(--text-dim);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        flex-shrink: 0;
+    }
+    .fp-table td:last-child:before { display: none; }
+    .fp-table td:last-child { justify-content: flex-end; gap: 6px; }
+    .fp-table .empty-row td:before { display: none; }
+    .fp-table .empty-row td { justify-content: center; }
+}
+</style>
+@endpush
 
 @section('content')
 
@@ -24,10 +62,10 @@
             <tbody>
                 @forelse ($contacts as $contact)
                     <tr>
-                        <td style="color:var(--text-dim);">{{ $loop->iteration }}</td>
-                        <td><strong style="color:var(--text-primary);">{{ $contact->name }}</strong></td>
-                        <td style="color:var(--text-muted);font-size:13px;">{{ $contact->email }}</td>
-                        <td>
+                        <td data-label="#" style="color:var(--text-dim);">{{ $loop->iteration }}</td>
+                        <td data-label="Name"><strong style="color:var(--text-primary);">{{ $contact->name }}</strong></td>
+                        <td data-label="Email" style="color:var(--text-muted);font-size:13px;">{{ $contact->email }}</td>
+                        <td data-label="Message">
                             <button class="fp-btn fp-btn-ghost" style="padding:4px 10px;font-size:12px;" data-bs-toggle="modal" data-bs-target="#msgModal{{ $contact->id }}">
                                 <i class="bi bi-chat-dots" style="color:var(--gold-500);"></i> View
                             </button>
@@ -52,15 +90,15 @@
                                 </div>
                             </div>
                         </td>
-                        <td style="font-size:12px;color:var(--text-dim);">
+                        <td data-label="Date" style="font-size:12px;color:var(--text-dim);">
                             {{ \Carbon\Carbon::parse($contact->created_at)->timezone('Asia/Dhaka')->format('d M Y') }}
                         </td>
-                        <td style="font-size:12px;color:var(--text-dim);">
+                        <td data-label="Time" style="font-size:12px;color:var(--text-dim);">
                             {{ \Carbon\Carbon::parse($contact->created_at)->timezone('Asia/Dhaka')->format('h:i A') }}
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="6" class="text-center py-5" style="color:var(--text-dim);">
+                    <tr class="empty-row"><td colspan="6" class="text-center py-5" style="color:var(--text-dim);">
                         <i class="bi bi-inbox" style="font-size:24px;display:block;margin-bottom:8px;color:var(--card-border);"></i>
                         No messages yet
                     </td></tr>
