@@ -451,6 +451,10 @@
                             <input type="checkbox" name="agree_terms" value="1" required>
                             <span style="color:var(--text-muted);font-size:13px;">I agree to the <a href="{{ url('/terms') }}" target="_blank" style="color:var(--gold-500);text-decoration:underline;">Terms & Conditions</a> and <a href="{{ url('/terms/privacy') }}" target="_blank" style="color:var(--gold-500);text-decoration:underline;">Privacy Policy</a></span>
                         </label>
+                        <div id="planTermsNote" style="display:none;margin:4px 0 0 30px;font-size:12px;color:var(--text-dim);">
+                            <i class="bi bi-file-earmark-text-fill" style="color:var(--gold-500);font-size:11px;"></i>
+                            Also bound by: <a id="planTermsLink" href="#" target="_blank" style="color:var(--gold-500);text-decoration:underline;"></a>
+                        </div>
                         @error('agree_terms')<small class="fp-chk-field-error">{{ $message }}</small>@enderror
                     </div>
                 </div>
@@ -611,6 +615,27 @@ document.getElementById('checkoutForm')?.addEventListener('submit', function(e) 
     btn.disabled = true;
     btn.innerHTML = '<span class="spinner-border spinner-border-sm" style="width:16px;height:16px;"></span> Processing...';
 });
+
+// ===== PLAN-SCOPED TERMS: surface the selected plan's T&C before checkout =====
+(function () {
+    const planTerms = @json($termsByPlan ?? []);
+    const note = document.getElementById('planTermsNote');
+    const link = document.getElementById('planTermsLink');
+    if (!note) return;
+
+    function update(planId) {
+        const entry = planTerms[planId];
+        if (entry) {
+            link.textContent = entry.title;
+            link.href = entry.url;
+            note.style.display = 'block';
+        } else {
+            note.style.display = 'none';
+        }
+    }
+
+    Livewire.on('checkout-plan-changed', ({ planId }) => update(planId));
+})();
 
 // ===== DELIVERY PROXY: search a registered user, confirm, assign =====
 (function () {

@@ -11,6 +11,8 @@ use App\Models\PaymentTransaction;
 use App\Models\PlanChangeRequest;
 use App\Models\ProductRequest;
 use App\Models\ExchangeRequest;
+use App\Models\AccountDeletionRequest;
+use App\Models\InstallmentPayment;
 
 class AdminDashboardController extends Controller
 {
@@ -25,8 +27,25 @@ class AdminDashboardController extends Controller
             ->where('type', 'payment')
             ->sum('amount');
 
+        // Plan lifecycle stats — the headline cards admins actually track.
+        $activePlans = Order::whereIn('status', ['pending', 'processing', 'partial_paid'])->count();
+        $completedPlans = Order::where('status', 'completed')->count();
+        $cancelledPlans = Order::where('status', 'cancelled')->count();
+
         $recentOrders = Order::with('user')->latest()->take(10)->get();
         $recentUsers = User::latest()->take(10)->get();
+
+        // Recent money movement across the whole platform.
+        $recentTransactions = PaymentTransaction::with('user')
+            ->latest()
+            ->take(8)
+            ->get();
+
+        // Upcoming/overdue installment exposure.
+        $dueThisMonth = InstallmentPayment::where('status', 'pending')
+            ->whereBetween('due_date', [now()->startOfMonth(), now()->endOfMonth()])
+            ->sum('amount');
+        $overduePayments = InstallmentPayment::where('status', 'overdue')->count();
 
         $pendingPlanChanges = PlanChangeRequest::where('status', 'pending')->count();
         $pendingProductRequests = ProductRequest::where('status', 'pending')->count();
@@ -85,7 +104,9 @@ class AdminDashboardController extends Controller
 
         return view('backend.index', compact(
             'totalProducts', 'totalOrders', 'totalUsers', 'totalRevenue',
-            'recentOrders', 'recentUsers',
+            'activePlans', 'completedPlans', 'cancelledPlans',
+            'recentOrders', 'recentUsers', 'recentTransactions',
+            'dueThisMonth', 'overduePayments',
             'pendingPlanChanges', 'pendingProductRequests', 'pendingExchanges',
             'revenueByMonth', 'ordersByStatus', 'ordersByMonth', 'usersByMonth', 'monthLabels'
         ));
@@ -130,6 +151,23 @@ class AdminDashboardController extends Controller
         $pendingPlanChanges = PlanChangeRequest::where('status', 'pending')->count();
         $pendingProductRequests = ProductRequest::where('status', 'pending')->count();
         $pendingExchanges = ExchangeRequest::where('status', 'pending')->count();
+        $pendingDeletions = AccountDeletionRequest::where('status', 'pending')->count();
+
+        $activePlans = Order::whereIn('status', ['pending', 'processing', 'partial_paid'])->count();
+        $completedPlans = Order::where('status', 'completed')->count();
+        $cancelledPlans = Order::where('status', 'cancelled')->count();
+
+        $recentTransactions = PaymentTransaction::with('user')->latest()->take(8)->get()->map(function ($t) {
+            return [
+                'reference' => $t->transaction_reference,
+                'customer' => $t->user?->name ?? 'N/A',
+                'avatar' => strtoupper(substr($t->user?->name ?? '?', 0, 1)),
+                'amount' => '₦'.number_format($t->amount ?? 0, 0),
+                'status' => $t->status,
+                'gateway' => $t->gateway,
+                'date' => $t->created_at->diffForHumans(),
+            ];
+        });
 
         // Monthly revenue
         $monthlyRevenue = PaymentTransaction::where('status', 'success')
@@ -206,6 +244,11 @@ class AdminDashboardController extends Controller
             'pendingPlanChanges' => $pendingPlanChanges,
             'pendingProductRequests' => $pendingProductRequests,
             'pendingExchanges' => $pendingExchanges,
+            'pendingDeletions' => $pendingDeletions,
+            'activePlans' => $activePlans,
+            'completedPlans' => $completedPlans,
+            'cancelledPlans' => $cancelledPlans,
+            'recentTransactions' => $recentTransactions,
             'recentOrders' => $recentOrders,
             'recentUsers' => $recentUsers,
             'revenueByMonth' => $revenueByMonth,

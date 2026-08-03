@@ -13,6 +13,21 @@ use App\Models\InstallmentPlan;
 
 class AdminRequestController extends Controller
 {
+    /**
+     * Unified Requests screen — every pending request type in one place.
+     */
+    public function index()
+    {
+        $planChanges = PlanChangeRequest::with(['user', 'order', 'currentPlan', 'requestedPlan'])
+            ->latest()->get();
+        $productRequests = ProductRequest::with('user')->latest()->get();
+        $exchanges = ExchangeRequest::with(['user', 'order', 'currentProduct', 'requestedProduct'])
+            ->latest()->get();
+        $deletions = AccountDeletionRequest::with('user')->latest()->get();
+
+        return view('backend.requests.index', compact('planChanges', 'productRequests', 'exchanges', 'deletions'));
+    }
+
     public function planChanges()
     {
         $requests = PlanChangeRequest::with(['user', 'order', 'currentPlan', 'requestedPlan'])

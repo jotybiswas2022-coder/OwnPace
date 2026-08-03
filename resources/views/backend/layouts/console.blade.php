@@ -52,6 +52,7 @@
                         ['route' => 'admin.promo-codes.index', 'icon' => 'bi-percent', 'label' => 'Promo Codes', 'active' => request()->routeIs('admin.promo-codes.*')],
                         ['section' => 'Financing'],
                         ['route' => 'admin.plans.index', 'icon' => 'bi-calendar2-week', 'label' => 'Installment Plans', 'active' => request()->routeIs('admin.plans.*')],
+                        ['route' => 'admin.transactions.index', 'icon' => 'bi-credit-card-2-front', 'label' => 'Transactions', 'active' => request()->routeIs('admin.transactions.*')],
                         ['route' => 'admin.wallet.index', 'icon' => 'bi-wallet2', 'label' => 'Wallet Management', 'active' => request()->routeIs('admin.wallet.index*') || request()->routeIs('admin.wallet.credit*')],
                         ['route' => 'admin.wallet.withdrawals', 'icon' => 'bi-bank', 'label' => 'Withdrawals', 'active' => request()->routeIs('admin.wallet.withdrawals*')],
                         ['section' => 'Orders'],
@@ -60,9 +61,7 @@
                         ['section' => 'Customers'],
                         ['route' => 'admin.users.index', 'icon' => 'bi-people-fill', 'label' => 'Customers', 'active' => request()->routeIs('admin.users.*')],
                         ['section' => 'Requests'],
-                        ['route' => 'admin.requests.plan-changes', 'icon' => 'bi-arrow-repeat', 'label' => 'Plan Changes', 'active' => request()->routeIs('admin.requests.plan-changes*')],
-                        ['route' => 'admin.requests.product-requests', 'icon' => 'bi-plus-circle', 'label' => 'Product Requests', 'active' => request()->routeIs('admin.requests.product-requests*')],
-                        ['route' => 'admin.requests.exchange-requests', 'icon' => 'bi-arrow-left-right', 'label' => 'Exchanges', 'active' => request()->routeIs('admin.requests.exchange-requests*')],
+                        ['route' => 'admin.requests.index', 'icon' => 'bi-inbox-fill', 'label' => 'Requests', 'active' => request()->routeIs('admin.requests.*')],
                         ['section' => 'Marketing'],
                         ['route' => 'admin.campaigns.index', 'icon' => 'bi-megaphone-fill', 'label' => 'Campaigns', 'active' => request()->routeIs('admin.campaigns.*')],
                         ['route' => 'admin.value-champions', 'icon' => 'bi-trophy-fill', 'label' => 'Value Champions', 'active' => request()->routeIs('admin.value-champions*')],
@@ -73,12 +72,16 @@
                         ['route' => 'admin.contacts.index', 'icon' => 'bi-envelope', 'label' => 'Contacts', 'active' => request()->routeIs('admin.contacts.*')],
                         ['section' => 'Settings'],
                         ['route' => 'admin.settings', 'icon' => 'bi-gear-fill', 'label' => 'Settings', 'active' => request()->routeIs('admin.settings*')],
+                        ['route' => 'admin.secure-config.index', 'icon' => 'bi-shield-lock-fill', 'label' => 'Secure Config', 'active' => request()->routeIs('admin.secure-config*'), 'super_admin_only' => true],
+                        ['route' => 'admin.roles.index', 'icon' => 'bi-person-badge-fill', 'label' => 'Roles & Permissions', 'active' => request()->routeIs('admin.roles.*'), 'super_admin_only' => true],
                         ['route' => 'admin.analytics', 'icon' => 'bi-graph-up', 'label' => 'Analytics', 'active' => request()->routeIs('admin.analytics*')],
                     ];
                 @endphp
                 @foreach($nav as $item)
                     @if(isset($item['section']))
                         <p class="mt-5 px-3 pb-1 text-[10px] font-bold uppercase tracking-[0.14em] text-white/40">{{ $item['section'] }}</p>
+                    @elseif(!empty($item['super_admin_only']) && !auth()->user()->isSuperAdmin())
+                        {{-- Super Admin only links are hidden for everyone else --}}
                     @else
                         <a href="{{ route($item['route']) }}" class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors {{ $item['active'] ? 'bg-mango text-ink shadow-soft' : 'text-white/70 hover:bg-white/10 hover:text-white' }}">
                             <i class="bi {{ $item['icon'] }} w-5 text-center"></i> {{ $item['label'] }}
@@ -116,6 +119,7 @@
             </header>
 
             <main class="flex-1 p-4 sm:p-6">
+                @yield('breadcrumbs')
                 @yield('content')
             </main>
         </div>

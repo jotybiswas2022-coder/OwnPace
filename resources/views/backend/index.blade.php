@@ -37,13 +37,37 @@
     @endforeach
 </div>
 
+<!-- Plan lifecycle -->
+<div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    @php
+        $lifecycle = [
+            ['icon' => 'bi-play-circle-fill', 'label' => 'Active Plans', 'value' => number_format($activePlans ?? 0), 'icon_bg' => 'bg-brand/10 text-brand'],
+            ['icon' => 'bi-check-circle-fill', 'label' => 'Completed Plans', 'value' => number_format($completedPlans ?? 0), 'icon_bg' => 'bg-grass/10 text-grass'],
+            ['icon' => 'bi-x-circle-fill', 'label' => 'Cancelled Plans', 'value' => number_format($cancelledPlans ?? 0), 'icon_bg' => 'bg-ember/10 text-ember'],
+            ['icon' => 'bi-exclamation-triangle-fill', 'label' => 'Overdue Installments', 'value' => number_format($overduePayments ?? 0), 'icon_bg' => 'bg-mango/15 text-mango-deep', 'sub' => '₦'.number_format($dueThisMonth ?? 0, 0).' due this month'],
+        ];
+    @endphp
+    @foreach($lifecycle as $card)
+    <div class="os-card os-card-hover p-5">
+        <div class="flex items-center justify-between">
+            <span class="flex h-10 w-10 items-center justify-center rounded-xl text-lg {{ $card['icon_bg'] }}"><i class="bi {{ $card['icon'] }}"></i></span>
+        </div>
+        <p class="mt-4 font-mono text-2xl font-semibold tracking-tight text-ink">{{ $card['value'] }}</p>
+        <p class="mt-1 text-xs font-medium text-slate">{{ $card['label'] }}</p>
+        @if(!empty($card['sub']))
+        <p class="mt-0.5 text-[11px] text-slate/70">{{ $card['sub'] }}</p>
+        @endif
+    </div>
+    @endforeach
+</div>
+
 <!-- Pending requests -->
 <div class="mt-6 grid gap-4 md:grid-cols-3">
     @php
         $requests = [
-            ['route' => 'admin.requests.plan-changes', 'icon' => 'bi-arrow-repeat', 'label' => 'Pending Plan Changes', 'count' => $pendingPlanChanges ?? 0],
-            ['route' => 'admin.requests.product-requests', 'icon' => 'bi-plus-circle', 'label' => 'Product Requests', 'count' => $pendingProductRequests ?? 0],
-            ['route' => 'admin.requests.exchange-requests', 'icon' => 'bi-arrow-left-right', 'label' => 'Exchange Requests', 'count' => $pendingExchanges ?? 0],
+            ['route' => 'admin.requests.index', 'icon' => 'bi-arrow-repeat', 'label' => 'Pending Plan Changes', 'count' => $pendingPlanChanges ?? 0],
+            ['route' => 'admin.requests.index', 'icon' => 'bi-plus-circle', 'label' => 'Product Requests', 'count' => $pendingProductRequests ?? 0],
+            ['route' => 'admin.requests.index', 'icon' => 'bi-arrow-left-right', 'label' => 'Exchange Requests', 'count' => $pendingExchanges ?? 0],
         ];
     @endphp
     @foreach($requests as $req)
@@ -104,6 +128,30 @@
             <p class="px-5 py-10 text-center text-sm text-slate"><i class="bi bi-people me-1"></i> No users yet</p>
             @endforelse
         </div>
+    </div>
+</div>
+
+<!-- Recent transactions -->
+<div class="os-card mt-6 overflow-hidden">
+    <div class="flex items-center justify-between border-b border-ink/10 px-5 py-4">
+        <h3 class="flex items-center gap-2 font-display text-sm font-bold text-ink"><i class="bi bi-credit-card-2-front text-mango-deep"></i> Recent Transactions</h3>
+        <a href="{{ route('admin.transactions.index') }}" class="text-xs font-semibold text-brand hover:underline">View all</a>
+    </div>
+    <div class="divide-y divide-ink/5">
+        @forelse($recentTransactions ?? [] as $t)
+        <div class="flex items-center gap-4 px-5 py-3.5">
+            <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand/10 font-display text-sm font-bold text-brand">{{ strtoupper(substr($t->user?->name ?? '?', 0, 1)) }}</span>
+            <div class="min-w-0 flex-1">
+                <p class="truncate text-sm font-semibold text-ink">{{ $t->user?->name ?? 'N/A' }}</p>
+                <p class="truncate font-mono text-xs text-slate">{{ $t->transaction_reference }}</p>
+            </div>
+            <span class="hidden text-xs text-slate sm:block">{{ $t->gateway }}</span>
+            <span class="font-mono text-sm font-semibold text-ink">{{ formatPrice($t->amount ?? 0, 0) }}</span>
+            <span class="os-chip os-chip-{{ $t->status === 'success' ? 'grass' : ($t->status === 'failed' ? 'ember' : 'brand') }}">{{ ucfirst($t->status) }}</span>
+        </div>
+        @empty
+        <p class="px-5 py-10 text-center text-sm text-slate"><i class="bi bi-inbox me-1"></i> No transactions yet</p>
+        @endforelse
     </div>
 </div>
 

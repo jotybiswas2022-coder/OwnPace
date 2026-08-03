@@ -15,6 +15,7 @@ use App\Models\DeliveryAddress;
 use App\Models\Setting;
 use App\Models\InsuranceSetting;
 use App\Models\PromoCode;
+use App\Models\TermsAndCondition;
 use App\Services\InstallmentCalculatorService;
 use App\Services\InstallmentScheduleService;
 use App\Services\MoneyService;
@@ -60,10 +61,25 @@ class CheckoutController extends Controller
             }
         }
 
+        // Plan-scoped terms: map planId => [title, url] so the checkout page
+        // can surface the relevant T&C for whichever plan the customer picks.
+        $termsByPlan = [];
+        foreach (InstallmentPlan::where('is_active', true)->pluck('id') as $planId) {
+            $scoped = TermsAndCondition::where('installment_plan_id', $planId)
+                ->where('is_active', true)
+                ->first();
+            if ($scoped) {
+                $termsByPlan[$planId] = [
+                    'title' => $scoped->title,
+                    'url' => url('/terms?plan='.$planId),
+                ];
+            }
+        }
+
         return view('frontend.checkout', compact(
             'cart', 'total', 'installmentPlans', 'shippingFee',
             'addresses', 'settings', 'insurance', 'wallet',
-            'promoCode', 'discount'
+            'promoCode', 'discount', 'termsByPlan'
         ));
     }
 
@@ -167,6 +183,9 @@ class CheckoutController extends Controller
         if ($request->payment_type === 'installment' && $installmentPlan) {
             InstallmentScheduleService::createSchedule($order, $installmentPlan);
         }
+
+        // Record T&C acceptance on the customer's profile (verified status).
+        auth()->user()->update(['store_terms_acceptance' => 'approved']);
 
         // Clear cart
         session()->forget('cart');

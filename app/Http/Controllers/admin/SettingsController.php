@@ -27,17 +27,10 @@ class SettingsController extends Controller
         $settings->location = $request->location;
         $settings->default_gateway = $request->default_gateway;
 
-        // Save gateway configuration as JSON
-        $gatewayConfig = [
-            'paystack_public' => $request->paystack_public ?? '',
-            'paystack_secret' => $request->paystack_secret ?? '',
-            'flutterwave_public' => $request->flutterwave_public ?? '',
-            'flutterwave_secret' => $request->flutterwave_secret ?? '',
-            'flutterwave_encryption' => $request->flutterwave_encryption ?? '',
-            'korapay_public' => $request->korapay_public ?? '',
-            'korapay_secret' => $request->korapay_secret ?? '',
-        ];
-        $settings->gateway_config = $gatewayConfig;
+        // NOTE: gateway API keys are NOT managed here anymore — they live in
+        // the Secure Configuration screen (Super Admin only, encrypted).
+        // Leave gateway_config untouched so saving general settings never
+        // wipes the stored credentials.
 
         // Wallet rules.
         $settings->allow_topup_withdrawal = $request->boolean('allow_topup_withdrawal');

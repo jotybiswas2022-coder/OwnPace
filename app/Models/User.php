@@ -18,7 +18,7 @@ class User extends Authenticatable
         'nid_number', 'nid_image', 'identity_verification',
         'payment_card_verification', 'bank_account_verification',
         'delivery_address_verification', 'store_terms_acceptance',
-        'is_admin', 'is_active', 'is_suspended', 'suspended_at'
+        'is_admin', 'is_active', 'is_suspended', 'suspended_at', 'support_notes'
     ];
 
     protected $hidden = [

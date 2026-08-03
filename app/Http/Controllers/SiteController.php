@@ -95,10 +95,22 @@ class SiteController extends Controller
         return view('frontend.faq', compact('faqs'));
     }
 
-    // Terms & Conditions
+    // Terms & Conditions — ?plan=ID renders that plan's scoped terms
+    // (used by the checkout page's dynamic "plan terms" link).
     public function terms($type = 'general')
     {
         $terms = TermsAndCondition::where('type', $type)->where('is_active', true)->first();
+
+        if (request()->has('plan')) {
+            $scoped = TermsAndCondition::where('installment_plan_id', (int) request('plan'))
+                ->where('is_active', true)
+                ->first();
+            if ($scoped) {
+                $terms = $scoped;
+                $type = $scoped->type;
+            }
+        }
+
         return view('frontend.terms', compact('terms', 'type'));
     }
 

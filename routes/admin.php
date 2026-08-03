@@ -20,6 +20,9 @@ use App\Http\Controllers\admin\PromoCodeController;
 use App\Http\Controllers\admin\AdminProductImportController;
 use App\Http\Controllers\admin\AdminInstallmentPlanController;
 use App\Http\Controllers\admin\AdminWalletController;
+use App\Http\Controllers\admin\AdminTransactionController;
+use App\Http\Controllers\admin\AdminRoleController;
+use App\Http\Controllers\admin\AdminSecureConfigController;
 
 Route::prefix('admin')->middleware('admin')->group(function () {
 
@@ -52,6 +55,13 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('/{plan}/edit', 'edit')->name('admin.plans.edit');
         Route::post('/{plan}', 'update')->name('admin.plans.update');
         Route::post('/{plan}/delete', 'destroy')->name('admin.plans.delete');
+        Route::post('/bulk-action', 'bulkAction')->name('admin.plans.bulk');
+    });
+
+    // ===== TRANSACTIONS (installment payments) =====
+    Route::prefix('transactions')->controller(AdminTransactionController::class)->group(function () {
+        Route::get('/', 'index')->name('admin.transactions.index');
+        Route::get('/export', 'export')->name('admin.transactions.export');
     });
 
     // ===== ORDERS =====
@@ -71,14 +81,17 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     Route::prefix('users')->controller(AdminUserController::class)->group(function () {
         Route::get('/', 'index')->name('admin.users.index');
         Route::get('/{user}', 'show')->name('admin.users.show');
-        Route::post('/{user}/role', 'updateRole')->name('admin.users.role');
+        Route::post('/{user}/assign-role', 'assignRole')->name('admin.users.assign-role');
         Route::post('/{user}/suspend', 'suspend')->name('admin.users.suspend');
         Route::post('/{user}/unsuspend', 'unsuspend')->name('admin.users.unsuspend');
-        Route::get('/{user}/delete', 'destroy')->name('admin.users.delete');
+        Route::post('/{user}/reminder', 'sendReminder')->name('admin.users.reminder');
+        Route::post('/{user}/support-notes', 'updateSupportNotes')->name('admin.users.support-notes');
+        Route::post('/{user}/permanent-delete', 'permanentDelete')->name('admin.users.permanent-delete');
     });
 
     // ===== REQUESTS =====
     Route::prefix('requests')->controller(AdminRequestController::class)->group(function () {
+        Route::get('/', 'index')->name('admin.requests.index');
         Route::get('/plan-changes', 'planChanges')->name('admin.requests.plan-changes');
         Route::post('/plan-changes/{planChangeRequest}/approve', 'approvePlanChange')->name('admin.requests.plan-changes.approve');
         Route::post('/plan-changes/{planChangeRequest}/reject', 'rejectPlanChange')->name('admin.requests.plan-changes.reject');
@@ -187,6 +200,23 @@ Route::prefix('admin')->middleware('admin')->group(function () {
     // ===== TERMS =====
     Route::prefix('terms')->controller(AdminTermsController::class)->group(function () {
         Route::get('/', 'index')->name('admin.terms.index');
+        Route::post('/', 'store')->name('admin.terms.store');
         Route::post('/update/{term}', 'update')->name('admin.terms.update');
+        Route::get('/delete/{term}', 'destroy')->name('admin.terms.delete');
+    });
+
+    // ===== ROLES & PERMISSIONS (Super Admin only) =====
+    Route::prefix('roles')->middleware('admin:super_admin')->controller(AdminRoleController::class)->group(function () {
+        Route::get('/', 'index')->name('admin.roles.index');
+        Route::post('/', 'store')->name('admin.roles.store');
+        Route::get('/{role}/edit', 'edit')->name('admin.roles.edit');
+        Route::post('/{role}', 'update')->name('admin.roles.update');
+        Route::post('/{role}/delete', 'destroy')->name('admin.roles.delete');
+    });
+
+    // ===== SECURE CONFIGURATION (Super Admin only) =====
+    Route::prefix('secure-config')->middleware('admin:super_admin')->controller(AdminSecureConfigController::class)->group(function () {
+        Route::get('/', 'index')->name('admin.secure-config.index');
+        Route::post('/', 'update')->name('admin.secure-config.update');
     });
 });

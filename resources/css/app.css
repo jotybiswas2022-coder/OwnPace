@@ -332,6 +332,11 @@
         color: #9aa0ad;
     }
 
+    .os-input-sm {
+        padding: 0.4rem 0.625rem;
+        font-size: 0.8125rem;
+    }
+
     /* ---- Section shell ---- */
     .os-section {
         padding: 4.5rem 0;

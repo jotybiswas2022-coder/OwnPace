@@ -36,6 +36,15 @@ class CheckoutBreakdown extends Component
         $this->shippingFee = $shippingFee;
     }
 
+    /**
+     * Notify the checkout page which plan is selected so it can show the
+     * plan-scoped terms link before the customer ticks "I agree".
+     */
+    public function updatedPlanId(): void
+    {
+        $this->dispatch('checkout-plan-changed', planId: $this->planId);
+    }
+
     #[Computed]
     public function plans()
     {

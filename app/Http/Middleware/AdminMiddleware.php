@@ -31,17 +31,22 @@ class AdminMiddleware
         // The hasTable guard prevents querying acl_* tables pre-migration.
         $aclReady = Schema::hasTable('acl_roles');
 
+        // Custom roles (created via Roles & Permissions) may hold a subset of
+        // admin permissions — anyone holding ANY admin permission gets into
+        // the console. Customers (seeded with zero permissions) do not.
+        $hasAdminPermission = $aclReady && $user->getAllPermissions()->isNotEmpty();
+
         if ($role === 'super_admin') {
             if (!$user->isSuperAdmin() && !($aclReady && $user->hasAnyRole(['super_admin', 'Super Admin']))) {
                 abort(403, 'Unauthorized. Super Admin access required.');
             }
         } elseif ($role === 'admin') {
-            if (!$user->isAdmin() && !($aclReady && $user->hasAnyRole(['admin', 'super_admin', 'Admin', 'Super Admin']))) {
+            if (!$user->isAdmin() && !($aclReady && ($user->hasAnyRole(['admin', 'super_admin', 'Admin', 'Super Admin']) || $hasAdminPermission))) {
                 abort(403, 'Unauthorized. Admin access required.');
             }
         } else {
             // General admin check.
-            if (!$user->isAdmin() && !($aclReady && $user->hasAnyRole(['admin', 'super_admin', 'Admin', 'Super Admin']))) {
+            if (!$user->isAdmin() && !($aclReady && ($user->hasAnyRole(['admin', 'super_admin', 'Admin', 'Super Admin']) || $hasAdminPermission))) {
                 abort(403, 'Unauthorized. Admin access required.');
             }
         }
