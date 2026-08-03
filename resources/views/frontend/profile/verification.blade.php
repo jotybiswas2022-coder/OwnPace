@@ -124,6 +124,11 @@
         @endif
 
         <div class="row g-4">
+            <div class="col-lg-3">
+                @include('frontend.partials.account-sidebar')
+            </div>
+            <div class="col-lg-9">
+                <div class="row g-4">
             @php
                 $vTypes = [
                     ['key' => 'identity_card', 'icon' => 'bi-person-badge-fill', 'label' => 'Identity Card'],
@@ -168,6 +173,8 @@
                 </div>
             </div>
             @endforeach
+                </div>
+            </div>
         </div>
     </div>
 </section>

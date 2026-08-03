@@ -8,6 +8,7 @@ use App\Http\Requests\Admin\RejectRequestRequest;
 use App\Models\PlanChangeRequest;
 use App\Models\ProductRequest;
 use App\Models\ExchangeRequest;
+use App\Models\AccountDeletionRequest;
 use App\Models\InstallmentPlan;
 
 class AdminRequestController extends Controller
@@ -105,5 +106,41 @@ class AdminRequestController extends Controller
         ]);
 
         return back()->with('success', 'Exchange request ' . $request->status . '!');
+    }
+
+    // ===== ACCOUNT CLOSURE =====
+    public function deletionRequests()
+    {
+        $requests = AccountDeletionRequest::with('user')->latest()->paginate(20);
+        return view('backend.requests.deletion-requests', compact('requests'));
+    }
+
+    public function approveDeletion(AccountDeletionRequest $deletionRequest)
+    {
+        $this->authorize('manage', $deletionRequest);
+
+        $deletionRequest->update([
+            'status' => 'approved',
+            'processed_at' => now(),
+        ]);
+
+        // Deactivate the account (soft-disable) — the user can still log in
+        // but the account is marked inactive until purged by an admin.
+        $deletionRequest->user?->update(['is_active' => false]);
+
+        return back()->with('success', 'Account closure approved — user deactivated.');
+    }
+
+    public function rejectDeletion(RejectRequestRequest $request, AccountDeletionRequest $deletionRequest)
+    {
+        $this->authorize('manage', $deletionRequest);
+
+        $deletionRequest->update([
+            'status' => 'rejected',
+            'admin_notes' => $request->admin_notes,
+            'processed_at' => now(),
+        ]);
+
+        return back()->with('success', 'Account closure request rejected.');
     }
 }

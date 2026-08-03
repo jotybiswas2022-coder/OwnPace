@@ -120,3 +120,22 @@ function calculateInstallmentBreakdown($totalAmount, $installmentPlan)
 {
     return InstallmentCalculatorService::breakdown($totalAmount, $installmentPlan);
 }
+
+/**
+ * Product progress badge for an order card — one of In Progress /
+ * Completed / Canceled, shown across the account area.
+ */
+function orderProgressBadge($order)
+{
+    $status = $order->status;
+
+    if ($status === 'completed') {
+        return ['label' => 'Completed', 'class' => 'completed', 'icon' => 'bi-check-circle-fill'];
+    }
+
+    if ($status === 'cancelled') {
+        return ['label' => 'Canceled', 'class' => 'cancelled', 'icon' => 'bi-x-circle-fill'];
+    }
+
+    return ['label' => 'In Progress', 'class' => 'in-progress', 'icon' => 'bi-arrow-repeat'];
+}

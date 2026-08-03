@@ -119,19 +119,23 @@
         <div class="fp-alert reveal-up"><i class="bi bi-check-circle-fill"></i> {{ session('success') }}</div>
         @endif
 
-        <div class="d-flex justify-content-end mb-4 reveal-up">
-            <a href="#" class="btn-primary-gold" data-bs-toggle="modal" data-bs-target="#addBankModal"><i class="bi bi-plus-lg"></i> Add Bank</a>
-        </div>
-
         <div class="row g-4">
+            <div class="col-lg-3">
+                @include('frontend.partials.account-sidebar')
+            </div>
+            <div class="col-lg-9">
+                <div class="d-flex justify-content-end mb-4 reveal-up">
+                    <a href="#" class="btn-primary-gold" data-bs-toggle="modal" data-bs-target="#addBankModal"><i class="bi bi-plus-lg"></i> Add Bank</a>
+                </div>
+                <div class="row g-4">
             @forelse($banks ?? [] as $bank)
             <div class="col-lg-4 col-md-6">
                 <div class="fp-bank-card reveal-up">
                     <div class="fp-bank-icon"><i class="bi bi-bank2"></i></div>
                     <h5>{{ $bank->bank_name }}</h5>
-                    <p class="fp-bank-account">{{ $bank->account_number }}</p>
+                    <p class="fp-bank-account">•••• {{ substr($bank->account_number, -4) }}</p>
                     <span class="fp-bank-name">{{ $bank->account_name }}</span>
-                    <a href="{{ route('profile.banks.delete', $bank) }}" class="fp-bank-delete" onclick="return confirm('Remove this bank account?')" aria-label="Remove bank account {{ $bank->account_number }}">
+                    <a href="{{ route('profile.banks.delete', $bank) }}" class="fp-bank-delete" onclick="return confirm('Remove this bank account?')" aria-label="Remove bank account ending in {{ substr($bank->account_number, -4) }}">
                         <i class="bi bi-trash-fill"></i>
                     </a>
                 </div>
@@ -144,6 +148,8 @@
                 </div>
             </div>
             @endforelse
+                </div>
+            </div>
         </div>
     </div>
 </section>

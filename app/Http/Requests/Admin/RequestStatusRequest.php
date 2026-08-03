@@ -18,7 +18,7 @@ class RequestStatusRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status' => 'required|in:approved,rejected,completed',
+            'status' => 'required|in:submitted,under_review,pending,approved,rejected,completed',
             'admin_notes' => 'nullable|string',
         ];
     }

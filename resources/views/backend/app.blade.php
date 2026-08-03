@@ -331,6 +331,9 @@
                 <a href="{{ route('admin.requests.exchange-requests') }}" class="{{ request()->routeIs('admin.requests.exchange-requests*') ? 'active' : '' }}">
                     <i class="bi bi-arrow-left-right"></i> Exchanges
                 </a>
+                <a href="{{ route('admin.requests.deletion-requests') }}" class="{{ request()->routeIs('admin.requests.deletion-requests*') ? 'active' : '' }}">
+                    <i class="bi bi-person-x"></i> Account Closures
+                </a>
 
                 <div class="nav-section">Culture</div>
                 <a href="{{ route('admin.value-champions') }}" class="{{ request()->routeIs('admin.value-champions*') ? 'active' : '' }}">

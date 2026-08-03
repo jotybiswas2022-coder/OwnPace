@@ -34,14 +34,6 @@
 .fp-input:focus { border-color:var(--gold-500);box-shadow:0 0 0 3px rgba(234,179,8,0.08); }
 .fp-input::placeholder { color:var(--text-dim); }
 
-.fp-profile-sidebar { background:var(--card-dark);border:1px solid var(--card-border);border-radius:var(--radius);padding:24px;position:sticky;top:100px;transition:all 0.3s ease; }
-.fp-profile-sidebar:hover { border-color:rgba(234,179,8,0.15);box-shadow:var(--shadow-glow-sm); }
-.fp-profile-nav { display:flex;flex-direction:column;gap:4px; }
-.fp-profile-nav a { display:flex;align-items:center;gap:8px;padding:10px 12px;border-radius:8px;color:var(--text-muted);font-size:13px;transition:all 0.3s;text-decoration:none; }
-.fp-profile-nav a:hover { background:rgba(234,179,8,0.08);color:var(--gold-400); }
-.fp-profile-nav a.active { background:rgba(234,179,8,0.12);color:var(--gold-400);font-weight:600; }
-.fp-profile-nav a i { width:18px;text-align:center; }
-
 .fp-card { background:var(--card-dark);border:1px solid var(--card-border);border-radius:var(--radius);overflow:hidden;transition:all 0.3s ease; }
 .fp-card:hover { border-color:rgba(234,179,8,0.15);box-shadow:var(--shadow-glow-sm); }
 .fp-card-header { padding:18px 24px;border-bottom:1px solid var(--card-border);background:var(--surface-dark); }
@@ -49,7 +41,7 @@
 .fp-card-header h4 i { color:var(--gold-500); }
 .fp-card-body { padding:24px; }
 
-@media (max-width: 991px) { .fp-ed-hero { padding:36px 0 20px; } .fp-profile-sidebar { position:static;margin-bottom:24px; } }
+@media (max-width: 991px) { .fp-ed-hero { padding:36px 0 20px; } }
 </style>
 @endpush
 
@@ -74,21 +66,7 @@
 
         <div class="row g-4">
             <div class="col-lg-3">
-                <div class="fp-profile-sidebar reveal-left">
-                    <div class="text-center mb-3">
-                        <div style="width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--gold-500),var(--gold-600));color:var(--near-black);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;font-family:'Syne',sans-serif;margin:0 auto 12px;">
-                            {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
-                        </div>
-                        <h5 style="text-align:center;color:var(--text-primary);font-size:16px;">{{ auth()->user()->name ?? 'User' }}</h5>
-                    </div>
-                    <nav class="fp-profile-nav">
-                        <a href="{{ route('profile.index') }}"><i class="bi bi-person-fill"></i> Profile</a>
-                        <a href="{{ route('profile.edit') }}" class="active" aria-current="page"><i class="bi bi-gear-fill"></i> Settings</a>
-                        <a href="{{ route('orders.index') }}"><i class="bi bi-box-seam-fill"></i> My Orders</a>
-                        <a href="{{ route('wallet.index') }}"><i class="bi bi-wallet2"></i> Wallet</a>
-                        <a href="{{ route('profile.addresses') }}"><i class="bi bi-geo-alt-fill"></i> Addresses</a>
-                    </nav>
-                </div>
+                @include('frontend.partials.account-sidebar')
             </div>
 
             <div class="col-lg-9">
@@ -108,15 +86,18 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="fp-form-group">
-                                        <label><i class="bi bi-envelope-fill"></i> Email *</label>
+                                        <label><i class="bi bi-envelope-fill"></i> Email (read-only)</label>
                                         <input type="email" class="fp-input" value="{{ auth()->user()->email }}" disabled style="opacity:0.6;">
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="fp-form-group">
-                                        <label><i class="bi bi-phone-fill"></i> Phone</label>
-                                        <input type="text" name="phone" class="fp-input" value="{{ auth()->user()->phone }}" placeholder="+234 801 234 5678">
+                                        <label><i class="bi bi-phone-fill"></i> Phone (read-only)</label>
+                                        <input type="text" class="fp-input" value="{{ auth()->user()->phone ?? '—' }}" disabled style="opacity:0.6;" placeholder="+234 801 234 5678">
                                     </div>
+                                </div>
+                                <div class="col-12">
+                                    <small style="color:var(--text-dim);font-size:12px;"><i class="bi bi-info-circle-fill" style="color:var(--gold-500);"></i> Email and phone are locked for security. Contact support to update them.</small>
                                 </div>
                                 <div class="col-12">
                                     <button type="submit" class="btn-primary-gold"><i class="bi bi-check-lg"></i> Save Changes</button>

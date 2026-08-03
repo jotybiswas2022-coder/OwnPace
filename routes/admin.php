@@ -86,6 +86,9 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::post('/product-requests/{productRequest}/update', 'updateProductRequest')->name('admin.requests.product-requests.update');
         Route::get('/exchange-requests', 'exchangeRequests')->name('admin.requests.exchange-requests');
         Route::post('/exchange-requests/{exchangeRequest}/update', 'updateExchangeRequest')->name('admin.requests.exchange-requests.update');
+        Route::get('/deletion-requests', 'deletionRequests')->name('admin.requests.deletion-requests');
+        Route::post('/deletion-requests/{deletionRequest}/approve', 'approveDeletion')->name('admin.requests.deletion-requests.approve');
+        Route::post('/deletion-requests/{deletionRequest}/reject', 'rejectDeletion')->name('admin.requests.deletion-requests.reject');
     });
 
     // ===== CAMPAIGNS =====

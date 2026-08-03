@@ -125,11 +125,15 @@
         <div class="fp-alert reveal-up"><i class="bi bi-check-circle-fill"></i> {{ session('success') }}</div>
         @endif
 
-        <div class="d-flex justify-content-end mb-4 reveal-up">
-            <a href="#" class="btn-primary-gold" data-bs-toggle="modal" data-bs-target="#addAddressModal"><i class="bi bi-plus-lg"></i> Add Address</a>
-        </div>
-
         <div class="row g-4">
+            <div class="col-lg-3">
+                @include('frontend.partials.account-sidebar')
+            </div>
+            <div class="col-lg-9">
+                <div class="d-flex justify-content-end mb-4 reveal-up">
+                    <a href="#" class="btn-primary-gold" data-bs-toggle="modal" data-bs-target="#addAddressModal"><i class="bi bi-plus-lg"></i> Add Address</a>
+                </div>
+                <div class="row g-4">
             @forelse($addresses ?? [] as $address)
             <div class="col-lg-4 col-md-6">
                 <div class="fp-address-card {{ $address->is_default ? 'default' : '' }} reveal-up">
@@ -152,6 +156,8 @@
                 </div>
             </div>
             @endforelse
+                </div>
+            </div>
         </div>
     </div>
 </section>

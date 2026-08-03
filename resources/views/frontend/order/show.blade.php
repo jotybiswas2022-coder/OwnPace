@@ -539,10 +539,10 @@
                         @endif
 
                         <div class="mt-3 pt-3" style="border-top:1px solid var(--card-border);">
-                            <form action="{{ route('orders.change.plan', $order) }}" method="POST" class="mb-2">
-                                @csrf
-                                <button type="submit" class="fp-action-btn outline w-100"><i class="bi bi-arrow-repeat"></i> Change Plan</button>
-                            </form>
+                            @if(in_array($order->status, ['pending', 'processing', 'partial_paid']) && $order->installmentPlan)
+                            <a href="{{ route('orders.change.plan.form', $order) }}" class="fp-action-btn outline w-100 mb-2" style="text-decoration:none;"><i class="bi bi-arrow-repeat"></i> Change Plan</a>
+                            <a href="{{ route('orders.exchange.form', $order) }}" class="fp-action-btn outline w-100 mb-2" style="text-decoration:none;"><i class="bi bi-arrow-left-right"></i> Exchange Product</a>
+                            @endif
                             <form action="{{ route('orders.cancel', $order) }}" method="POST" id="cancelOrderForm">
                                 @csrf
                                 <input type="hidden" name="reason" id="cancelReason">

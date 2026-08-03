@@ -105,15 +105,20 @@
         @endif
 
         <div class="row g-4">
+            <div class="col-lg-3">
+                @include('frontend.partials.account-sidebar')
+            </div>
+            <div class="col-lg-9">
+                <div class="row g-4">
             @forelse($cards ?? [] as $card)
             <div class="col-lg-4 col-md-6">
                 <div class="fp-card-item reveal-up">
                     <div class="fp-card-type"><i class="bi bi-credit-card-2-front-fill"></i></div>
                     <div class="fp-card-details">
-                        <strong>•••• {{ $card->last_four }}</strong>
+                        <strong>•••• {{ $card->card_number_last4 }}</strong>
                         <span>Expires {{ $card->expiry_month }}/{{ $card->expiry_year }}</span>
                     </div>
-                    <a href="{{ route('profile.cards.delete', $card) }}" class="fp-card-delete" onclick="return confirm('Remove this card?')" aria-label="Remove card ending in {{ $card->last_four }}">
+                    <a href="{{ route('profile.cards.delete', $card) }}" class="fp-card-delete" onclick="return confirm('Remove this card?')" aria-label="Remove card ending in {{ $card->card_number_last4 }}">
                         <i class="bi bi-trash-fill"></i>
                     </a>
                 </div>
@@ -126,6 +131,8 @@
                 </div>
             </div>
             @endforelse
+                </div>
+            </div>
         </div>
     </div>
 </section>

@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\InstallmentPlan;
 use App\Models\InstallmentPayment;
 use App\Models\PlanChangeRequest;
+use App\Models\ExchangeRequest;
 use App\Models\PaymentTransaction;
 use App\Models\Review;
 use App\Services\InstallmentCalculatorService;
@@ -23,16 +24,43 @@ class OrderController extends Controller
         $this->middleware('auth');
     }
 
+    /**
+     * Order history grouped by lifecycle: active plans (still being paid
+     * off), completed, cancelled. Saved payment methods ride along so the
+     * page doubles as the "manage your money" hub.
+     */
     public function index(Request $request)
     {
         $query = auth()->user()->orders()->with(['installmentPlan', 'items.product']);
 
-        if ($request->status) {
-            $query->where('status', $request->status);
+        $activeStatuses = ['pending', 'processing', 'partial_paid', 'shipped'];
+        $tab = $request->input('tab', 'all');
+
+        switch ($tab) {
+            case 'active':
+                $query->whereIn('status', $activeStatuses);
+                break;
+            case 'completed':
+                $query->where('status', 'completed');
+                break;
+            case 'cancelled':
+                $query->where('status', 'cancelled');
+                break;
         }
 
-        $orders = $query->latest()->paginate(10);
-        return view('frontend.order.index', compact('orders'));
+        $orders = $query->latest()->paginate(10)->withQueryString();
+
+        $savedCards = auth()->user()->savedCards;
+        $bankAccounts = auth()->user()->bankAccounts;
+        $counts = [
+            'all' => auth()->user()->orders()->count(),
+            'active' => auth()->user()->orders()->whereIn('status', $activeStatuses)->count(),
+            'completed' => auth()->user()->orders()->where('status', 'completed')->count(),
+            'cancelled' => auth()->user()->orders()->where('status', 'cancelled')->count(),
+        ];
+
+        return view('frontend.order.index', compact('orders', 'savedCards', 'bankAccounts', 'counts'))
+            ->with('tab', $tab);
     }
 
     public function show(Order $order)
@@ -295,16 +323,57 @@ class OrderController extends Controller
         ]);
     }
 
+    /**
+     * Pick a new plan for an active order — the dedicated page reached from
+     * the "Change Plan" action on an order. The POST (requestPlanChange)
+     * keeps the request pending until an admin approves or rejects it.
+     */
+    public function changePlanForm(Order $order)
+    {
+        if ($order->user_id !== auth()->id()) {
+            abort(404);
+        }
+
+        if (!in_array($order->status, ['pending', 'processing', 'partial_paid'])) {
+            return redirect()->route('orders.show', $order)
+                ->with('error', 'You can only change the plan on an active order.');
+        }
+
+        if (!$order->installmentPlan) {
+            return redirect()->route('orders.show', $order)
+                ->with('error', 'This order is not on an installment plan.');
+        }
+
+        $order->load(['installmentPlan', 'items.product']);
+        $plans = InstallmentPlan::where('is_active', true)
+            ->where('id', '!=', $order->installment_plan_id)
+            ->orderBy('sort_order')->get();
+
+        // A previously submitted pending request blocks a duplicate.
+        $pendingRequest = PlanChangeRequest::where('order_id', $order->id)
+            ->where('status', 'pending')->first();
+
+        return view('frontend.order.change-plan', compact('order', 'plans', 'pendingRequest'));
+    }
+
     public function requestPlanChange(Request $request, Order $order)
     {
         if ($order->user_id !== auth()->id()) {
             abort(404);
         }
 
+        if (!in_array($order->status, ['pending', 'processing', 'partial_paid'])) {
+            return back()->with('error', 'You can only change the plan on an active order.');
+        }
+
         $request->validate([
             'requested_plan_id' => 'required|exists:installment_plans,id',
             'reason' => 'required|string|min:10',
         ]);
+
+        if (PlanChangeRequest::where('order_id', $order->id)->where('status', 'pending')->exists()) {
+            return back()->with('error', 'You already have a pending plan change request for this order.');
+        }
 
         PlanChangeRequest::create([
             'user_id' => auth()->id(),
@@ -315,7 +384,73 @@ class OrderController extends Controller
             'status' => 'pending',
         ]);
 
-        return back()->with('success', 'Plan change request submitted. Admin will review it.');
+        return redirect()->route('requests.index')
+            ->with('success', 'Plan change request submitted. An admin will review it.');
+    }
+
+    /**
+     * Exchange request flow: pick a wishlist product to swap the ordered one
+     * for, plus a reason. Stays pending until admin approval.
+     */
+    public function exchangeForm(Order $order)
+    {
+        if ($order->user_id !== auth()->id()) {
+            abort(404);
+        }
+
+        if (!in_array($order->status, ['pending', 'processing', 'partial_paid'])) {
+            return redirect()->route('orders.show', $order)
+                ->with('error', 'You can only request an exchange on an active order.');
+        }
+
+        $order->load(['installmentPlan', 'items.product']);
+
+        $wishlist = auth()->user()->wishlist()->with('product')->get()
+            ->map(fn($item) => $item->product)
+            ->filter();
+
+        $currentProduct = $order->items()->first()?->product;
+        $pendingRequest = ExchangeRequest::where('order_id', $order->id)
+            ->where('status', 'pending')->first();
+
+        return view('frontend.order.exchange', compact('order', 'wishlist', 'currentProduct', 'pendingRequest'));
+    }
+
+    public function requestExchange(Request $request, Order $order)
+    {
+        if ($order->user_id !== auth()->id()) {
+            abort(404);
+        }
+
+        if (!in_array($order->status, ['pending', 'processing', 'partial_paid'])) {
+            return back()->with('error', 'You can only request an exchange on an active order.');
+        }
+
+        $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'reason' => 'required|string|min:10',
+        ]);
+
+        $currentProductId = $order->items()->first()?->product_id;
+        if (!$currentProductId) {
+            return back()->with('error', 'We could not find the product on this order. Please contact support.');
+        }
+
+        if (ExchangeRequest::where('order_id', $order->id)->where('status', 'pending')->exists()) {
+            return back()->with('error', 'You already have a pending exchange request for this order.');
+        }
+
+        ExchangeRequest::create([
+            'user_id' => auth()->id(),
+            'order_id' => $order->id,
+            'current_product_id' => $currentProductId,
+            'requested_product_id' => $request->product_id,
+            'reason' => $request->reason,
+            'status' => 'pending',
+        ]);
+
+        return redirect()->route('requests.index')
+            ->with('success', 'Exchange request submitted for admin review.');
     }
 
     public function cancelOrder(Request $request, Order $order)

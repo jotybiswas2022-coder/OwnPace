@@ -58,10 +58,20 @@ Route::middleware(['auth'])->prefix('orders')->controller(OrderController::class
     Route::post('/{order}/pay-partial', 'payPartial')->name('orders.pay.partial');
     Route::post('/{order}/pay-full', 'payFull')->name('orders.pay.full');
     Route::post('/{order}/pay-wallet', 'payWallet')->name('orders.pay.wallet');
+    Route::get('/{order}/change-plan', 'changePlanForm')->name('orders.change.plan.form');
     Route::post('/{order}/change-plan', 'requestPlanChange')->name('orders.change.plan');
+    Route::get('/{order}/exchange', 'exchangeForm')->name('orders.exchange.form');
+    Route::post('/{order}/exchange', 'requestExchange')->name('orders.exchange.request');
     Route::post('/{order}/cancel', 'cancelOrder')->name('orders.cancel');
     Route::get('/{order}/tracking', 'tracking')->name('orders.tracking');
     Route::post('/{order}/review', 'submitReview')->name('orders.review');
+});
+
+// ===== REQUESTS (plan change / exchange / product / closure) =====
+Route::middleware(['auth'])->prefix('requests')->controller(\App\Http\Controllers\user\RequestController::class)->group(function () {
+    Route::get('/', 'index')->name('requests.index');
+    Route::get('/product/create', 'productForm')->name('requests.product.create');
+    Route::post('/product', 'storeProduct')->name('requests.product.store');
 });
 
 // ===== WALLET =====

@@ -7,8 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class ProductRequest extends Model
 {
     protected $fillable = [
-        'user_id', 'product_name', 'description', 'expected_price',
-        'brand_preference', 'category_preference', 'status',
+        'user_id', 'product_name', 'description', 'product_url', 'reason',
+        'expected_price', 'brand_preference', 'category_preference', 'status',
         'admin_notes', 'approved_at'
     ];
 

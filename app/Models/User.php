@@ -162,6 +162,11 @@ class User extends Authenticatable
         return $this->hasMany(PlanChangeRequest::class);
     }
 
+    public function accountDeletionRequests()
+    {
+        return $this->hasMany(AccountDeletionRequest::class);
+    }
+
     public function productRequests()
     {
         return $this->hasMany(ProductRequest::class);

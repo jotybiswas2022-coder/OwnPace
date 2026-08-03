@@ -8,6 +8,7 @@ use App\Models\DeliveryAddress;
 use App\Models\UserVerification;
 use App\Models\SavedCard;
 use App\Models\BankAccount;
+use App\Models\AccountDeletionRequest;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
@@ -24,7 +25,21 @@ class ProfileController extends Controller
             $q->latest()->take(5);
         }, 'wallet', 'deliveryAddresses', 'verifications', 'savedCards', 'bankAccounts']);
 
-        return view('frontend.profile.index', compact('user'));
+        $deletionRequest = AccountDeletionRequest::where('user_id', $user->id)->latest()->first();
+
+        // Verification status per panel item. Document types come from the
+        // user_verifications table; email and store terms have their own flags.
+        $verificationStatuses = [];
+        $verificationTypes = ['identity_card', 'payment_card', 'bank_account', 'delivery_address'];
+        foreach ($verificationTypes as $type) {
+            $verificationStatuses[$type] = $user->verifications->firstWhere('type', $type)?->status ?? 'unsubmitted';
+        }
+        $verificationStatuses['email'] = $user->email_verified_at ? 'approved' : 'unsubmitted';
+        $terms = $user->store_terms_acceptance;
+        $verificationStatuses['store_terms'] = in_array($terms, ['accepted', 'approved']) ? 'approved'
+            : (in_array($terms, ['pending', 'under_review']) ? 'pending' : 'unsubmitted');
+
+        return view('frontend.profile.index', compact('user', 'deletionRequest', 'verificationStatuses'));
     }
 
     public function edit()
@@ -196,18 +211,32 @@ class ProfileController extends Controller
     }
 
     // ===== Account Deletion =====
-    public function requestDeletion()
+    /**
+     * Request account closure. This creates an admin-reviewable request rather
+     * than deleting anything — an admin approves/rejects it from the panel.
+     */
+    public function requestDeletion(Request $request)
     {
         $user = auth()->user();
 
         if ($user->activeOrders()->count() > 0) {
-            return back()->with('error', 'You have active orders. Please complete them before deleting your account.');
+            return back()->with('error', 'You have active orders. Please complete them before closing your account.');
         }
 
-        $user->update(['is_active' => false]);
+        $request->validate([
+            'reason' => 'nullable|string|max:1000',
+        ]);
 
-        auth()->logout();
+        if (AccountDeletionRequest::where('user_id', $user->id)->where('status', 'pending')->exists()) {
+            return back()->with('info', 'You already have a pending account closure request.');
+        }
 
-        return redirect('/')->with('info', 'Your account deletion request has been received.');
+        AccountDeletionRequest::create([
+            'user_id' => $user->id,
+            'reason' => $request->reason,
+            'status' => 'pending',
+        ]);
+
+        return back()->with('success', "Your account closure request has been submitted. We'll review it shortly.");
     }
 }
