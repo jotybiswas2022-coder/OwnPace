@@ -17,7 +17,7 @@
     @livewireStyles
     @stack('styles')
 </head>
-<body class="min-h-screen bg-paper text-ink antialiased" x-data="{ mobileNavOpen: false }">
+<body class="storefront min-h-screen bg-paper text-ink antialiased" x-data="{ mobileNavOpen: false }">
     <a href="#main" class="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:bg-mango focus:px-4 focus:py-2 focus:rounded-md">Skip to content</a>
 
     @include('frontend.partials.store-nav')

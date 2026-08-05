@@ -11,8 +11,7 @@
 @import "tailwindcss/utilities" layer(utilities);
 
 @layer theme {
-    :root {
-        /* ---- Spec color tokens ---- */
+    :root {        /* ---- Spec color tokens ---- */
         --ink: #1a1b23;
         --paper: #f6f6f4;
         --indigo: #2e2a6b;
@@ -625,6 +624,15 @@
         transform: none;
         transition: none;
     }
+}
+
+/* ============================================================
+   Storefront — no underlined links anywhere.
+   ============================================================ */
+.storefront a,
+.storefront a:hover,
+.storefront a:focus {
+    text-decoration: none !important;
 }
 
 /* ============================================================
