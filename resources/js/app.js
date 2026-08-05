@@ -1,6 +1,8 @@
 import Alpine from 'alpinejs';
+import Swal from 'sweetalert2';
 
 window.Alpine = Alpine;
+window.Swal = Swal;
 
 // ============================================================
 // Scroll reveal — `x-reveal="delayMs"` on any element.
