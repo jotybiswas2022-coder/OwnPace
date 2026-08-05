@@ -74,7 +74,7 @@
                     ['bi-shield-fill-check', 'Customer Trust', 'Transparency first', 'Always transparent about terms and fees, building lasting relationships through honesty and integrity.'],
                     ['bi-arrow-repeat', 'Flexibility', 'Adapt & thrive', 'Find the right plan that fits your budget — weekly, bi-weekly, or monthly. You choose what works.'],
                     ['bi-lightning-fill', 'Speed', 'Instant action', 'Process requests with an instant approval mindset — no delays, no unnecessary waiting.'],
-                    ['bi-patch-check-fill', 'Reliability', 'Promise kept', 'Follow through on every delivery promise. We don't just commit — we deliver.'],
+                    ['bi-patch-check-fill', 'Reliability', 'Promise kept', "Follow through on every delivery promise. We don't just commit — we deliver."],
                     ['bi-gear-fill', 'Innovation', 'Always evolving', 'Constantly find better ways to serve our customers and simplify how they pay.'],
                     ['bi-people-fill', 'Teamwork', 'Together we win', 'Share knowledge, support teammates, and grow together to create exceptional experiences.'],
                 ];
