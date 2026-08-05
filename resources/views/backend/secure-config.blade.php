@@ -174,6 +174,45 @@
         </div>
     </div>
 
+    <!-- ===== NOTIFICATION CHANNELS ===== -->
+    @php
+        $nc = is_array($settings?->notification_channels ?? null) ? $settings->notification_channels : [];
+        $ncState = [];
+        foreach (\App\Services\Messaging\NotificationChannels::TYPES as $ncType => $ncLabel) {
+            $ncState[$ncType] = array_key_exists($ncType, $nc) ? $nc[$ncType] : \App\Services\Messaging\NotificationChannels::CHANNELS;
+        }
+        $ncChannels = [
+            'mail' => ['icon' => 'bi-envelope-fill', 'label' => 'Email'],
+            'sms' => ['icon' => 'bi-chat-dots-fill', 'label' => 'SMS'],
+            'database' => ['icon' => 'bi-bell-fill', 'label' => 'In-app'],
+        ];
+    @endphp
+    <div class="os-card mt-6 p-6">
+        <h2 class="flex items-center gap-2 font-display text-lg font-bold text-ink"><i class="bi bi-broadcast-pin text-mango-deep"></i> Automated notification channels</h2>
+        <p class="mt-0.5 text-sm text-slate">Which channels each automated notification uses. Leave every box unchecked to turn a type off entirely.</p>
+
+        <div class="mt-5 space-y-4">
+            @foreach (\App\Services\Messaging\NotificationChannels::TYPES as $ncType => $ncLabel)
+            <div class="rounded-xl border border-ink/10 p-4">
+                <input type="hidden" name="ch_{{ $ncType }}_group" value="1">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <h3 class="font-display text-sm font-bold text-ink">{{ $ncLabel }}</h3>
+                    <div class="flex flex-wrap gap-4">
+                        @foreach ($ncChannels as $ncChannel => $ncMeta)
+                        <label class="flex cursor-pointer items-center gap-1.5 text-sm text-slate">
+                            <input type="checkbox" name="ch_{{ $ncType }}_{{ $ncChannel }}" value="1"
+                                   class="h-4 w-4 accent-mango"
+                                   {{ in_array($ncChannel, $ncState[$ncType] ?? [], true) ? 'checked' : '' }}>
+                            <i class="bi {{ $ncMeta['icon'] }}"></i> {{ $ncMeta['label'] }}
+                        </label>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+            @endforeach
+        </div>
+    </div>
+
     <div class="mt-6">
         <button type="submit" class="os-btn os-btn-brand"><i class="bi bi-shield-lock-fill"></i> Save secure configuration</button>
     </div>

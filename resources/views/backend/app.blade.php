@@ -363,7 +363,7 @@
                 <a href="{{ route('admin.settings') }}" class="{{ request()->routeIs('admin.settings*') ? 'active' : '' }}">
                     <i class="bi bi-gear-fill"></i> Settings
                 </a>
-                <a href="{{ route('admin.analytics') }}" class="{{ request()->routeIs('admin.analytics*') ? 'active' : '' }}">
+                <a href="{{ route('admin.reporting.index') }}" class="{{ request()->routeIs('admin.reporting*') ? 'active' : '' }}">
                     <i class="bi bi-graph-up"></i> Analytics
                 </a>
             </nav>

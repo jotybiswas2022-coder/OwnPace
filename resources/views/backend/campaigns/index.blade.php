@@ -1,148 +1,138 @@
-@extends('backend.app')
-@section('title', 'Campaigns — OwnPace Admin')
+@extends('backend.layouts.console')
+@section('title', 'Campaigns — '.storeName().' Admin')
 @section('page_title', 'Campaigns')
-
-@push('styles')
-<style>
-@media (max-width: 768px) {
-    .fp-table thead { display: none; }
-    .fp-table tbody, .fp-table tr, .fp-table td { display: block; }
-    .fp-table tr {
-        background: var(--card-dark);
-        border: 1px solid var(--card-border);
-        border-radius: var(--radius-sm);
-        padding: 12px;
-        margin-bottom: 12px;
-    }
-    .fp-table td {
-        padding: 8px 0;
-        border-bottom: 1px solid var(--card-border);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 8px;
-    }
-    .fp-table td:last-child { border-bottom: none; }
-    .fp-table td:before {
-        content: attr(data-label);
-        font-weight: 600;
-        color: var(--text-dim);
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        flex-shrink: 0;
-    }
-    .fp-table td:last-child:before { display: none; }
-    .fp-table td:last-child { justify-content: flex-end; gap: 6px; }
-    .fp-table .empty-row td:before { display: none; }
-    .fp-table .empty-row td { justify-content: center; }
-}
-</style>
-@endpush
+@section('breadcrumbs')
+    @include('backend.partials.breadcrumbs', ['crumbs' => [['label' => 'Campaigns']]])
+@endsection
 
 @section('content')
 @if(session('success'))
-<div style="background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.2);border-radius:8px;padding:12px 16px;margin-bottom:20px;color:#4ade80;font-size:13px;display:flex;align-items:center;gap:8px;">
-    <i class="bi bi-check-circle-fill"></i> {{ session('success') }}
+<div class="mb-4 flex items-start gap-2 rounded-xl border border-grass/25 bg-grass/10 p-4 text-sm text-grass">
+    <i class="bi bi-check-circle-fill mt-0.5"></i> {{ session('success') }}
 </div>
 @endif
 @if(session('error'))
-<div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);border-radius:8px;padding:12px 16px;margin-bottom:20px;color:#ef4444;font-size:13px;display:flex;align-items:center;gap:8px;">
-    <i class="bi bi-exclamation-triangle-fill"></i> {{ session('error') }}
+<div class="mb-4 flex items-start gap-2 rounded-xl border border-ember/25 bg-ember/10 p-4 text-sm text-ember">
+    <i class="bi bi-exclamation-circle-fill mt-0.5"></i> {{ session('error') }}
 </div>
 @endif
 
-<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
-    <p class="mb-0" style="color:var(--text-muted);">{{ $campaigns->total() }} campaigns</p>
-    <a href="{{ route('admin.campaigns.create') }}" class="fp-btn fp-btn-gold"><i class="bi bi-plus-lg"></i> New Campaign</a>
+<!-- Header -->
+<div class="mb-6 flex flex-wrap items-center justify-between gap-4">
+    <div>
+        <h2 class="font-display text-lg font-bold text-ink">Broadcast campaigns</h2>
+        <p class="text-sm text-slate">Compose, segment, schedule and measure every message.</p>
+    </div>
+    <a href="{{ route('admin.campaigns.create') }}" class="os-btn os-btn-mango"><i class="bi bi-plus-lg"></i> New Campaign</a>
 </div>
 
-<div class="fp-table-wrap">
-    <div class="fp-table-header"><h5>All Campaigns</h5></div>
-    <table class="fp-table">
-        <thead>
-            <tr>
-                <th>Campaign</th>
-                <th>Channel</th>
-                <th>Audience</th>
-                <th>Sent</th>
-                <th>Status</th>
-                <th>Date</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($campaigns ?? [] as $c)
-             <tr>
-                <td data-label="Campaign">
-                    <strong style="color:var(--text-primary);font-size:14px;">{{ $c->name }}</strong>
-                    @if($c->subject)
-                    <div style="font-size:11px;color:var(--text-dim);margin-top:2px;">{{ Str::limit($c->subject, 40) }}</div>
-                    @endif
-                </td>
-                <td data-label="Channel">
-                    @if($c->channel === 'both')
-                        <span style="color:var(--gold-400);font-size:12px;"><i class="bi bi-envelope-fill"></i> + <i class="bi bi-chat-dots-fill"></i> Both</span>
-                    @elseif($c->channel === 'email')
-                        <span style="font-size:12px;"><i class="bi bi-envelope-fill"></i> Email</span>
-                    @else
-                        <span style="font-size:12px;"><i class="bi bi-chat-dots-fill"></i> SMS</span>
-                    @endif
-                </td>
-                <td data-label="Audience" style="font-size:13px;color:var(--text-muted);">{{ ucwords(str_replace('_', ' ', $c->audience)) }}</td>
-                <td data-label="Sent">
-                    <span style="font-weight:600;color:var(--text-primary);font-size:13px;">{{ $c->logs_count ?? 0 }}</span>
-                    <span style="font-size:11px;color:var(--text-dim);">sent</span>
-                </td>
-                <td data-label="Status">
-                    @if($c->status === 'sent')
-                        <span class="fp-badge fp-badge-active"><i class="bi bi-check-circle-fill"></i> Sent</span>
-                    @elseif($c->status === 'draft')
-                        <span class="fp-badge fp-badge-pending"><i class="bi bi-pencil-fill"></i> Draft</span>
-                    @elseif($c->status === 'scheduled')
-                        <span class="fp-badge fp-badge-pending"><i class="bi bi-clock-fill"></i> Scheduled</span>
-                    @else
-                        <span class="fp-badge fp-badge-inactive">{{ ucfirst($c->status) }}</span>
-                    @endif
-                </td>
-                <td data-label="Date" style="font-size:12px;color:var(--text-dim);">
-                    @if($c->sent_at)
-                        {{ $c->sent_at->format('M d, Y') }}
-                    @else
-                        Created {{ $c->created_at->format('M d, Y') }}
-                    @endif
-                </td>
-                <td data-label="Actions">
-                    <div style="display:flex;gap:6px;">
-                        @if($c->status === 'draft' || $c->status === 'scheduled')
-                        <form action="{{ route('admin.campaigns.send', $c) }}" method="POST" class="d-inline">
-                            @csrf
-                            <button type="submit" class="fp-btn fp-btn-gold" style="padding:4px 12px;font-size:11px;" onclick="return confirm('Send this campaign now?')">
-                                <i class="bi bi-send-fill"></i> Send
-                            </button>
-                        </form>
+<!-- Platform stats -->
+<div class="grid grid-cols-2 gap-4 lg:grid-cols-4">
+    @php
+        $stats = [
+            ['icon' => 'bi-megaphone-fill', 'label' => 'Campaigns', 'value' => number_format($totals['campaigns'] ?? 0), 'tone' => 'bg-brand/10 text-brand'],
+            ['icon' => 'bi-people-fill', 'label' => 'Total Recipients', 'value' => number_format($totals['recipients'] ?? 0), 'tone' => 'bg-mango/15 text-mango-deep'],
+            ['icon' => 'bi-eye-fill', 'label' => 'Avg Open Rate', 'value' => ($totals['open_rate'] ?? 0).'%', 'tone' => 'bg-grass/10 text-grass'],
+            ['icon' => 'bi-cursor-fill', 'label' => 'Avg Click Rate', 'value' => ($totals['click_rate'] ?? 0).'%', 'tone' => 'bg-indigo/10 text-indigo'],
+        ];
+    @endphp
+    @foreach($stats as $stat)
+    <div class="os-card p-5">
+        <div class="flex items-center justify-between">
+            <span class="flex h-10 w-10 items-center justify-center rounded-xl text-lg {{ $stat['tone'] }}"><i class="bi {{ $stat['icon'] }}"></i></span>
+        </div>
+        <p class="mt-4 font-mono text-2xl font-semibold tracking-tight text-ink">{{ $stat['value'] }}</p>
+        <p class="mt-1 text-xs font-medium text-slate">{{ $stat['label'] }}</p>
+    </div>
+    @endforeach
+</div>
+
+<!-- Campaigns table -->
+<div class="os-card mt-6 overflow-hidden">
+    <div class="flex items-center justify-between border-b border-ink/10 px-5 py-4">
+        <h3 class="font-display text-sm font-bold text-ink"><i class="bi bi-list-ul me-2 text-mango-deep"></i>All campaigns</h3>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="os-table min-w-[820px]">
+            <thead>
+                <tr>
+                    <th>Campaign</th>
+                    <th>Channel</th>
+                    <th>Audience</th>
+                    <th class="text-right">Recipients</th>
+                    <th class="text-right">Delivered</th>
+                    <th class="text-right">Opened</th>
+                    <th class="text-right">Clicked</th>
+                    <th>Status</th>
+                    <th class="text-right">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($campaigns as $c)
+                <tr>
+                    <td data-label="Campaign">
+                        <a href="{{ route('admin.campaigns.show', $c) }}" class="font-semibold text-ink hover:text-mango-deep">{{ $c->name }}</a>
+                        @if($c->subject)
+                        <div class="text-xs text-slate">{{ \Illuminate\Support\Str::limit($c->subject, 42) }}</div>
                         @endif
-                        <a href="{{ route('admin.campaigns.delete', $c) }}" class="fp-btn fp-btn-ghost" style="padding:4px 10px;color:#ef4444;font-size:11px;" onclick="return confirm('Delete this campaign? This cannot be undone.')">
-                            <i class="bi bi-trash-fill"></i>
-                        </a>
-                    </div>
-                </td>
-            </tr>
-            @empty
-            <tr class="empty-row">
-                <td colspan="7" class="text-center py-5" style="color:var(--text-dim);">
-                    <i class="bi bi-megaphone" style="font-size:36px;display:block;margin-bottom:12px;color:rgba(255,255,255,0.06);"></i>
-                    No campaigns yet. <a href="{{ route('admin.campaigns.create') }}" style="color:var(--gold-400);">Create your first campaign</a>
-                </td>
-            </tr>
-            @endforelse
-        </tbody>
-    </table>
+                    </td>
+                    <td data-label="Channel">
+                        <span class="os-chip os-chip-brand">
+                            <i class="bi {{ $c->channel === 'sms' ? 'bi-chat-dots-fill' : 'bi-envelope-fill' }}"></i>
+                            {{ $c->channel === 'both' ? 'Email + SMS' : ucfirst($c->channel) }}
+                        </span>
+                    </td>
+                    <td data-label="Audience" class="text-xs text-slate">{{ $c->audience_label }}</td>
+                    <td data-label="Recipients" class="money text-right">{{ number_format($c->logs_count ?? 0) }}</td>
+                    <td data-label="Delivered" class="money text-right">{{ number_format($metrics[$c->id]['delivered'] ?? 0) }}</td>
+                    <td data-label="Opened" class="money text-right">
+                        {{ number_format($metrics[$c->id]['opened'] ?? 0) }}
+                        <span class="text-[11px] text-slate">({{ $metrics[$c->id]['open_rate'] ?? 0 }}%)</span>
+                    </td>
+                    <td data-label="Clicked" class="money text-right">
+                        {{ number_format($metrics[$c->id]['clicked'] ?? 0) }}
+                        <span class="text-[11px] text-slate">({{ $metrics[$c->id]['click_rate'] ?? 0 }}%)</span>
+                    </td>
+                    <td data-label="Status">
+                        @php
+                            $chip = match ($c->status) {
+                                'sent' => 'os-chip-grass',
+                                'sending' => 'os-chip-mango',
+                                'scheduled' => 'os-chip-brand',
+                                'partial' => 'os-chip-mango',
+                                'failed' => 'os-chip-ember',
+                                default => 'os-chip-slate',
+                            };
+                        @endphp
+                        <span class="os-chip {{ $chip }}">{{ ucfirst($c->status) }}</span>
+                    </td>
+                    <td data-label="Actions" class="text-right">
+                        <div class="inline-flex gap-2">
+                            <a href="{{ route('admin.campaigns.show', $c) }}" class="os-btn os-btn-ghost os-btn-sm" title="Metrics"><i class="bi bi-graph-up"></i></a>
+                            @if(in_array($c->status, ['draft', 'scheduled'], true))
+                            <form action="{{ route('admin.campaigns.send', $c) }}" method="POST" class="inline">
+                                @csrf
+                                <button type="submit" class="os-btn os-btn-mango os-btn-sm" title="Send now" onclick="return confirm('Send this campaign to all recipients now?')"><i class="bi bi-send-fill"></i></button>
+                            </form>
+                            @endif
+                            <a href="{{ route('admin.campaigns.delete', $c) }}" class="os-btn os-btn-danger os-btn-sm" title="Delete" onclick="return confirm('Delete this campaign and its logs? This cannot be undone.')"><i class="bi bi-trash-fill"></i></a>
+                        </div>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="9" class="py-14 text-center text-slate">
+                        <i class="bi bi-megaphone block text-4xl text-ink/10"></i>
+                        <p class="mt-3 text-sm">No campaigns yet — <a href="{{ route('admin.campaigns.create') }}" class="font-semibold text-mango-deep hover:underline">compose your first broadcast</a>.</p>
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
 </div>
 
 @if($campaigns->hasPages())
-<div style="margin-top:20px;">
-    {{ $campaigns->links() }}
-</div>
+<div class="mt-5">{{ $campaigns->links() }}</div>
 @endif
 @endsection

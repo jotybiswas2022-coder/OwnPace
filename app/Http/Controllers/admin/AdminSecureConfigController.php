@@ -84,6 +84,23 @@ class AdminSecureConfigController extends Controller
             'smtp_from_address' => 'nullable|email|max:255',
             'smtp_from_name' => 'nullable|string|max:255',
             'clear_smtp_password' => 'nullable',
+            // Notification channel toggles: ch_<type>_group + ch_<type>_<channel>
+            'ch_payment_due_group' => 'nullable',
+            'ch_payment_due_mail' => 'nullable',
+            'ch_payment_due_sms' => 'nullable',
+            'ch_payment_due_database' => 'nullable',
+            'ch_payment_overdue_group' => 'nullable',
+            'ch_payment_overdue_mail' => 'nullable',
+            'ch_payment_overdue_sms' => 'nullable',
+            'ch_payment_overdue_database' => 'nullable',
+            'ch_order_status_group' => 'nullable',
+            'ch_order_status_mail' => 'nullable',
+            'ch_order_status_sms' => 'nullable',
+            'ch_order_status_database' => 'nullable',
+            'ch_delivery_confirmation_group' => 'nullable',
+            'ch_delivery_confirmation_mail' => 'nullable',
+            'ch_delivery_confirmation_sms' => 'nullable',
+            'ch_delivery_confirmation_database' => 'nullable',
         ]);
 
         $settings = Setting::first() ?? new Setting();
@@ -138,6 +155,24 @@ class AdminSecureConfigController extends Controller
         }
         // Column is plain text (no cast) — encode explicitly.
         $settings->smtp_settings = json_encode($smtp);
+
+        // ---- Notification channels (per-type toggles) ----
+        $channels = is_array($settings->notification_channels ?? null) ? $settings->notification_channels : [];
+        foreach (\App\Services\Messaging\NotificationChannels::TYPES as $type => $label) {
+            // Only overwrite a type when its group was submitted.
+            if (! $request->has('ch_'.$type.'_group')) {
+                continue;
+            }
+
+            $checked = [];
+            foreach (\App\Services\Messaging\NotificationChannels::CHANNELS as $channel) {
+                if ($request->has('ch_'.$type.'_'.$channel)) {
+                    $checked[] = $channel;
+                }
+            }
+            $channels[$type] = $checked;
+        }
+        $settings->notification_channels = $channels !== [] ? $channels : null;
 
         $settings->save();
 

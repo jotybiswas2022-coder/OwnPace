@@ -56,6 +56,7 @@ class DeliveryStatusService
      */
     public static function transition(Order $order, string $newStatus): void
     {
+        $previous = $order->delivery_status;
         $order->update(['delivery_status' => $newStatus]);
 
         if ($newStatus === 'delivered') {
@@ -68,5 +69,16 @@ class DeliveryStatusService
             'description' => 'Delivery status updated to ' . ucwords(str_replace('_', ' ', $newStatus)),
             'tracked_at' => now(),
         ]);
+
+        // Automated notifications on delivery milestones (queued).
+        if ($previous === $newStatus || ! $order->user) {
+            return;
+        }
+
+        if ($newStatus === 'delivered') {
+            $order->user->notify(new \App\Notifications\DeliveryConfirmationNotification($order->fresh()));
+        } elseif (in_array($newStatus, ['processing', 'shipped', 'in_transit', 'out_for_delivery'], true)) {
+            $order->user->notify(new \App\Notifications\OrderStatusNotification($order->fresh(), $newStatus));
+        }
     }
 }

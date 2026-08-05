@@ -74,7 +74,7 @@
                         ['route' => 'admin.settings', 'icon' => 'bi-gear-fill', 'label' => 'Settings', 'active' => request()->routeIs('admin.settings*')],
                         ['route' => 'admin.secure-config.index', 'icon' => 'bi-shield-lock-fill', 'label' => 'Secure Config', 'active' => request()->routeIs('admin.secure-config*'), 'super_admin_only' => true],
                         ['route' => 'admin.roles.index', 'icon' => 'bi-person-badge-fill', 'label' => 'Roles & Permissions', 'active' => request()->routeIs('admin.roles.*'), 'super_admin_only' => true],
-                        ['route' => 'admin.analytics', 'icon' => 'bi-graph-up', 'label' => 'Analytics', 'active' => request()->routeIs('admin.analytics*')],
+                        ['route' => 'admin.reporting.index', 'icon' => 'bi-graph-up-arrow', 'label' => 'Reporting', 'active' => request()->routeIs('admin.reporting*')],
                     ];
                 @endphp
                 @foreach($nav as $item)

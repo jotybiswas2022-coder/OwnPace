@@ -58,6 +58,7 @@ use App\Services\Payments\FlutterwaveGateway;
 use App\Services\Payments\KorapayGateway;
 
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Notification;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -115,6 +116,16 @@ class AppServiceProvider extends ServiceProvider
         Gate::define('view dashboard', [DashboardPolicy::class, 'view']);
         Gate::define('view analytics', [AnalyticsPolicy::class, 'view']);
         Gate::define('view contacts', [ContactPolicy::class, 'view']);
+
+        // ---- Custom notification channels ----
+        // Every automated notification (payment due/overdue, order status,
+        // delivery) is delivered through these channels so email uses the
+        // DB-configured SMTP and SMS goes through the DB-configured provider.
+        // Registering via Notification::extend() overrides the framework's
+        // built-in mail/database channels and adds the sms channel.
+        Notification::extend('mail', fn () => new \App\Notifications\Channels\MailChannel);
+        Notification::extend('sms', fn () => new \App\Notifications\Channels\SmsChannel);
+        Notification::extend('database', fn () => new \App\Notifications\Channels\DatabaseChannel);
 
         // Super Admins can do anything — short-circuit every authorization check.
         // The legacy isSuperAdmin() flag is honored too, so admins created before

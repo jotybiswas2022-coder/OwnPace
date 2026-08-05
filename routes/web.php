@@ -121,6 +121,12 @@ Route::prefix('payment')->controller(PaymentController::class)->group(function (
     Route::post('/webhook/{gateway}', 'handleWebhook')->name('payment.webhook');
 });
 
+// ===== CAMPAIGN TRACKING (opens / clicks — public pixels & redirects) =====
+Route::prefix('c')->controller(\App\Http\Controllers\CampaignTrackingController::class)->group(function () {
+    Route::get('/t/{log}', 'open')->name('campaign.track.open');
+    Route::get('/l/{log}', 'click')->name('campaign.track.click');
+});
+
 // ===== CONTACT =====
 Route::middleware('auth')->post('/contactus', [App\Http\Controllers\user\UserController::class, 'contactus'])->name('contact.send');
 

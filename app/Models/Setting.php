@@ -14,7 +14,7 @@ class Setting extends Model
         'primary_color', 'accent_color', 'logo', 'favicon',
         'meta_description', 'meta_keywords', 'timezone',
         'default_gateway', 'gateway_config', 'smtp_settings',
-        'sms_settings', 'registration_enabled', 'guest_checkout',
+        'sms_settings', 'notification_channels', 'registration_enabled', 'guest_checkout',
         'allow_topup_withdrawal', 'withdrawal_fee_percent', 'topup_bonus_percent'
     ];
 
@@ -29,5 +29,6 @@ class Setting extends Model
         'cancellation_fee_percentage' => 'decimal:2',
         'delivery_threshold_percentage' => 'decimal:2',
         'gateway_config' => 'array',
+        'notification_channels' => 'array',
     ];
 }

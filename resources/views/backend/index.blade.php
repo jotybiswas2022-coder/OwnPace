@@ -166,7 +166,7 @@
                 ['route' => 'admin.brands.create', 'icon' => 'bi-building', 'label' => 'Add Brand'],
                 ['route' => 'admin.suppliers.create', 'icon' => 'bi-truck', 'label' => 'New Supplier'],
                 ['route' => 'admin.campaigns.create', 'icon' => 'bi-megaphone', 'label' => 'Create Campaign'],
-                ['route' => 'admin.analytics', 'icon' => 'bi-graph-up', 'label' => 'View Analytics'],
+                ['route' => 'admin.reporting.index', 'icon' => 'bi-graph-up-arrow', 'label' => 'Reporting'],
                 ['route' => 'admin.settings', 'icon' => 'bi-gear', 'label' => 'Settings'],
                 ['route' => 'admin.orders.export', 'icon' => 'bi-download', 'label' => 'Export Orders'],
             ];

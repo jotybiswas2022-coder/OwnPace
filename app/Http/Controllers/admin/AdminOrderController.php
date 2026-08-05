@@ -49,7 +49,13 @@ class AdminOrderController extends Controller
     {
         $this->authorize('manage', $order);
 
+        $previous = $order->status;
         $order->update(['status' => $request->status]);
+
+        // Automated order-status notification when the status actually changes.
+        if ($previous !== $order->status && $order->user) {
+            $order->user->notify(new \App\Notifications\OrderStatusNotification($order->fresh(), $order->status));
+        }
 
         return back()->with('success', 'Order status updated to ' . $request->status);
     }

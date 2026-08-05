@@ -9,7 +9,7 @@ use App\Http\Controllers\admin\AdminRequestController;
 use App\Http\Controllers\admin\AdminCampaignController;
 use App\Http\Controllers\admin\AdminSupplierController;
 use App\Http\Controllers\admin\BrandController;
-use App\Http\Controllers\admin\AdminAnalyticsController;
+use App\Http\Controllers\admin\AdminReportingController;
 use App\Http\Controllers\admin\AdminFaqController;
 use App\Http\Controllers\admin\AdminTermsController;
 use App\Http\Controllers\admin\CategoryController;
@@ -109,8 +109,12 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('/', 'index')->name('admin.campaigns.index');
         Route::get('/create', 'create')->name('admin.campaigns.create');
         Route::post('/store', 'store')->name('admin.campaigns.store');
+        Route::post('/templates/store', 'storeTemplate')->name('admin.campaigns.templates.store');
+        Route::post('/templates/{template}/delete', 'destroyTemplate')->name('admin.campaigns.templates.delete');
         Route::post('/{campaign}/send', 'send')->name('admin.campaigns.send');
+        Route::get('/{campaign}/logs/export', 'exportLogs')->name('admin.campaigns.export');
         Route::get('/{campaign}/delete', 'destroy')->name('admin.campaigns.delete');
+        Route::get('/{campaign}', 'show')->name('admin.campaigns.show');
     });
 
     // ===== SUPPLIERS =====
@@ -168,10 +172,10 @@ Route::prefix('admin')->middleware('admin')->group(function () {
         Route::get('/', 'index')->name('admin.contacts.index');
     });
 
-    // ===== ANALYTICS =====
-    Route::prefix('analytics')->controller(AdminAnalyticsController::class)->group(function () {
-        Route::get('/', 'index')->name('admin.analytics');
-        Route::get('/export', 'export')->name('admin.analytics.export');
+    // ===== REPORTING =====
+    Route::prefix('reporting')->controller(AdminReportingController::class)->group(function () {
+        Route::get('/', 'index')->name('admin.reporting.index');
+        Route::get('/export', 'export')->name('admin.reporting.export');
     });
 
     // ===== PROMO CODES =====
