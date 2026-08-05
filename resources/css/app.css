@@ -40,8 +40,8 @@
         --ring-gold: 0 0 0 4px rgba(245, 166, 35, 0.18);
 
         /* ---- Fonts ---- */
-        --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
-        --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+        --font-display: "Poppins", ui-sans-serif, system-ui, sans-serif;
+        --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
         --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", monospace;
     }
 }
@@ -69,8 +69,8 @@
     --color-paper-deep: #ececea;
     --color-ink: #1a1b23;
 
-    --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
-    --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+    --font-display: "Poppins", ui-sans-serif, system-ui, sans-serif;
+    --font-sans: "Poppins", ui-sans-serif, system-ui, sans-serif;
     --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", monospace;
 
     --shadow-soft: 0 10px 30px -12px rgba(26, 27, 35, 0.18);
