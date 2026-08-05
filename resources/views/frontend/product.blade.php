@@ -246,9 +246,13 @@
                 </div>
             </div>
             @empty
-            <div class="mt-4 rounded-2xl border border-dashed border-ink/15 bg-white p-10 text-center">
-                <i class="bi bi-chat-square-text text-3xl text-ink/15"></i>
-                <p class="mt-2 text-sm text-slate">No reviews yet. Be the first to review this product!</p>
+            <div class="mt-4 flex flex-col items-center rounded-2xl border border-dashed border-ink/15 bg-white p-10 text-center">
+                <span class="os-empty-icon"><i class="bi bi-chat-square-text"></i></span>
+                <p class="mt-4 max-w-sm text-sm text-slate">No reviews yet — this product is fresh out of the box. Loved it? Paid it off? Your review helps the next buyer decide.</p>
+                <div class="mt-5 flex flex-wrap justify-center gap-3">
+                    <a href="{{ route('orders.index') }}" class="os-btn os-btn-ghost os-btn-sm"><i class="bi bi-bag-check-fill"></i> Review from your orders</a>
+                    <a href="{{ url('/shop') }}" class="os-btn os-btn-brand os-btn-sm"><i class="bi bi-grid-fill"></i> Browse more products</a>
+                </div>
             </div>
             @endforelse
         </div>

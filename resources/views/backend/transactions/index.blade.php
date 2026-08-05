@@ -98,24 +98,24 @@
             <tbody>
                 @forelse($payments as $p)
                 <tr>
-                    <td class="font-mono text-sm text-ink">#{{ $p->installment_number }}</td>
-                    <td class="font-mono text-xs text-slate">{{ $p->order?->order_number ?? '—' }}</td>
-                    <td>
+                    <td data-label="Installment" class="font-mono text-sm text-ink">#{{ $p->installment_number }}</td>
+                    <td data-label="Order" class="font-mono text-xs text-slate">{{ $p->order?->order_number ?? '—' }}</td>
+                    <td data-label="Customer">
                         <p class="text-sm font-semibold text-ink">{{ $p->order?->user?->name ?? 'N/A' }}</p>
                         <p class="text-xs text-slate">{{ $p->order?->user?->email }}</p>
                     </td>
-                    <td>
+                    <td data-label="Plan">
                         @if($p->order?->installmentPlan)
                             <span class="os-chip">{{ $p->order->installmentPlan->name }}</span>
                         @else
                             <span class="text-xs text-slate">—</span>
                         @endif
                     </td>
-                    <td class="font-mono text-sm font-semibold text-ink">{{ formatPrice($p->amount, 0) }}</td>
-                    <td class="font-mono text-sm text-grass">{{ $p->paid_amount > 0 ? formatPrice($p->paid_amount, 0) : '—' }}</td>
-                    <td class="text-sm text-slate">{{ $p->due_date?->format('M j, Y') ?? '—' }}</td>
-                    <td class="text-sm text-slate">{{ $p->paid_date?->format('M j, Y') ?? '—' }}</td>
-                    <td>
+                    <td data-label="Amount" class="font-mono text-sm font-semibold text-ink">{{ formatPrice($p->amount, 0) }}</td>
+                    <td data-label="Paid" class="font-mono text-sm text-grass">{{ $p->paid_amount > 0 ? formatPrice($p->paid_amount, 0) : '—' }}</td>
+                    <td data-label="Due date" class="text-sm text-slate">{{ $p->due_date?->format('M j, Y') ?? '—' }}</td>
+                    <td data-label="Paid date" class="text-sm text-slate">{{ $p->paid_date?->format('M j, Y') ?? '—' }}</td>
+                    <td data-label="Status">
                         @php
                             $chip = $p->status === 'paid' ? 'grass' : ($p->status === 'overdue' ? 'ember' : ($p->status === 'partial' ? 'mango' : 'brand'));
                         @endphp
@@ -124,7 +124,7 @@
                             <p class="mt-1 text-[11px] text-ember">+{{ formatPrice($p->late_fee, 0) }} late fee</p>
                         @endif
                     </td>
-                    <td class="text-xs text-slate">{{ ucfirst($p->payment_method ?? '—') }}</td>
+                    <td data-label="Method" class="text-xs text-slate">{{ ucfirst($p->payment_method ?? '—') }}</td>
                 </tr>
                 @empty
                 <tr><td colspan="10" class="py-8 text-center text-sm text-slate">No installment payments match your filters.</td></tr>

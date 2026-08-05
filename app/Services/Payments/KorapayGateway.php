@@ -7,6 +7,14 @@ use App\Services\Payments\Concerns\ReadsGatewayConfig;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
+/**
+ * KoraPay payment gateway adapter.
+ *
+ * Initializes charges, verifies transactions and parses webhooks against the
+ * KoraPay Merchant API v1. The secret resolves through the secure config
+ * store first, falling back to KORAPAY_SECRET_KEY (see ReadsGatewayConfig).
+ * Amounts are sent in kobo (amount × 100).
+ */
 class KorapayGateway implements PaymentGatewayInterface
 {
     use ReadsGatewayConfig;

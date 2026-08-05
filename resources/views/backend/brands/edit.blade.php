@@ -1,21 +1,44 @@
-@extends('backend.app')
-@section('title', 'Edit Brand — OwnPace Admin')
+@extends('backend.layouts.console')
+@section('title', 'Edit Brand — '.storeName().' Admin')
 @section('page_title', 'Edit Brand')
 
+@section('breadcrumbs')
+    @include('backend.partials.breadcrumbs', ['crumbs' => [['label' => 'Shop', 'route' => 'admin.brands.index'], ['label' => $brand->name]]])
+@endsection
+
 @section('content')
-<div class="fp-table-wrap">
-    <div class="fp-table-header"><h5>Edit Brand</h5></div>
-    <div style="padding:24px;">
-        <form action="{{ route('admin.brands.update', $brand) }}" method="POST">
-            @csrf
-            <div class="row g-3">
-                <div class="col-sm-6"><label style="display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px;">Brand Name</label><input type="text" name="name" class="fp-form-control" value="{{ $brand->name }}" required></div>
-                <div class="col-sm-6"><label style="display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px;">Logo URL</label><input type="text" name="logo" class="fp-form-control" value="{{ $brand->logo }}"></div>
-                <div class="col-sm-6"><label style="display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px;">Website</label><input type="url" name="website" class="fp-form-control" value="{{ $brand->website }}"></div>
-                <div class="col-12"><label style="display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px;">Description</label><textarea name="description" class="fp-form-control" rows="2">{{ $brand->description }}</textarea></div>
-                <div class="col-12"><button type="submit" class="fp-btn fp-btn-gold"><i class="bi bi-check-lg"></i> Update Brand</button></div>
-            </div>
-        </form>
+<div class="mx-auto max-w-3xl">
+    <div class="os-card overflow-hidden">
+        <div class="border-b border-ink/10 px-6 py-4">
+            <h3 class="font-display text-sm font-bold text-ink">Edit: {{ $brand->name }}</h3>
+        </div>
+        <div class="p-6">
+            <form action="{{ route('admin.brands.update', $brand) }}" method="POST" class="space-y-5">
+                @csrf
+                <div class="grid gap-5 sm:grid-cols-2">
+                    <div>
+                        <label for="brand_name" class="os-label">Brand Name <span class="text-ember">*</span></label>
+                        <input type="text" id="brand_name" name="name" class="os-input w-full" value="{{ $brand->name }}" required>
+                    </div>
+                    <div>
+                        <label for="brand_logo" class="os-label">Logo URL</label>
+                        <input type="text" id="brand_logo" name="logo" class="os-input w-full" value="{{ $brand->logo }}" placeholder="https://…">
+                    </div>
+                    <div>
+                        <label for="brand_website" class="os-label">Website</label>
+                        <input type="url" id="brand_website" name="website" class="os-input w-full" value="{{ $brand->website }}" placeholder="https://…">
+                    </div>
+                </div>
+                <div>
+                    <label for="brand_desc" class="os-label">Description</label>
+                    <textarea id="brand_desc" name="description" class="os-input w-full" rows="3">{{ $brand->description }}</textarea>
+                </div>
+                <div class="flex items-center gap-3 border-t border-ink/10 pt-5">
+                    <button type="submit" class="os-btn os-btn-brand"><i class="bi bi-check-lg"></i> Update Brand</button>
+                    <a href="{{ route('admin.brands.index') }}" class="os-btn os-btn-ghost"><i class="bi bi-arrow-left"></i> Back</a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 @endsection

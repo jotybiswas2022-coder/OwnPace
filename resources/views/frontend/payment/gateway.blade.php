@@ -1,147 +1,94 @@
-@extends('frontend.app')
-@section('title', 'Payment — OwnPace Store')
-
-@push('styles')
-<style>
-.fp-gw-hero {
-    position: relative; padding: 50px 0 30px; overflow: hidden; isolation: isolate;
-    background: linear-gradient(180deg, rgba(234,179,8,0.03) 0%, transparent 100%);
-}
-.fp-gw-orb {
-    position: absolute; width: 380px; height: 380px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(234,179,8,0.04) 0%, transparent 60%);
-    top: -120px; left: -100px; pointer-events: none;
-    animation: gwPulse 4s ease-in-out infinite;
-}
-@keyframes gwPulse { 0%,100%{transform:scale(1);opacity:0.5} 50%{transform:scale(1.1);opacity:1} }
-
-.fp-gw-section { padding-bottom: 80px; }
-
-.fp-pay-card {
-    background: var(--card-dark); border: 1px solid var(--card-border);
-    border-radius: var(--radius-lg); padding: 32px; max-width: 500px; margin: 0 auto;
-    transform: translateZ(0); contain: layout style;
-}
-.fp-pay-header { text-align: center; margin-bottom: 24px; }
-.fp-pay-header i {
-    font-size: 40px; color: var(--gold-500);
-    background: rgba(234,179,8,0.1);
-    width: 72px; height: 72px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center; margin: 0 auto 12px;
-}
-.fp-pay-header h4 { font-family:'Syne',sans-serif; color: var(--text-primary); font-size: 20px; font-weight: 700; }
-.fp-pay-header p { color: var(--text-muted); font-size: 13px; }
-.fp-pay-summary { background: var(--surface-dark); border-radius: var(--radius-sm); padding: 20px; contain: layout style; }
-.fp-ps-row { display: flex; justify-content: space-between; font-size: 14px; color: var(--text-muted); margin-bottom: 8px; }
-.fp-ps-divider { height: 1px; background: var(--card-border); margin: 12px 0; }
-.fp-ps-total { font-size: 18px; font-weight: 700; color: var(--text-primary); }
-.fp-ps-total span:last-child { color: var(--gold-400); }
-.fp-pay-methods { display: flex; flex-direction: column; gap: 10px; }
-.fp-pm-option { cursor: pointer; touch-action: manipulation; }
-.fp-pm-option input[type="radio"] { display: none; }
-.fp-pm-content {
-    display: flex; align-items: center; gap: 14px;
-    padding: 14px 16px; border: 2px solid var(--card-border);
-    border-radius: var(--radius-sm); transition: all 0.2s; background: var(--surface-dark);
-    transform: translateZ(0);
-}
-.fp-pm-option input[type="radio"]:checked + .fp-pm-content {
-    border-color: var(--gold-500); background: rgba(234,179,8,0.05);
-}
-.fp-pm-content i { font-size: 24px; color: var(--gold-500); }
-.fp-pm-content strong { display: block; color: var(--text-primary); font-size: 14px; }
-.fp-pm-content small { color: var(--text-dim); font-size: 12px; }
-.fp-pay-btn {
-    width: 100%; padding: 14px;
-    background: linear-gradient(135deg, var(--gold-500), var(--gold-600));
-    color: var(--near-black); border: none; border-radius: var(--radius-sm);
-    font-size: 16px; font-weight: 700; font-family: 'Syne', sans-serif;
-    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
-    transition: all 0.3s; transform: translateZ(0);
-}
-.fp-pay-btn:hover { transform: translateY(-2px); box-shadow: var(--shadow-gold); }
-.fp-pay-secure { display: flex; justify-content: center; gap: 24px; }
-.fp-pay-secure span { display: flex; align-items: center; gap: 6px; color: var(--text-dim); font-size: 12px; }
-.fp-pay-secure i { color: var(--gold-500); font-size: 13px; }
-</style>
-@endpush
+@extends('frontend.layouts.store')
+@section('title', 'Payment — '.storeName())
 
 @section('content')
-<section class="fp-gw-hero">
-    <div class="fp-gw-orb" aria-hidden="true"></div>
-    <div class="container">
-        <div class="section-head reveal-up">
-            <div class="section-badge"><i class="bi bi-lock-fill"></i> Secure Payment</div>
-            <h2>Complete Your Payment</h2>
-            <p>Order #{{ $order->id }}</p>
-        </div>
+
+<section class="os-section-sm border-b border-ink/10 bg-white">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6">
+        <span class="os-eyebrow"><i class="bi bi-lock-fill"></i> Secure payment</span>
+        <h1 class="mt-2 font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">Complete your payment</h1>
+        <p class="mt-2 text-sm text-slate">Order #{{ $order->id }}</p>
     </div>
 </section>
 
-<section class="fp-gw-section">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-6">
-                <div class="fp-pay-card reveal-up">
-                    <div class="fp-pay-header">
-                        <i class="bi bi-credit-card-fill"></i>
-                        <h4>Choose Payment Method</h4>
-                        <p>Select your preferred payment gateway</p>
-                    </div>
+<section class="os-section">
+    <div class="mx-auto max-w-xl px-4 sm:px-6">
+        <div class="os-card p-6 sm:p-8" x-reveal>
+            <div class="text-center">
+                <span class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-mango/15 text-2xl text-mango-deep"><i class="bi bi-credit-card-fill"></i></span>
+                <h2 class="mt-4 font-display text-lg font-bold text-ink">Choose payment method</h2>
+                <p class="mt-1 text-sm text-slate">Select your preferred payment gateway</p>
+            </div>
 
-                    @php $pending = session('pending_payment'); @endphp
-                    <div class="fp-pay-summary">
-                        <div class="fp-ps-row"><span>Order Amount</span><span>₦{{ number_format($order->total_amount, 0) }}</span></div>
-                        <div class="fp-ps-row"><span>Paid</span><span style="color:#4ade80">₦{{ number_format($order->paid_amount ?? 0, 0) }}</span></div>
-                        @if($pending && $pending['amount'] > 0)
-                            <div class="fp-ps-row"><span>{{ $pending['label'] }}</span><span>₦{{ number_format($pending['amount'], 2) }}</span></div>
-                            @if(!empty($pending['late_fee']))
-                            <div class="fp-ps-row"><span>Late fee</span><span style="color:#f87171">₦{{ number_format($pending['late_fee'], 2) }}</span></div>
-                            @endif
-                        @endif
-                        <div class="fp-ps-divider"></div>
-                        <div class="fp-ps-row fp-ps-total"><span>Due Now</span><span>₦{{ number_format($pending['amount'] ?? $order->remaining_amount, 2) }}</span></div>
-                    </div>
-
-                    <form action="{{ route('payment.process', $order->id) }}" method="POST" class="mt-4">
-                        @csrf
-                        <div class="fp-pay-methods" role="radiogroup" aria-label="Payment gateway selection">
-                            <label class="fp-pm-option">
-                                <input type="radio" name="gateway" value="paystack" checked>
-                                <div class="fp-pm-content">
-                                    <i class="bi bi-credit-card-fill"></i>
-                                    <div><strong>Paystack</strong><small>Card, Bank, USSD</small></div>
-                                </div>
-                            </label>
-                            <label class="fp-pm-option">
-                                <input type="radio" name="gateway" value="flutterwave">
-                                <div class="fp-pm-content">
-                                    <i class="bi bi-globe"></i>
-                                    <div><strong>Flutterwave</strong><small>Card, Bank, Mobile Money</small></div>
-                                </div>
-                            </label>
-                            <label class="fp-pm-option">
-                                <input type="radio" name="gateway" value="korapay">
-                                <div class="fp-pm-content">
-                                    <i class="bi bi-shield-fill-check"></i>
-                                    <div><strong>Korapay</strong><small>Card, Bank Transfer, USSD</small></div>
-                                </div>
-                            </label>
-                        </div>
-
-                        <button type="submit" class="fp-pay-btn mt-4">
-                            <i class="bi bi-lock-fill"></i> Pay Now
-                        </button>
-                    </form>
-
-                    <div class="fp-pay-secure mt-3">
-                        <span><i class="bi bi-shield-fill-check"></i> SSL Encrypted</span>
-                        <span><i class="bi bi-lock-fill"></i> 256-bit Secure</span>
-                    </div>
+            @php $pending = session('pending_payment'); @endphp
+            <dl class="mt-6 rounded-xl bg-paper-deep/60 p-5 text-sm">
+                <div class="flex items-center justify-between py-1.5">
+                    <dt class="text-slate">Order amount</dt>
+                    <dd class="os-price text-ink">₦{{ number_format($order->total_amount, 0) }}</dd>
                 </div>
+                <div class="flex items-center justify-between py-1.5">
+                    <dt class="text-slate">Paid</dt>
+                    <dd class="os-price text-grass-deep">₦{{ number_format($order->paid_amount ?? 0, 0) }}</dd>
+                </div>
+                @if($pending && $pending['amount'] > 0)
+                    <div class="flex items-center justify-between py-1.5">
+                        <dt class="text-slate">{{ $pending['label'] }}</dt>
+                        <dd class="os-price text-ink">₦{{ number_format($pending['amount'], 2) }}</dd>
+                    </div>
+                    @if(!empty($pending['late_fee']))
+                    <div class="flex items-center justify-between py-1.5">
+                        <dt class="text-slate">Late fee</dt>
+                        <dd class="os-price text-ember-deep">₦{{ number_format($pending['late_fee'], 2) }}</dd>
+                    </div>
+                    @endif
+                @endif
+                <div class="mt-1.5 flex items-center justify-between border-t border-ink/10 pt-3">
+                    <dt class="font-display text-base font-bold text-ink">Due now</dt>
+                    <dd class="os-price text-lg font-bold text-brand">₦{{ number_format($pending['amount'] ?? $order->remaining_amount, 2) }}</dd>
+                </div>
+            </dl>
+
+            <form action="{{ route('payment.process', $order->id) }}" method="POST" class="mt-6">
+                @csrf
+                <fieldset class="grid gap-3">
+                    <legend class="sr-only">Payment gateway selection</legend>
+                    @php
+                        $osGateways = [
+                            ['value' => 'paystack', 'icon' => 'bi-credit-card-fill', 'name' => 'Paystack', 'desc' => 'Card, Bank, USSD'],
+                            ['value' => 'flutterwave', 'icon' => 'bi-globe', 'name' => 'Flutterwave', 'desc' => 'Card, Bank, Mobile Money'],
+                            ['value' => 'korapay', 'icon' => 'bi-shield-fill-check', 'name' => 'Korapay', 'desc' => 'Card, Bank Transfer, USSD'],
+                        ];
+                    @endphp
+                    <div x-data="{ gateway: 'paystack' }">
+                        @foreach($osGateways as $osGw)
+                        <label class="mb-3 block cursor-pointer rounded-xl border-2 p-4 transition-all has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-mango/50"
+                               :class="gateway === '{{ $osGw['value'] }}' ? 'border-mango bg-mango/5' : 'border-ink/10 bg-paper-deep/40 hover:border-mango/40'">
+                            <input type="radio" name="gateway" value="{{ $osGw['value'] }}" class="sr-only" x-model="gateway" {{ $loop->first ? 'checked' : '' }}>
+                            <div class="flex items-center gap-4">
+                                <i class="bi {{ $osGw['icon'] }} text-2xl" :class="gateway === '{{ $osGw['value'] }}' ? 'text-mango-deep' : 'text-slate'"></i>
+                                <span class="flex-1">
+                                    <strong class="block text-sm text-ink">{{ $osGw['name'] }}</strong>
+                                    <small class="text-xs text-slate">{{ $osGw['desc'] }}</small>
+                                </span>
+                                <span class="flex h-5 w-5 items-center justify-center rounded-full border-2 transition-colors"
+                                      :class="gateway === '{{ $osGw['value'] }}' ? 'border-mango bg-mango' : 'border-ink/20'">
+                                    <span class="h-2 w-2 rounded-full bg-white" x-show="gateway === '{{ $osGw['value'] }}'"></span>
+                                </span>
+                            </div>
+                        </label>
+                        @endforeach
+                    </div>
+                </fieldset>
+
+                <button type="submit" class="os-btn os-btn-mango mt-4 w-full py-3.5 text-base"><i class="bi bi-lock-fill"></i> Pay now</button>
+            </form>
+
+            <div class="mt-5 flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-xs text-slate">
+                <span class="inline-flex items-center gap-1.5"><i class="bi bi-shield-fill-check text-grass-deep"></i> SSL encrypted</span>
+                <span class="inline-flex items-center gap-1.5"><i class="bi bi-lock-fill text-brand"></i> 256-bit secure</span>
             </div>
         </div>
     </div>
 </section>
-@include('frontend.partials.footer')
+
 @endsection

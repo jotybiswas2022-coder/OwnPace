@@ -1,305 +1,125 @@
-@extends('frontend.app')
-@section('title', 'Contact Us — OwnPace Store')
+@extends('frontend.layouts.store')
+@section('title', 'Contact Us — '.storeName())
 
-@push('styles')
-<style>
-.fp-contact-hero {
-    position: relative; padding: 60px 0 80px; overflow: hidden; isolation: isolate;
-    background: linear-gradient(180deg, rgba(234,179,8,0.03) 0%, transparent 100%);
-}
-.fp-contact-orb {
-    position: absolute; width: 600px; height: 600px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(234,179,8,0.05) 0%, transparent 60%);
-    top: -250px; right: -150px; pointer-events: none;
-    animation: ctOrbPulse 4s ease-in-out infinite;
-}
-.fp-contact-orb2 {
-    position: absolute; width: 400px; height: 400px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(234,179,8,0.03) 0%, transparent 60%);
-    bottom: -100px; left: -100px; pointer-events: none;
-    animation: ctOrbPulse 5s ease-in-out infinite reverse;
-}
-@keyframes ctOrbPulse { 0%,100%{transform:scale(1);opacity:0.5} 50%{transform:scale(1.1);opacity:1} }
-
-.fp-contact-title {
-    font-family: 'Syne', sans-serif;
-    font-size: clamp(32px, 4vw, 48px); font-weight: 800;
-    color: var(--text-primary); margin-bottom: 16px;
-}
-.fp-contact-desc {
-    color: var(--text-muted); font-size: 16px; line-height: 1.7;
-    margin-bottom: 36px; max-width: 480px;
-}
-
-.fp-ci-grid {
-    display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
-}
-.fp-ci-card {
-    display: flex; align-items: center; gap: 14px;
-    background: var(--card-dark); border: 1px solid var(--card-border);
-    border-radius: var(--radius-sm); padding: 16px 18px;
-    transition: all 0.3s; cursor: default;
-}
-.fp-ci-card:hover {
-    border-color: rgba(234,179,8,0.25); transform: translateY(-2px);
-    box-shadow: var(--shadow-card-hover);
-}
-.fp-ci-icon {
-    width: 44px; height: 44px; border-radius: 10px;
-    background: rgba(234,179,8,0.1);
-    display: flex; align-items: center; justify-content: center;
-    color: var(--gold-500); font-size: 18px; flex-shrink: 0;
-}
-.fp-ci-card strong { display: block; font-size: 13px; color: var(--text-primary); margin-bottom: 2px; }
-.fp-ci-card span { font-size: 14px; color: var(--text-muted); }
-
-.fp-ci-social {
-    display: flex; gap: 8px; margin-top: 20px;
-}
-.fp-ci-social a {
-    width: 40px; height: 40px; border-radius: 10px;
-    background: var(--card-dark); border: 1px solid var(--card-border);
-    display: flex; align-items: center; justify-content: center;
-    color: var(--text-muted); font-size: 16px;
-    transition: all 0.3s; text-decoration: none;
-    touch-action: manipulation;
-}
-.fp-ci-social a:hover { transform: translateY(-3px); color: white; }
-.fp-ci-social a.s-fb:hover { background: #1877f2; border-color: #1877f2; }
-.fp-ci-social a.s-tw:hover { background: #000; border-color: #333; }
-.fp-ci-social a.s-ig:hover { background: linear-gradient(135deg,#f58529,#dd2a7b,#8134af); border-color: transparent; }
-.fp-ci-social a.s-wa:hover { background: #25d366; border-color: #25d366; }
-
-.fp-contact-form-card {
-    background: var(--card-dark); border: 1px solid var(--card-border);
-    border-radius: var(--radius); padding: 36px 32px; position: relative; overflow: hidden;
-    transition: all 0.3s; contain: layout style;
-}
-.fp-contact-form-card:hover { border-color: rgba(234,179,8,0.15); }
-.fp-contact-form-card::before {
-    content: ''; position: absolute; top: 0; left: 0; right: 0;
-    height: 3px;
-    background: linear-gradient(90deg, var(--gold-500), var(--gold-400), var(--gold-600));
-}
-.fp-contact-form-card h3 {
-    font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 700;
-    color: var(--text-primary); margin-bottom: 6px;
-}
-.fp-contact-form-card > p {
-    color: var(--text-muted); font-size: 14px; margin-bottom: 24px;
-}
-
-.fp-alert-success {
-    display: flex; align-items: center; gap: 8px;
-    background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2);
-    color: #4ade80; padding: 14px 18px; border-radius: var(--radius-sm);
-    font-weight: 500; font-size: 13px; margin-bottom: 20px;
-    animation: ctFadeDown 0.4s ease-out;
-}
-@keyframes ctFadeDown { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
-
-.fp-form-group { margin-bottom: 6px; }
-.fp-form-group label {
-    display: flex; align-items: center; gap: 6px;
-    font-size: 13px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px;
-}
-.fp-form-group label i { color: var(--gold-500); font-size: 13px; }
-.fp-form-control {
-    width: 100%; padding: 12px 16px;
-    background: var(--surface-dark); border: 1.5px solid var(--card-border);
-    border-radius: var(--radius-sm); color: var(--text-primary);
-    font-family: 'Space Grotesk', sans-serif; font-size: 14px; outline: none;
-    transition: all 0.25s;
-}
-.fp-form-control:focus { border-color: var(--gold-500); box-shadow: 0 0 0 3px rgba(234,179,8,0.08); }
-.fp-form-control::placeholder { color: var(--text-dim); }
-.fp-form-control option { background: var(--card-dark); color: var(--text-primary); }
-.fp-textarea { resize: vertical; min-height: 120px; }
-
-.fp-submit-btn {
-    width: 100%; padding: 14px; border: none;
-    background: linear-gradient(135deg, var(--gold-500), var(--gold-600));
-    color: var(--near-black); border-radius: var(--radius-sm);
-    font-family: 'Syne', sans-serif; font-size: 15px; font-weight: 700;
-    cursor: pointer; display: flex; align-items: center;
-    justify-content: center; gap: 8px;
-    transition: all 0.3s; position: relative; overflow: hidden;
-}
-.fp-submit-btn::before {
-    content: ''; position: absolute; inset: 0;
-    background: linear-gradient(135deg, transparent 20%, rgba(255,255,255,0.15) 50%, transparent 80%);
-    transform: translateX(-100%); transition: transform 0.6s;
-}
-.fp-submit-btn:hover::before { transform: translateX(100%); }
-.fp-submit-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(234,179,8,0.25); }
-.fp-submit-btn:active { transform: translateY(0); }
-
-.fp-contact-extra {
-    margin-top: 60px; position: relative; z-index: 1;
-}
-.fp-ce-card {
-    background: var(--card-dark); border: 1px solid var(--card-border);
-    border-radius: var(--radius); padding: 32px; text-align: center;
-    transition: all 0.3s; contain: layout style;
-}
-.fp-ce-card:hover {
-    border-color: rgba(234,179,8,0.2); transform: translateY(-4px);
-    box-shadow: var(--shadow-card-hover);
-}
-.fp-ce-card i { font-size: 36px; color: var(--gold-500); margin-bottom: 16px; display: block; }
-.fp-ce-card h5 { font-family: 'Syne', sans-serif; color: var(--text-primary); font-size: 16px; margin-bottom: 8px; }
-.fp-ce-card p { color: var(--text-dim); font-size: 14px; margin-bottom: 16px; }
-
-@media (max-width: 991px) {
-    .fp-contact-hero { padding: 40px 0 50px; }
-    .fp-contact-form-card { margin-top: 32px; padding: 28px 24px; }
-    .fp-ci-grid { grid-template-columns: 1fr; }
-}
-@media (max-width: 576px) {
-    .fp-contact-form-card { padding: 22px 18px; }
-}
-</style>
-@endpush
+@php
+    $osSettings = App\Models\Setting::first();
+    $osEmail = $osSettings?->email ?? 'support@'.strtolower(str_replace(' ', '', storeName())).'.com';
+    $osPhone = $osSettings?->phone ?? '+234 800 000 0000';
+    $osLocation = $osSettings?->location ?? 'Lagos, Nigeria';
+@endphp
 
 @section('content')
-<section class="fp-contact-hero">
-    <div class="fp-contact-orb" aria-hidden="true"></div>
-    <div class="fp-contact-orb2" aria-hidden="true"></div>
-    <div class="container">
-        <div class="row align-items-center g-5">
-            <div class="col-lg-6">
-                <div class="reveal-left">
-                    <div class="section-badge" style="text-align:left;display:inline-flex;"><i class="bi bi-headset"></i> Contact Us</div>
-                    <h1 class="fp-contact-title">We're Here to Help</h1>
-                    <p class="fp-contact-desc">Have questions about payments, delivery, or your account? Reach out to our team and we'll get back to you within 24 hours.</p>
 
-                    <div class="fp-ci-grid">
-                        <div class="fp-ci-card">
-                            <div class="fp-ci-icon"><i class="bi bi-envelope-fill"></i></div>
-                            <div>
-                                <strong>Email</strong>
-                                <span>support@ownpace.store</span>
-                            </div>
-                        </div>
-                        <div class="fp-ci-card">
-                            <div class="fp-ci-icon"><i class="bi bi-telephone-fill"></i></div>
-                            <div>
-                                <strong>Phone</strong>
-                                <span>+234 800-OWNPACE</span>
-                            </div>
-                        </div>
-                        <div class="fp-ci-card">
-                            <div class="fp-ci-icon"><i class="bi bi-geo-alt-fill"></i></div>
-                            <div>
-                                <strong>Location</strong>
-                                <span>Lagos, Nigeria</span>
-                            </div>
-                        </div>
-                        <div class="fp-ci-card">
-                            <div class="fp-ci-icon"><i class="bi bi-clock-fill"></i></div>
-                            <div>
-                                <strong>Working Hours</strong>
-                                <span>Mon–Sat: 8AM – 6PM (WAT)</span>
-                            </div>
-                        </div>
+<section class="os-section-sm border-b border-ink/10 bg-white">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6">
+        <span class="os-eyebrow"><i class="bi bi-headset"></i> Contact Us</span>
+        <h1 class="mt-2 font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">We're here to help</h1>
+        <p class="mt-2 max-w-2xl text-sm leading-relaxed text-slate sm:text-base">Questions about payments, delivery or your account? Reach out — we get back to you within 24 hours.</p>
+    </div>
+</section>
+
+<section class="os-section">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6">
+        <div class="grid gap-10 lg:grid-cols-5">
+            {{-- Contact info --}}
+            <div class="space-y-4 lg:col-span-2" x-reveal>
+                <div class="grid gap-4 sm:grid-cols-2">
+                    <div class="os-card os-card-hover p-5">
+                        <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-mango/15 text-lg text-mango-deep"><i class="bi bi-envelope-fill"></i></span>
+                        <p class="mt-3 text-xs font-bold uppercase tracking-wider text-slate">Email</p>
+                        <p class="mt-1 break-all text-sm font-semibold text-ink">{{ $osEmail }}</p>
                     </div>
+                    <div class="os-card os-card-hover p-5">
+                        <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-mango/15 text-lg text-mango-deep"><i class="bi bi-telephone-fill"></i></span>
+                        <p class="mt-3 text-xs font-bold uppercase tracking-wider text-slate">Phone</p>
+                        <p class="mt-1 text-sm font-semibold text-ink">{{ $osPhone }}</p>
+                    </div>
+                    <div class="os-card os-card-hover p-5">
+                        <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-mango/15 text-lg text-mango-deep"><i class="bi bi-geo-alt-fill"></i></span>
+                        <p class="mt-3 text-xs font-bold uppercase tracking-wider text-slate">Location</p>
+                        <p class="mt-1 text-sm font-semibold text-ink">{{ $osLocation }}</p>
+                    </div>
+                    <div class="os-card os-card-hover p-5">
+                        <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-mango/15 text-lg text-mango-deep"><i class="bi bi-clock-fill"></i></span>
+                        <p class="mt-3 text-xs font-bold uppercase tracking-wider text-slate">Working Hours</p>
+                        <p class="mt-1 text-sm font-semibold text-ink">Mon–Sat: 8AM – 6PM (WAT)</p>
+                    </div>
+                </div>
 
-                    <div class="fp-ci-social">
-                        <a href="#" class="s-fb" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
-                        <a href="#" class="s-tw" aria-label="X (Twitter)"><i class="bi bi-twitter-x"></i></a>
-                        <a href="#" class="s-ig" aria-label="Instagram"><i class="bi bi-instagram"></i></a>
-                        <a href="#" class="s-wa" aria-label="WhatsApp"><i class="bi bi-whatsapp"></i></a>
+                <div class="os-card p-5">
+                    <p class="text-sm font-semibold text-ink">Prefer a quick answer?</p>
+                    <div class="mt-4 grid gap-3 sm:grid-cols-2">
+                        <a href="{{ url('/faq') }}" class="os-btn os-btn-ghost os-btn-sm justify-start"><i class="bi bi-question-circle-fill"></i> Browse FAQs</a>
+                        <a href="{{ url('/about') }}" class="os-btn os-btn-ghost os-btn-sm justify-start"><i class="bi bi-info-circle-fill"></i> About Us</a>
                     </div>
                 </div>
             </div>
 
-            <div class="col-lg-6">
-                <div class="fp-contact-form-card reveal-right">
-                    <h3>Send Us a Message</h3>
-                    <p>Fill in the form and we'll respond promptly</p>
+            {{-- Form --}}
+            <div class="lg:col-span-3" x-reveal="120">
+                @auth
+                <div class="os-card p-6 sm:p-8">
+                    <div class="mb-6 flex items-center gap-3">
+                        <span class="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo/10 text-xl text-brand"><i class="bi bi-chat-dots-fill"></i></span>
+                        <div>
+                            <h2 class="font-display text-lg font-bold text-ink">Send us a message</h2>
+                            <p class="text-sm text-slate">Fill in the form and we'll respond promptly</p>
+                        </div>
+                    </div>
 
-                    @if(session('success'))
-                        <div class="fp-alert-success">
-                            <i class="bi bi-check-circle-fill"></i> {{ session('success') }}
+                    @if($errors->any())
+                        <div class="mb-5 rounded-xl border border-ember/30 bg-ember/5 p-4" role="alert">
+                            <p class="flex items-center gap-2 text-sm font-semibold text-ember-deep"><i class="bi bi-exclamation-triangle-fill"></i> Please fix the errors below before sending.</p>
                         </div>
                     @endif
 
-                    <form method="POST" action="{{ route('contact.send') }}">
+                    <form method="POST" action="{{ route('contact.send') }}" class="grid gap-5 sm:grid-cols-2">
                         @csrf
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <div class="fp-form-group">
-                                    <label><i class="bi bi-person-fill"></i> Full Name</label>
-                                    <input type="text" name="name" class="fp-form-control" placeholder="John Doe" required value="{{ auth()->user()->name ?? '' }}">
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="fp-form-group">
-                                    <label><i class="bi bi-envelope-fill"></i> Email</label>
-                                    <input type="email" name="email" class="fp-form-control" placeholder="john@example.com" required value="{{ auth()->user()->email ?? '' }}">
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="fp-form-group">
-                                    <label><i class="bi bi-chat-dots-fill"></i> Subject</label>
-                                    <select name="subject" class="fp-form-control" required>
-                                        <option value="">Select a topic...</option>
-                                        <option value="Payment">Payment Issue</option>
-                                        <option value="Delivery">Delivery Question</option>
-                                        <option value="Installment">Installment Plan</option>
-                                        <option value="Account">Account Support</option>
-                                        <option value="Product">Product Inquiry</option>
-                                        <option value="Other">Other</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <div class="fp-form-group">
-                                    <label><i class="bi bi-pencil-fill"></i> Message</label>
-                                    <textarea name="message" class="fp-form-control fp-textarea" rows="4" placeholder="Describe your issue or question..." required></textarea>
-                                </div>
-                            </div>
-                            <div class="col-12">
-                                <button type="submit" class="fp-submit-btn">
-                                    <i class="bi bi-send-fill"></i> Send Message
-                                </button>
-                            </div>
+                        <div>
+                            <label for="contact-name" class="os-label">Full Name</label>
+                            <input id="contact-name" type="text" name="name" class="os-input {{ $errors->has('name') ? 'os-input-error' : '' }}" placeholder="John Doe" required value="{{ old('name', auth()->user()->name) }}">
+                            @error('name') <p class="os-error-text">{{ $message }}</p> @enderror
+                        </div>
+                        <div>
+                            <label for="contact-email" class="os-label">Email</label>
+                            <input id="contact-email" type="email" name="email" class="os-input {{ $errors->has('email') ? 'os-input-error' : '' }}" placeholder="john@example.com" required value="{{ old('email', auth()->user()->email) }}">
+                            @error('email') <p class="os-error-text">{{ $message }}</p> @enderror
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label for="contact-subject" class="os-label">Subject</label>
+                            <select id="contact-subject" name="subject" class="os-input" required>
+                                <option value="" disabled selected>Select a topic…</option>
+                                @foreach(['Payment' => 'Payment Issue', 'Delivery' => 'Delivery Question', 'Installment' => 'Installment Plan', 'Account' => 'Account Support', 'Product' => 'Product Inquiry', 'Other' => 'Other'] as $osValue => $osLabel)
+                                    <option value="{{ $osValue }}" {{ old('subject') === $osValue ? 'selected' : '' }}>{{ $osLabel }}</option>
+                                @endforeach
+                            </select>
+                            @error('subject') <p class="os-error-text">{{ $message }}</p> @enderror
+                        </div>
+                        <div class="sm:col-span-2">
+                            <label for="contact-message" class="os-label">Message</label>
+                            <textarea id="contact-message" name="message" rows="5" class="os-input {{ $errors->has('message') ? 'os-input-error' : '' }}" placeholder="Describe your issue or question…" required>{{ old('message') }}</textarea>
+                            @error('message') <p class="os-error-text">{{ $message }}</p> @enderror
+                        </div>
+                        <div class="sm:col-span-2 flex flex-wrap items-center gap-4">
+                            <button type="submit" class="os-btn os-btn-mango"><i class="bi bi-send-fill"></i> Send Message</button>
+                            <p class="text-xs text-slate"><i class="bi bi-shield-lock"></i> Your details stay private — we only use them to respond.</p>
                         </div>
                     </form>
                 </div>
-            </div>
-        </div>
-
-        <div class="fp-contact-extra">
-            <div class="row g-4">
-                <div class="col-md-4 reveal-up" style="transition-delay:0.1s;">
-                    <div class="fp-ce-card">
-                        <i class="bi bi-question-circle-fill"></i>
-                        <h5>Frequently Asked Questions</h5>
-                        <p>Find quick answers to common questions about payments, delivery, and more.</p>
-                        <a href="{{ url('/faq') }}" class="btn-outline-gold" style="display:inline-flex;">View FAQs</a>
+                @else
+                <div class="os-card flex flex-col items-center p-10 text-center">
+                    <span class="os-empty-icon"><i class="bi bi-person-lock"></i></span>
+                    <h2 class="mt-5 font-display text-lg font-bold text-ink">Log in to send a message</h2>
+                    <p class="mt-2 max-w-sm text-sm text-slate">Sign in so our team can match your message to your account and follow up faster.</p>
+                    <div class="mt-6 flex flex-wrap justify-center gap-3">
+                        <a href="{{ url('/login') }}" class="os-btn os-btn-brand"><i class="bi bi-box-arrow-in-right"></i> Log in</a>
+                        <a href="{{ url('/register') }}" class="os-btn os-btn-ghost"><i class="bi bi-person-plus"></i> Create account</a>
                     </div>
                 </div>
-                <div class="col-md-4 reveal-up" style="transition-delay:0.2s;">
-                    <div class="fp-ce-card">
-                        <i class="bi bi-chat-square-text-fill"></i>
-                        <h5>Live Chat</h5>
-                        <p>Chat with our support team in real-time during business hours.</p>
-                        <button class="btn-outline-gold" style="display:inline-flex;" onclick="alert('Live chat coming soon!')"><i class="bi bi-chat-dots-fill"></i> Start Chat</button>
-                    </div>
-                </div>
-                <div class="col-md-4 reveal-up" style="transition-delay:0.3s;">
-                    <div class="fp-ce-card">
-                        <i class="bi bi-newspaper"></i>
-                        <h5>Help Center</h5>
-                        <p>Browse our knowledge base for guides, tutorials, and troubleshooting.</p>
-                        <button class="btn-outline-gold" style="display:inline-flex;" onclick="alert('Help center coming soon!')"><i class="bi bi-book-fill"></i> Browse Guides</button>
-                    </div>
-                </div>
+                @endauth
             </div>
         </div>
     </div>
 </section>
 
-@include('frontend.partials.footer')
 @endsection

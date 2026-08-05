@@ -47,6 +47,7 @@ $location = $settings?->location ?? 'Lagos, Nigeria';
                 <ul class="mt-4 space-y-2.5 text-sm text-slate">
                     <li><a href="{{ url('/faq') }}" class="transition-colors hover:text-brand">FAQs</a></li>
                     <li><a href="{{ url('/contact') }}" class="transition-colors hover:text-brand">Contact Us</a></li>
+                    <li><a href="{{ url('/legal') }}" class="transition-colors hover:text-brand">Legal &amp; Policies</a></li>
                     <li><a href="{{ url('/terms') }}" class="transition-colors hover:text-brand">Terms &amp; Conditions</a></li>
                     <li><a href="{{ url('/terms/payment') }}" class="transition-colors hover:text-brand">Payment Plans</a></li>
                     <li><a href="{{ url('/terms/delivery') }}" class="transition-colors hover:text-brand">Delivery Policy</a></li>

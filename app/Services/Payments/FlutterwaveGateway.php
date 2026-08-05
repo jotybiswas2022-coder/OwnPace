@@ -7,6 +7,14 @@ use App\Services\Payments\Concerns\ReadsGatewayConfig;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
+/**
+ * Flutterwave payment gateway adapter.
+ *
+ * Uses the Flutterwave v3 Payments API to initialize a charge, verify a
+ * transaction by id/tx_ref and parse webhook events. The secret resolves
+ * through the secure config store first, falling back to
+ * FLUTTERWAVE_SECRET_KEY (see ReadsGatewayConfig).
+ */
 class FlutterwaveGateway implements PaymentGatewayInterface
 {
     use ReadsGatewayConfig;

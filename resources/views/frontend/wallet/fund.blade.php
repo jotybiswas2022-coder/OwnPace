@@ -1,233 +1,94 @@
-@extends('frontend.app')
-@section('title', 'Fund Wallet — OwnPace Store')
-
-@push('styles')
-<style>
-/* ===== FUND HERO ===== */
-.fp-fw-hero {
-    position: relative; padding: 50px 0 28px; overflow: hidden;
-    background: linear-gradient(135deg, #0A0A0B 0%, #1A1A1E 30%, #0A0A0B 70%);
-    border-bottom: 1px solid var(--card-border);
-}
-.fp-fw-hero-grid {
-    position: absolute; inset: 0; pointer-events: none;
-    background-image:
-        linear-gradient(rgba(234,179,8,0.025) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(234,179,8,0.025) 1px, transparent 1px);
-    background-size: 60px 60px;
-}
-.fp-fw-orb {
-    position: absolute; width: 400px; height: 400px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(234,179,8,0.04) 0%, transparent 60%);
-    top: -150px; right: -80px; pointer-events: none;
-    animation: fwPulse 6s ease-in-out infinite;
-}
-@keyframes fwPulse { 0%,100%{transform:scale(1);opacity:0.4} 50%{transform:scale(1.15);opacity:0.8} }
-
-.fp-fw-section { padding-bottom: 80px; min-height: 60vh; }
-
-/* ===== FUND CARD ===== */
-.fp-fund-card {
-    background: var(--card-dark);
-    border: 1px solid var(--card-border);
-    border-radius: var(--radius-lg);
-    padding: 36px; max-width: 520px; margin: 0 auto;
-    transition: all 0.3s ease;
-}
-.fp-fund-card:hover {
-    border-color: rgba(234,179,8,0.18);
-    box-shadow: var(--shadow-glow-sm);
-}
-.fp-fund-balance {
-    text-align: center; padding: 24px 20px;
-    background: var(--surface-dark);
-    border-radius: var(--radius-sm);
-    position: relative; overflow: hidden;
-}
-.fp-fund-balance::before {
-    content: ''; position: absolute; top: -30px; right: -30px;
-    width: 100px; height: 100px; border-radius: 50%;
-    background: rgba(234,179,8,0.04);
-}
-.fp-fund-balance span {
-    display: block; color: var(--text-dim);
-    font-size: 13px; margin-bottom: 6px;
-}
-.fp-fund-balance strong {
-    font-family: 'Syne', sans-serif;
-    font-size: 34px; font-weight: 800;
-    background: linear-gradient(135deg, var(--gold-400), var(--gold-600));
-    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.fp-form-group label {
-    display: flex; align-items: center; gap: 6px;
-    font-size: 13px; font-weight: 600;
-    color: var(--text-primary); margin-bottom: 8px;
-}
-.fp-form-group label i { color: var(--gold-500); }
-
-.fp-amount-presets {
-    display: flex; gap: 8px; flex-wrap: wrap;
-}
-.fp-preset {
-    padding: 9px 18px; border-radius: 8px;
-    background: var(--surface-dark);
-    border: 1px solid var(--card-border);
-    color: var(--text-muted); font-size: 13px; font-weight: 600;
-    cursor: pointer; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    font-family: inherit;
-    touch-action: manipulation;
-}
-.fp-preset:hover, .fp-preset.active {
-    background: rgba(234,179,8,0.1);
-    border-color: rgba(234,179,8,0.3);
-    color: var(--gold-400);
-    transform: translateY(-1px);
-}
-
-.fp-input {
-    width: 100%; padding: 12px 16px;
-    background: var(--surface-dark);
-    border: 1.5px solid var(--card-border);
-    border-radius: var(--radius-sm);
-    color: var(--text-primary); font-size: 14px;
-    font-family: inherit; outline: none;
-    transition: all 0.25s ease;
-}
-.fp-input:focus {
-    border-color: var(--gold-500);
-    box-shadow: 0 0 0 3px rgba(234,179,8,0.08);
-}
-.fp-input option { background: var(--card-dark); color: var(--text-primary); }
-
-.fp-fund-submit {
-    width: 100%; padding: 15px;
-    background: linear-gradient(135deg, var(--gold-500), var(--gold-600));
-    color: var(--near-black); border: none;
-    border-radius: var(--radius-sm);
-    font-weight: 700; font-size: 15px;
-    font-family: 'Syne', sans-serif; cursor: pointer;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    position: relative; overflow: hidden;
-}
-.fp-fund-submit::before {
-    content: ''; position: absolute; inset: 0;
-    background: linear-gradient(135deg, transparent 20%, rgba(255,255,255,0.15) 50%, transparent 80%);
-    transform: translateX(-100%); transition: transform 0.5s;
-}
-.fp-fund-submit:hover::before { transform: translateX(100%); }
-.fp-fund-submit:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(234,179,8,0.3);
-}
-.fp-fund-note {
-    display: flex; align-items: center; gap: 10px;
-    padding: 14px 18px;
-    background: rgba(234,179,8,0.05);
-    border: 1px solid rgba(234,179,8,0.15);
-    border-radius: var(--radius-sm);
-    font-size: 12px; color: var(--text-dim);
-    line-height: 1.5;
-}
-.fp-fund-note i {
-    color: var(--gold-500); font-size: 15px;
-    flex-shrink: 0;
-}
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 768px) {
-    .fp-fw-hero { padding: 36px 0 20px; }
-    .fp-fund-card { padding: 24px 20px; }
-    .fp-amount-presets { gap: 6px; }
-    .fp-preset { padding: 8px 14px; font-size: 12px; flex: 1; text-align: center; }
-}
-</style>
-@endpush
+@extends('frontend.layouts.store')
+@section('title', 'Fund Wallet — '.storeName())
 
 @section('content')
-<section class="fp-fw-hero">
-    <div class="fp-fw-hero-grid" aria-hidden="true"></div>
-    <div class="fp-fw-orb" aria-hidden="true"></div>
-    <div class="container">
-        <div class="section-head reveal-up">
-            <div class="section-badge"><i class="bi bi-plus-circle-fill"></i> Fund Wallet</div>
-            <h2>Add Funds to Your Wallet</h2>
-            <p>Top up your wallet for seamless purchases</p>
-        </div>
+
+<section class="os-section-sm border-b border-ink/10 bg-white">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6">
+        <span class="os-eyebrow"><i class="bi bi-plus-circle-fill"></i> Fund wallet</span>
+        <h1 class="mt-2 font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">Add funds to your wallet</h1>
+        <p class="mt-2 text-sm text-slate sm:text-base">Top up your wallet for seamless purchases.</p>
     </div>
 </section>
 
-<section class="fp-fw-section">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-6">
-                <div class="fp-fund-card reveal-up">
-                    <div class="fp-fund-balance">
-                        <span>Current Balance</span>
-                        <strong>₦{{ number_format(auth()->user()->wallet?->balance ?? 0, 0) }}</strong>
-                    </div>
+@include('frontend.partials.account-nav')
 
-                    <form action="{{ route('wallet.fund.process') }}" method="POST" class="mt-4">
-                        @csrf
-                        <div class="fp-form-group">
-                            <label><i class="bi bi-cash-coin"></i> Amount to Add (₦)</label>
-                            <div class="fp-amount-presets">
-                                <button type="button" class="fp-preset" data-amount="1000">₦1,000</button>
-                                <button type="button" class="fp-preset" data-amount="5000">₦5,000</button>
-                                <button type="button" class="fp-preset" data-amount="10000">₦10,000</button>
-                                <button type="button" class="fp-preset" data-amount="20000">₦20,000</button>
-                                <button type="button" class="fp-preset" data-amount="50000">₦50,000</button>
-                            </div>
-                            <input type="number" name="amount" id="fundAmount" class="fp-input mt-2"
-                                   placeholder="Enter custom amount" min="100" step="100" required>
-                        </div>
+<section class="os-section">
+    <div class="mx-auto max-w-xl px-4 sm:px-6">
+        <div class="os-card p-6 sm:p-8" x-data="fundWallet()" x-reveal>
+            <div class="rounded-xl bg-paper-deep/60 p-6 text-center">
+                <p class="text-xs font-semibold uppercase tracking-wider text-slate">Current balance</p>
+                <p class="mt-2 font-mono text-3xl font-bold text-ink">{{ formatPrice(auth()->user()->wallet?->balance ?? 0, 0) }}</p>
+            </div>
 
-                        <div class="fp-form-group mt-3">
-                            <label><i class="bi bi-credit-card-fill"></i> Payment Method</label>
-                            <select name="gateway" class="fp-input" required>
-                                <option value="paystack">Paystack (Card, Bank, USSD)</option>
-                                <option value="flutterwave">Flutterwave (Card, Bank, Mobile Money)</option>
-                                <option value="korapay">Korapay (Card, Bank Transfer, USSD)</option>
-                            </select>
-                        </div>
+            @if($errors->any())
+            <div class="mt-5 rounded-xl border border-ember/30 bg-ember/5 p-4 text-sm font-semibold text-ember-deep" role="alert">
+                <i class="bi bi-exclamation-triangle-fill"></i> {{ $errors->first() }}
+            </div>
+            @endif
 
-                        <button type="submit" class="fp-fund-submit mt-4">
-                            <i class="bi bi-wallet2"></i> Fund Wallet
+            <form action="{{ route('wallet.fund.process') }}" method="POST" class="mt-6">
+                @csrf
+                <div>
+                    <label for="fundAmount" class="os-label"><i class="bi bi-cash-coin"></i> Amount to add (₦)</label>
+                    <div class="mt-2 flex flex-wrap gap-2">
+                        @foreach([1000, 5000, 10000, 20000, 50000] as $osPreset)
+                        <button type="button" class="os-chip border border-ink/10 bg-paper-deep/60 text-ink transition-all hover:border-mango/50"
+                                :class="amount == {{ $osPreset }} ? 'bg-mango text-ink border-transparent' : ''"
+                                @click="setAmount({{ $osPreset }})">
+                            {{ formatPrice($osPreset, 0) }}
                         </button>
-                    </form>
-
-                    <div class="fp-fund-note mt-3">
-                        <i class="bi bi-info-circle-fill"></i>
-                        @php
-                            $topUpWithdrawable = \App\Services\WalletService::topUpWithdrawalAllowed();
-                            $bonusPct = (float) (\App\Models\Setting::first()?->topup_bonus_percent ?? 0);
-                        @endphp
-                        @if($bonusPct > 0)
-                            You'll receive an extra {{ $bonusPct }}% bonus store credit on this top-up. 
-                        @endif
-                        @if($topUpWithdrawable)
-                            Top-ups are withdrawable to your bank ({{ \App\Services\WalletService::withdrawalFeePercent() }}% fee applies).
-                        @else
-                            Top-up funds are store credit — spendable on purchases, not withdrawable to a bank.
-                        @endif
+                        @endforeach
                     </div>
+                    <input type="number" name="amount" id="fundAmount" x-model="amount" class="os-input mt-3" placeholder="Enter custom amount" min="100" step="100" required>
+                    @error('amount') <p class="os-error-text">{{ $message }}</p> @enderror
                 </div>
+
+                <div class="mt-5">
+                    <label for="os-fund-gateway" class="os-label"><i class="bi bi-credit-card-fill"></i> Payment method</label>
+                    <select id="os-fund-gateway" name="gateway" class="os-input" required>
+                        <option value="paystack">Paystack (Card, Bank, USSD)</option>
+                        <option value="flutterwave">Flutterwave (Card, Bank, Mobile Money)</option>
+                        <option value="korapay">Korapay (Card, Bank Transfer, USSD)</option>
+                    </select>
+                    @error('gateway') <p class="os-error-text">{{ $message }}</p> @enderror
+                </div>
+
+                <button type="submit" class="os-btn os-btn-mango mt-6 w-full py-3.5 text-base"><i class="bi bi-wallet2"></i> Fund wallet</button>
+            </form>
+
+            <div class="mt-5 flex items-start gap-3 rounded-xl border border-mango/30 bg-mango/5 p-4 text-xs leading-relaxed text-slate">
+                <i class="bi bi-info-circle-fill mt-0.5 text-mango-ink"></i>
+                <p>
+                    @php
+                        $topUpWithdrawable = \App\Services\WalletService::topUpWithdrawalAllowed();
+                        $bonusPct = (float) (\App\Models\Setting::first()?->topup_bonus_percent ?? 0);
+                    @endphp
+                    @if($bonusPct > 0)
+                        You'll receive an extra <strong class="text-ink">{{ $bonusPct }}% bonus store credit</strong> on this top-up.
+                    @endif
+                    @if($topUpWithdrawable)
+                        Top-ups are withdrawable to your bank ({{ \App\Services\WalletService::withdrawalFeePercent() }}% fee applies).
+                    @else
+                        Top-up funds are store credit — spendable on purchases, not withdrawable to a bank.
+                    @endif
+                </p>
             </div>
         </div>
     </div>
 </section>
-@include('frontend.partials.footer')
 
-<script>
-document.querySelectorAll('.fp-preset').forEach(btn => {
-    btn.addEventListener('click', function() {
-        document.querySelectorAll('.fp-preset').forEach(b => b.classList.remove('active'));
-        this.classList.add('active');
-        document.getElementById('fundAmount').value = this.dataset.amount;
-    });
-});
-</script>
 @endsection
+
+@push('scripts')
+<script>
+function fundWallet() {
+    return {
+        amount: '',
+        setAmount(val) {
+            this.amount = val;
+        },
+    };
+}
+</script>
+@endpush

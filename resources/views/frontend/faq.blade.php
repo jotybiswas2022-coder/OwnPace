@@ -1,353 +1,188 @@
-@extends('frontend.app')
-@section('title', 'FAQs — OwnPace Store')
+@extends('frontend.layouts.store')
+@section('title', 'FAQs — '.storeName())
 
-@push('styles')
-<style>
-.fp-faq-hero {
-    position: relative; padding: 50px 0 30px; overflow: hidden; isolation: isolate;
-    background: linear-gradient(180deg, rgba(234,179,8,0.03) 0%, transparent 100%);
-}
-.fp-faq-orb {
-    position: absolute; width: 500px; height: 500px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(234,179,8,0.05) 0%, transparent 60%);
-    top: -200px; right: -100px; pointer-events: none;
-    animation: fqOrbPulse 4s ease-in-out infinite;
-}
-.fp-faq-orb2 {
-    position: absolute; width: 400px; height: 400px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(234,179,8,0.03) 0%, transparent 60%);
-    bottom: -150px; left: -100px; pointer-events: none;
-    animation: fqOrbPulse 5s ease-in-out infinite reverse;
-}
-@keyframes fqOrbPulse { 0%,100%{transform:scale(1);opacity:0.5} 50%{transform:scale(1.1);opacity:1} }
+@php
+    $osFaqIcons = [
+        'payments' => 'bi-coin',
+        'delivery' => 'bi-truck',
+        'insurance' => 'bi-shield-check',
+        'orders' => 'bi-bag-check',
+        'account' => 'bi-person',
+    ];
 
-.fp-faq-search {
-    position: relative; max-width: 500px; margin: 0 auto 32px;
-}
-.fp-faq-search input {
-    width: 100%; padding: 14px 18px 14px 46px;
-    background: var(--card-dark); border: 1.5px solid var(--card-border);
-    border-radius: var(--radius-sm); color: var(--text-primary);
-    font-family: inherit; font-size: 14px; outline: none;
-    transition: all 0.3s;
-}
-.fp-faq-search input:focus { border-color: var(--gold-500); box-shadow: 0 0 0 3px rgba(234,179,8,0.08); }
-.fp-faq-search input::placeholder { color: var(--text-dim); }
-.fp-faq-search i {
-    position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
-    color: var(--text-dim); font-size: 16px;
-}
+    $osFaqGroups = ($faqs ?? collect())->map(function ($group, $category) use ($osFaqIcons) {
+        return [
+            'category' => $category ?: 'General',
+            'icon' => $osFaqIcons[strtolower($category)] ?? 'bi-question-circle',
+            'items' => $group->map(fn ($f) => [
+                'id' => $f->id,
+                'question' => $f->question,
+                'answer' => $f->answer,
+            ])->values(),
+        ];
+    })->values();
 
-.fp-faq-pills {
-    display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 36px;
-}
-.fp-faq-pill {
-    padding: 8px 18px; border-radius: 99px;
-    background: var(--card-dark); border: 1px solid var(--card-border);
-    color: var(--text-muted); font-size: 13px; font-weight: 500; cursor: pointer;
-    transition: all 0.3s; display: flex; align-items: center; gap: 6px;
-    font-family: inherit; touch-action: manipulation;
-}
-.fp-faq-pill:hover { border-color: rgba(234,179,8,0.3); color: var(--gold-400); }
-.fp-faq-pill.active { background: rgba(234,179,8,0.1); border-color: var(--gold-500); color: var(--gold-400); }
-.fp-faq-pill i { font-size: 14px; }
-
-.fp-faq-section { padding-bottom: 80px; }
-
-.fp-faq-category { margin-bottom: 32px; }
-.fp-faq-cat-title {
-    font-family: 'Syne', sans-serif;
-    font-size: 17px; font-weight: 700;
-    color: var(--gold-400);
-    margin-bottom: 16px;
-    display: flex; align-items: center; gap: 8px;
-}
-
-.fp-accordion .accordion-item {
-    background: var(--card-dark);
-    border: 1px solid var(--card-border);
-    border-radius: var(--radius-sm) !important;
-    margin-bottom: 8px;
-    overflow: hidden;
-    transition: all 0.3s;
-}
-.fp-accordion .accordion-item:hover {
-    border-color: rgba(234,179,8,0.2);
-    transform: translateX(4px);
-}
-
-.fp-accordion .accordion-button {
-    background: var(--card-dark);
-    color: var(--text-primary);
-    font-weight: 600;
-    font-size: 14px;
-    padding: 16px 20px;
-    box-shadow: none;
-    font-family: 'Space Grotesk', sans-serif;
-    transition: all 0.3s;
-}
-.fp-accordion .accordion-button i {
-    color: var(--gold-500);
-    margin-right: 10px;
-    font-size: 16px;
-    flex-shrink: 0;
-}
-.fp-accordion .accordion-button:not(.collapsed) {
-    background: rgba(234,179,8,0.05);
-    color: var(--gold-400);
-}
-.fp-accordion .accordion-button::after {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23A1A1AA'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 01.708 0L8 10.293l5.646-5.647a.5.5 0 01.708.708l-6 6a.5.5 0 01-.708 0l-6-6a.5.5 0 010-.708z'/%3e%3c/svg%3e");
-}
-.fp-accordion .accordion-button:not(.collapsed)::after {
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23EAB308'%3e%3cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 01.708 0L8 10.293l5.646-5.647a.5.5 0 01.708.708l-6 6a.5.5 0 01-.708 0l-6-6a.5.5 0 010-.708z'/%3e%3c/svg%3e");
-}
-.fp-accordion .accordion-body {
-    color: var(--text-muted);
-    font-size: 14px;
-    line-height: 1.7;
-    padding: 0 20px 20px;
-}
-
-.fp-faq-not-found {
-    text-align: center; padding: 40px 20px; display: none;
-}
-.fp-faq-not-found i { font-size: 48px; color: var(--card-border); display: block; margin-bottom: 16px; }
-.fp-faq-not-found h4 { font-family: 'Syne', sans-serif; color: var(--text-primary); margin-bottom: 6px; }
-.fp-faq-not-found p { color: var(--text-dim); font-size: 14px; }
-
-@media (max-width: 768px) {
-    .fp-faq-pills { gap: 6px; }
-    .fp-faq-pill { font-size: 12px; padding: 6px 14px; }
-}
-</style>
-@endpush
+    $osFaqFallback = [
+        ['category' => 'Payments & Plans', 'icon' => 'bi-coin', 'items' => [
+            ['question' => 'How does '.storeName().' installment work?', 'answer' => storeName().' lets you purchase products and pay over time. Choose from weekly (4–40 weeks) or monthly (1–12 months) plans. Pay 70% upfront to get your item shipped, then complete the remaining balance in installments.'],
+            ['question' => 'What payment methods do you accept?', 'answer' => 'We accept credit/debit cards, bank transfers, USSD, and wallet payments. We integrate with Paystack, Flutterwave, and Korapay for secure transactions.'],
+            ['question' => 'Can I pay off my plan early?', 'answer' => 'Yes! You can pay your next installment before the due date, pay any specific amount of your choice, or pay off the entire balance at once with no early payment penalty.'],
+            ['question' => 'Can I change my installment plan?', 'answer' => 'Absolutely! You can request to change your installment type or duration. Simply go to your orders page, request a plan change with a reason, and our admin team will review and approve it.'],
+        ]],
+        ['category' => 'Delivery & Shipping', 'icon' => 'bi-truck', 'items' => [
+            ['question' => 'When will my item be delivered?', 'answer' => 'Your item will be shipped once you have paid at least 70% of the total order. Delivery times vary by location, typically 3–7 business days within major cities.'],
+            ['question' => 'Can I track my delivery?', 'answer' => 'Yes! You can view your delivery timeline and tracking information from your orders page. We will also send you notifications when your item is ready to ship and when it is delivered.'],
+            ['question' => 'Can someone else receive my delivery?', 'answer' => 'Yes, you can assign a proxy (a registered store user) to receive your delivery if you are unavailable. You can manage this during checkout or from your orders page.'],
+        ]],
+        ['category' => 'Insurance & Returns', 'icon' => 'bi-shield-check', 'items' => [
+            ['question' => 'Can I insure my product?', 'answer' => 'Yes! You can add insurance to any product for a small percentage of the total order. This covers your product against damage, loss, or theft during the installment period.'],
+            ['question' => 'Can I cancel my installment plan?', 'answer' => 'Yes, you can request to cancel your installment plan. A 10% cancellation charge applies and the remaining amount will be refunded to your wallet for future purchases.'],
+            ['question' => 'Can I exchange my product?', 'answer' => 'Yes! You can request to exchange your product for one from your wishlist. Submit an exchange request with your reason, and our admin team will review and approve it.'],
+        ]],
+    ];
+@endphp
 
 @section('content')
-<section class="fp-faq-hero">
-    <div class="fp-faq-orb"></div>
-    <div class="fp-faq-orb2"></div>
-    <div class="container">
-        <div class="section-head reveal-up">
-            <div class="section-badge"><i class="bi bi-question-circle-fill"></i> FAQs</div>
-            <h2>Frequently Asked Questions</h2>
-            <p>Everything you need to know about shopping with OwnPace</p>
-        </div>
 
-        <div class="fp-faq-search reveal-up">
-            <i class="bi bi-search"></i>
-            <input type="text" id="faqSearch" placeholder="Search FAQs..." oninput="filterFAQs(this.value)">
-        </div>
+<section class="os-section-sm border-b border-ink/10 bg-white">
+    <div class="mx-auto max-w-4xl px-4 text-center sm:px-6">
+        <span class="os-eyebrow justify-center"><i class="bi bi-question-circle-fill"></i> Help Center</span>
+        <h1 class="mt-2 font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">Frequently Asked Questions</h1>
+        <p class="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-slate sm:text-base">Everything you need to know about shopping with {{ storeName() }} — payments, delivery, insurance and more.</p>
 
-        <div class="fp-faq-pills reveal-up" id="faqPills">
-            <button class="fp-faq-pill active" data-cat="all" onclick="filterCategory(this, 'all')"><i class="bi bi-grid-fill"></i> All</button>
-            <button class="fp-faq-pill" data-cat="payments" onclick="filterCategory(this, 'payments')"><i class="bi bi-coin"></i> Payments &amp; Plans</button>
-            <button class="fp-faq-pill" data-cat="delivery" onclick="filterCategory(this, 'delivery')"><i class="bi bi-truck"></i> Delivery &amp; Shipping</button>
-            <button class="fp-faq-pill" data-cat="insurance" onclick="filterCategory(this, 'insurance')"><i class="bi bi-shield-check"></i> Insurance &amp; Returns</button>
+        <div class="relative mx-auto mt-8 max-w-xl" x-data="faqBrowser(@json($osFaqGroups->isEmpty() ? $osFaqFallback : $osFaqGroups))">
+            <i class="bi bi-search pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate" aria-hidden="true"></i>
+            <input
+                type="search"
+                x-model="q"
+                placeholder="Search FAQs… e.g. delivery, insurance, cancel"
+                class="os-input w-full py-3.5 pl-11"
+                aria-label="Search frequently asked questions"
+            >
         </div>
     </div>
 </section>
 
-<section class="fp-faq-section">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                @if(isset($faqs) && $faqs->count() > 0)
-                    @foreach($faqs as $category => $faqGroup)
-                    <div class="fp-faq-category reveal-up" data-category="{{ Str::slug($category) }}">
-                        <h3 class="fp-faq-cat-title">{{ $category }}</h3>
-                        <div class="accordion fp-accordion" id="faqAccordion{{ $loop->index }}">
-                            @foreach($faqGroup as $faq)
-                            <div class="accordion-item faq-item">
-                                <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed" type="button"
-                                            data-bs-toggle="collapse" data-bs-target="#faq{{ $faq->id }}">
-                                        <i class="bi bi-question-circle"></i>
-                                        {{ $faq->question }}
-                                    </button>
-                                </h2>
-                                <div id="faq{{ $faq->id }}" class="accordion-collapse collapse"
-                                     data-bs-parent="#faqAccordion{{ $loop->index }}">
-                                    <div class="accordion-body">
-                                        {{ $faq->answer }}
-                                    </div>
+<section class="os-section" x-data="faqBrowser(@json($osFaqGroups->isEmpty() ? $osFaqFallback : $osFaqGroups))">
+    <div class="mx-auto max-w-4xl px-4 sm:px-6">
+        {{-- Category pills --}}
+        <div class="flex flex-wrap justify-center gap-2" role="group" aria-label="Filter FAQs by category">
+            <button
+                type="button"
+                class="os-chip border transition-colors hover:border-mango/50"
+                :class="cat === 'all' ? 'bg-indigo text-white border-transparent' : 'bg-paper-deep/60 text-slate border-ink/10'"
+                @click="cat = 'all'"
+                :aria-pressed="cat === 'all'"
+            >
+                <i class="bi bi-grid-fill"></i> All <span class="font-mono text-xs opacity-70" x-text="allCount"></span>
+            </button>
+            <template x-for="g in groups" :key="g.category">
+                <button
+                    type="button"
+                    class="os-chip border transition-colors hover:border-mango/50"
+                    :class="cat === g.category ? 'bg-indigo text-white border-transparent' : 'bg-paper-deep/60 text-slate border-ink/10'"
+                    @click="cat = g.category"
+                    :aria-pressed="cat === g.category"
+                >
+                    <i class="bi" :class="g.icon"></i> <span x-text="g.category"></span>
+                    <span class="font-mono text-xs opacity-70" x-text="g.items.length"></span>
+                </button>
+            </template>
+        </div>
+
+        {{-- FAQ groups --}}
+        <div class="mt-10 space-y-10">
+            <template x-for="g in filteredGroups()" :key="g.category">
+                <div x-reveal="80">
+                    <div class="mb-4 flex items-center gap-2.5">
+                        <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-mango/15 text-mango-deep"><i class="bi" :class="g.icon"></i></span>
+                        <h2 class="font-display text-lg font-bold text-ink" x-text="g.category"></h2>
+                        <span class="os-hr flex-1 my-0"></span>
+                    </div>
+                    <div class="space-y-3" x-data="{ open: null }">
+                        <template x-for="(item, idx) in g.items" :key="item.id">
+                            <div class="os-card overflow-hidden">
+                                <button
+                                    type="button"
+                                    class="flex w-full items-center justify-between gap-4 px-5 py-4 text-left"
+                                    :aria-expanded="open === idx"
+                                    :aria-controls="'faq-panel-' + g.category.replace(/\W+/g, '-').toLowerCase() + '-' + item.id"
+                                    @click="open = open === idx ? null : idx"
+                                >
+                                    <span class="flex items-center gap-3">
+                                        <i class="bi bi-question-circle text-mango-deep" aria-hidden="true"></i>
+                                        <span class="text-sm font-semibold text-ink" x-text="item.question"></span>
+                                    </span>
+                                    <i class="bi shrink-0 text-slate transition-transform duration-200" :class="open === idx ? 'bi-chevron-up rotate-180' : 'bi-chevron-down'" aria-hidden="true"></i>
+                                </button>
+                                <div
+                                    x-show="open === idx"
+                                    x-transition:enter="transition ease-out duration-200"
+                                    x-transition:enter-start="opacity-0 -translate-y-1"
+                                    x-transition:enter-end="opacity-100 translate-y-0"
+                                    x-transition:leave="transition ease-in duration-150"
+                                    x-transition:leave-start="opacity-100"
+                                    x-transition:leave-end="opacity-0"
+                                    :id="'faq-panel-' + g.category.replace(/\W+/g, '-').toLowerCase() + '-' + item.id"
+                                    class="border-t border-ink/5 px-5 py-4"
+                                >
+                                    <p class="text-sm leading-relaxed text-slate" x-text="item.answer"></p>
                                 </div>
                             </div>
-                            @endforeach
-                        </div>
-                    </div>
-                    @endforeach
-                @else
-                <div class="fp-faq-category reveal-up" data-category="payments">
-                    <h3 class="fp-faq-cat-title"><i class="bi bi-coin"></i> Payments &amp; Plans</h3>
-                    <div class="accordion fp-accordion" id="faqPayments">
-                        <div class="accordion-item faq-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
-                                    <i class="bi bi-question-circle"></i> How does OwnPace installment work?
-                                </button>
-                            </h2>
-                            <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqPayments">
-                                <div class="accordion-body">OwnPace allows you to purchase products and pay over time. Choose from weekly (4–40 weeks) or monthly (1–12 months) plans. Pay 70% upfront to get your item shipped, then complete the remaining balance in installments.</div>
-                            </div>
-                        </div>
-                        <div class="accordion-item faq-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
-                                    <i class="bi bi-question-circle"></i> What payment methods do you accept?
-                                </button>
-                            </h2>
-                            <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqPayments">
-                                <div class="accordion-body">We accept credit/debit cards, bank transfers, USSD, and wallet payments. We integrate with Paystack, Flutterwave, and Korapay for secure transactions.</div>
-                            </div>
-                        </div>
-                        <div class="accordion-item faq-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
-                                    <i class="bi bi-question-circle"></i> Can I pay off my plan early?
-                                </button>
-                            </h2>
-                            <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqPayments">
-                                <div class="accordion-body">Yes! You can pay your next installment before the due date, pay any specific amount of your choice, or pay off the entire balance at once with no early payment penalty.</div>
-                            </div>
-                        </div>
-                        <div class="accordion-item faq-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
-                                    <i class="bi bi-question-circle"></i> Can I change my installment plan?
-                                </button>
-                            </h2>
-                            <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqPayments">
-                                <div class="accordion-body">Absolutely! You can request to change your installment type/duration. Simply go to your orders page, request a plan change with a reason, and our admin team will review and approve it.</div>
-                            </div>
-                        </div>
+                        </template>
                     </div>
                 </div>
+            </template>
+        </div>
 
-                <div class="fp-faq-category reveal-up" data-category="delivery" style="transition-delay:0.1s;">
-                    <h3 class="fp-faq-cat-title"><i class="bi bi-truck"></i> Delivery &amp; Shipping</h3>
-                    <div class="accordion fp-accordion" id="faqDelivery">
-                        <div class="accordion-item faq-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq5">
-                                    <i class="bi bi-question-circle"></i> When will my item be delivered?
-                                </button>
-                            </h2>
-                            <div id="faq5" class="accordion-collapse collapse" data-bs-parent="#faqDelivery">
-                                <div class="accordion-body">Your item will be shipped once you've paid at least 70% of the total order. Delivery times vary by location, typically 3–7 business days within major cities.</div>
-                            </div>
-                        </div>
-                        <div class="accordion-item faq-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq6">
-                                    <i class="bi bi-question-circle"></i> Can I track my delivery?
-                                </button>
-                            </h2>
-                            <div id="faq6" class="accordion-collapse collapse" data-bs-parent="#faqDelivery">
-                                <div class="accordion-body">Yes! You can view your delivery timeline and tracking information from your orders page. We'll also send you notifications when your item is ready to ship.</div>
-                            </div>
-                        </div>
-                        <div class="accordion-item faq-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq7">
-                                    <i class="bi bi-question-circle"></i> Can someone else receive my delivery?
-                                </button>
-                            </h2>
-                            <div id="faq7" class="accordion-collapse collapse" data-bs-parent="#faqDelivery">
-                                <div class="accordion-body">Yes, you can assign a proxy (a registered store user) to receive your delivery if you're unavailable. You can manage this in your delivery settings.</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        {{-- No results --}}
+        <div x-cloak x-show="filteredGroups().length === 0" class="mx-auto mt-10 max-w-md">
+            <div class="os-card flex flex-col items-center justify-center px-6 py-16 text-center">
+                <span class="os-empty-icon"><i class="bi bi-search-heart"></i></span>
+                <h3 class="mt-5 font-display text-lg font-bold text-ink">No results found</h3>
+                <p class="mt-2 max-w-sm text-sm leading-relaxed text-slate">Try a different search term or browse by category above.</p>
+                <button type="button" class="os-btn os-btn-brand os-btn-sm mt-6" @click="q = ''; cat = 'all'"><i class="bi bi-arrow-counterclockwise"></i> Clear search</button>
+            </div>
+        </div>
 
-                <div class="fp-faq-category reveal-up" data-category="insurance" style="transition-delay:0.2s;">
-                    <h3 class="fp-faq-cat-title"><i class="bi bi-shield-check"></i> Insurance &amp; Returns</h3>
-                    <div class="accordion fp-accordion" id="faqInsurance">
-                        <div class="accordion-item faq-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq8">
-                                    <i class="bi bi-question-circle"></i> Can I insure my product?
-                                </button>
-                            </h2>
-                            <div id="faq8" class="accordion-collapse collapse" data-bs-parent="#faqInsurance">
-                                <div class="accordion-body">Yes! You can add insurance to any product for 10% of the total order. This covers your product against damage, loss, or theft during the installment period.</div>
-                            </div>
-                        </div>
-                        <div class="accordion-item faq-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq9">
-                                    <i class="bi bi-question-circle"></i> Can I cancel my installment plan?
-                                </button>
-                            </h2>
-                            <div id="faq9" class="accordion-collapse collapse" data-bs-parent="#faqInsurance">
-                                <div class="accordion-body">Yes, you can request to cancel your installment plan. A 10% cancellation charge applies. The remaining amount will be refunded to your wallet for future purchases.</div>
-                            </div>
-                        </div>
-                        <div class="accordion-item faq-item">
-                            <h2 class="accordion-header">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq10">
-                                    <i class="bi bi-question-circle"></i> Can I exchange my product?
-                                </button>
-                            </h2>
-                            <div id="faq10" class="accordion-collapse collapse" data-bs-parent="#faqInsurance">
-                                <div class="accordion-body">Yes! You can request to exchange your product for one from your wishlist. Submit an exchange request with your reason, and our admin team will review and approve it.</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                @endif
-
-                <div class="fp-faq-not-found" id="faqNotFound">
-                    <i class="bi bi-search-heart"></i>
-                    <h4>No results found</h4>
-                    <p>Try a different search term or browse by category above</p>
-                </div>
-
-                <div class="text-center mt-5 reveal-up">
-                    <div style="background:var(--card-dark);border:1px solid var(--card-border);border-radius:var(--radius);padding:32px;max-width:500px;margin:0 auto;">
-                        <i class="bi bi-headset" style="font-size:36px;color:var(--gold-500);display:block;margin-bottom:12px;"></i>
-                        <h4 style="font-family:'Syne',sans-serif;color:var(--text-primary);margin-bottom:6px;">Still have questions?</h4>
-                        <p style="color:var(--text-muted);font-size:14px;margin-bottom:20px;">Our support team is ready to help you</p>
-                        <a href="{{ url('/contact') }}" class="btn-primary-gold" style="display:inline-flex;"><i class="bi bi-chat-dots-fill"></i> Contact Support</a>
-                    </div>
-                </div>
+        {{-- Still stuck? --}}
+        <div class="mt-14 text-center">
+            <div class="os-card mx-auto max-w-lg p-8">
+                <span class="os-empty-icon mx-auto"><i class="bi bi-headset"></i></span>
+                <h3 class="mt-4 font-display text-lg font-bold text-ink">Still have questions?</h3>
+                <p class="mt-2 text-sm text-slate">Our support team is ready to help you — usually within 24 hours.</p>
+                <a href="{{ url('/contact') }}" class="os-btn os-btn-brand mt-6"><i class="bi bi-chat-dots-fill"></i> Contact Support</a>
             </div>
         </div>
     </div>
 </section>
 
-@include('frontend.partials.footer')
+@endsection
 
+@push('scripts')
 <script>
-function filterFAQs(query) {
-    const items = document.querySelectorAll('.faq-item');
-    let visible = 0;
-    items.forEach(item => {
-        const text = item.textContent.toLowerCase();
-        if (text.includes(query.toLowerCase())) {
-            item.style.display = '';
-            visible++;
-        } else {
-            item.style.display = 'none';
-        }
-    });
-    document.getElementById('faqNotFound').style.display = visible === 0 ? 'block' : 'none';
-}
-
-function filterCategory(btn, cat) {
-    document.querySelectorAll('.fp-faq-pill').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
-    document.querySelectorAll('.fp-faq-category').forEach(catEl => {
-        const catAttr = catEl.dataset.category;
-        if (cat === 'all' || catAttr === cat) {
-            catEl.style.display = '';
-        } else {
-            catEl.style.display = 'none';
-        }
-    });
-    document.getElementById('faqNotFound').style.display = 'none';
-    document.getElementById('faqSearch').value = '';
-    document.querySelectorAll('.faq-item').forEach(i => i.style.display = '');
+function faqBrowser(groups) {
+    return {
+        groups,
+        q: '',
+        cat: 'all',
+        get allCount() {
+            return this.groups.reduce((n, g) => n + g.items.length, 0);
+        },
+        filteredGroups() {
+            const query = this.q.trim().toLowerCase();
+            return this.groups
+                .map((g) => ({
+                    ...g,
+                    items: g.items.filter((i) =>
+                        !query
+                        || i.question.toLowerCase().includes(query)
+                        || i.answer.toLowerCase().includes(query)
+                    ),
+                }))
+                .filter((g) => (this.cat === 'all' || g.category === this.cat) && g.items.length > 0);
+        },
+    };
 }
 </script>
-@endsection
+@endpush

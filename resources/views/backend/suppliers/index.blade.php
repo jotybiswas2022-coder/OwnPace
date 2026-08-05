@@ -1,70 +1,51 @@
-@extends('backend.app')
-@section('title', 'Suppliers — OwnPace Admin')
+@extends('backend.layouts.console')
+@section('title', 'Suppliers — '.storeName().' Admin')
 @section('page_title', 'Suppliers')
 
-@push('styles')
-<style>
-@media (max-width: 768px) {
-    .fp-table thead { display: none; }
-    .fp-table tbody, .fp-table tr, .fp-table td { display: block; }
-    .fp-table tr {
-        background: var(--card-dark);
-        border: 1px solid var(--card-border);
-        border-radius: var(--radius-sm);
-        padding: 12px;
-        margin-bottom: 12px;
-    }
-    .fp-table td {
-        padding: 8px 0;
-        border-bottom: 1px solid var(--card-border);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 8px;
-    }
-    .fp-table td:last-child { border-bottom: none; }
-    .fp-table td:before {
-        content: attr(data-label);
-        font-weight: 600;
-        color: var(--text-dim);
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        flex-shrink: 0;
-    }
-    .fp-table td:last-child:before { display: none; }
-    .fp-table td:last-child { justify-content: flex-end; gap: 6px; }
-    .fp-table .empty-row td:before { display: none; }
-    .fp-table .empty-row td { justify-content: center; }
-}
-</style>
-@endpush
+@section('breadcrumbs')
+    @include('backend.partials.breadcrumbs', ['crumbs' => [['label' => 'Shop'], ['label' => 'Suppliers']]])
+@endsection
 
 @section('content')
-<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
-    <p class="mb-0" style="color:var(--text-muted);">{{ $suppliers->count() ?? 0 }} suppliers</p>
-    <a href="{{ route('admin.suppliers.create') }}" class="fp-btn fp-btn-gold"><i class="bi bi-plus-lg"></i> Add Supplier</a>
-</div>
-<div class="fp-table-wrap">
-    <div class="fp-table-header"><h5>All Suppliers</h5></div>
-    <table class="fp-table">
-        <thead><tr><th>Name</th><th>Contact</th><th>Email</th><th>Products</th><th>Actions</th></tr></thead>
-        <tbody>
-            @forelse($suppliers ?? [] as $s)
-            <tr>
-                <td data-label="Name"><strong style="color:var(--text-primary);">{{ $s->name }}</strong></td>
-                <td data-label="Contact">{{ $s->contact_person ?? '—' }}</td>
-                <td data-label="Email">{{ $s->email ?? '—' }}</td>
-                <td data-label="Products">{{ $s->products->count() }}</td>
-                <td data-label="Actions">
-                    <a href="{{ route('admin.suppliers.edit', $s) }}" class="fp-btn fp-btn-ghost" style="padding:4px 10px;"><i class="bi bi-pencil-fill"></i></a>
-                    <a href="{{ route('admin.suppliers.delete', $s) }}" class="fp-btn fp-btn-ghost" style="padding:4px 10px;color:#ef4444;" onclick="return confirm('Delete this supplier?')"><i class="bi bi-trash-fill"></i></a>
-                </td>
-            </tr>
-            @empty
-            <tr class="empty-row"><td colspan="5" class="text-center py-4" style="color:var(--text-dim);">No suppliers</td></tr>
-            @endforelse
-        </tbody>
-    </table>
+<div class="os-card overflow-hidden">
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-ink/10 px-5 py-4">
+        <div>
+            <h3 class="font-display text-sm font-bold text-ink">All Suppliers</h3>
+            <p class="mt-0.5 text-xs text-slate">{{ $suppliers->count() ?? 0 }} suppliers</p>
+        </div>
+        <a href="{{ route('admin.suppliers.create') }}" class="os-btn os-btn-brand os-btn-sm"><i class="bi bi-plus-lg"></i> Add Supplier</a>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="os-table w-full">
+            <thead>
+                <tr><th>Name</th><th>Contact</th><th>Email</th><th>Products</th><th class="w-28">Actions</th></tr>
+            </thead>
+            <tbody>
+                @forelse($suppliers ?? [] as $s)
+                <tr>
+                    <td data-label="Name" class="font-semibold text-ink">{{ $s->name }}</td>
+                    <td data-label="Contact" class="text-slate">{{ $s->contact_person ?: '—' }}</td>
+                    <td data-label="Email" class="text-slate">{{ $s->email ?: '—' }}</td>
+                    <td data-label="Products" class="text-slate">{{ $s->products->count() }}</td>
+                    <td data-label="Actions" class="whitespace-nowrap">
+                        <div class="flex gap-2">
+                            <a href="{{ route('admin.suppliers.edit', $s) }}" class="os-btn os-btn-ghost os-btn-sm" title="Edit"><i class="bi bi-pencil"></i></a>
+                            <a href="{{ route('admin.suppliers.delete', $s) }}" class="os-btn os-btn-danger os-btn-sm" title="Delete" onclick="return confirm('Delete this supplier?')"><i class="bi bi-trash"></i></a>
+                        </div>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="5" class="py-14 text-center">
+                        <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-mango/15 text-2xl text-mango-deep"><i class="bi bi-truck"></i></div>
+                        <p class="mt-4 font-semibold text-ink">No suppliers yet</p>
+                        <p class="mt-1 text-sm text-slate">Add your first supplier to track where products come from.</p>
+                        <a href="{{ route('admin.suppliers.create') }}" class="os-btn os-btn-brand os-btn-sm mt-4"><i class="bi bi-plus-lg"></i> Add Supplier</a>
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
 </div>
 @endsection

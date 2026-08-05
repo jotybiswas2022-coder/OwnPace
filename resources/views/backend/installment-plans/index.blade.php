@@ -130,7 +130,7 @@
                 <tbody>
                     @forelse($plans as $plan)
                     <tr>
-                        <td><input type="checkbox" name="plan_ids[]" value="{{ $plan->id }}" class="plan-check h-4 w-4 rounded accent-brand"></td>
+                        <td data-label="Select"><input type="checkbox" name="plan_ids[]" value="{{ $plan->id }}" class="plan-check h-4 w-4 rounded accent-brand"></td>
                         <td data-label="Plan">
                             <p class="text-sm font-semibold text-ink">{{ $plan->name }}</p>
                             @if($plan->description)

@@ -26,6 +26,7 @@
     </main>
 
     @include('frontend.partials.store-footer')
+    @include('frontend.partials.toasts')
 
     @livewireScripts
     @stack('scripts')

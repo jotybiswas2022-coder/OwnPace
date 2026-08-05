@@ -1,70 +1,51 @@
-@extends('backend.app')
-@section('title', 'Posts — OwnPace Admin')
+@extends('backend.layouts.console')
+@section('title', 'Posts — '.storeName().' Admin')
 @section('page_title', 'Posts')
 
-@push('styles')
-<style>
-@media (max-width: 768px) {
-    .fp-table thead { display: none; }
-    .fp-table tbody, .fp-table tr, .fp-table td { display: block; }
-    .fp-table tr {
-        background: var(--card-dark);
-        border: 1px solid var(--card-border);
-        border-radius: var(--radius-sm);
-        padding: 12px;
-        margin-bottom: 12px;
-    }
-    .fp-table td {
-        padding: 8px 0;
-        border-bottom: 1px solid var(--card-border);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 8px;
-    }
-    .fp-table td:last-child { border-bottom: none; }
-    .fp-table td:before {
-        content: attr(data-label);
-        font-weight: 600;
-        color: var(--text-dim);
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        flex-shrink: 0;
-    }
-    .fp-table td:last-child:before { display: none; }
-    .fp-table td:last-child { justify-content: flex-end; gap: 6px; }
-    .fp-table .empty-row td:before { display: none; }
-    .fp-table .empty-row td { justify-content: center; }
-}
-</style>
-@endpush
+@section('breadcrumbs')
+    @include('backend.partials.breadcrumbs', ['crumbs' => [['label' => 'Content'], ['label' => 'Posts']]])
+@endsection
 
 @section('content')
-<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
-    <p class="mb-0" style="color:var(--text-muted);">{{ $posts->count() ?? 0 }} posts</p>
-    <a href="{{ route('admin.posts.create') }}" class="fp-btn fp-btn-gold"><i class="bi bi-plus-lg"></i> New Post</a>
-</div>
-<div class="fp-table-wrap">
-    <div class="fp-table-header"><h5>All Posts</h5></div>
-    <table class="fp-table">
-        <thead><tr><th>#</th><th>Title</th><th>Category</th><th>Date</th><th>Actions</th></tr></thead>
-        <tbody>
-            @forelse($posts ?? [] as $p)
-            <tr>
-                <td data-label="#">{{ $loop->iteration }}</td>
-                <td data-label="Title"><strong style="color:var(--text-primary);">{{ Str::limit($p->title, 50) }}</strong></td>
-                <td data-label="Category">{{ $p->PostCategory?->name ?? '—' }}</td>
-                <td data-label="Date" style="color:var(--text-dim);font-size:12px;">{{ $p->created_at->format('M d, Y') }}</td>
-                <td data-label="Actions">
-                    <a href="{{ url('admin/posts/edit/'.$p->id) }}" class="fp-btn fp-btn-ghost" style="padding:4px 10px;"><i class="bi bi-pencil-fill"></i></a>
-                    <a href="{{ url('admin/posts/delete/'.$p->id) }}" class="fp-btn fp-btn-ghost" style="padding:4px 10px;color:#ef4444;" onclick="return confirm('Delete?')"><i class="bi bi-trash-fill"></i></a>
-                </td>
-            </tr>
-            @empty
-            <tr class="empty-row"><td colspan="5" class="text-center py-4" style="color:var(--text-dim);">No posts</td></tr>
-            @endforelse
-        </tbody>
-    </table>
+<div class="os-card overflow-hidden">
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-ink/10 px-5 py-4">
+        <div>
+            <h3 class="font-display text-sm font-bold text-ink">All Posts</h3>
+            <p class="mt-0.5 text-xs text-slate">{{ $posts->count() ?? 0 }} posts</p>
+        </div>
+        <a href="{{ route('admin.posts.create') }}" class="os-btn os-btn-brand os-btn-sm"><i class="bi bi-plus-lg"></i> New Post</a>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="os-table w-full">
+            <thead>
+                <tr><th>#</th><th>Title</th><th>Category</th><th>Date</th><th class="w-28">Actions</th></tr>
+            </thead>
+            <tbody>
+                @forelse($posts ?? [] as $p)
+                <tr>
+                    <td data-label="#" class="text-slate">{{ $loop->iteration }}</td>
+                    <td data-label="Title" class="font-semibold text-ink">{{ Str::limit($p->title, 50) }}</td>
+                    <td data-label="Category" class="text-slate">{{ $p->PostCategory?->name ?: '—' }}</td>
+                    <td data-label="Date" class="text-xs text-slate">{{ $p->created_at->format('M d, Y') }}</td>
+                    <td data-label="Actions" class="whitespace-nowrap">
+                        <div class="flex gap-2">
+                            <a href="{{ url('admin/posts/edit/'.$p->id) }}" class="os-btn os-btn-ghost os-btn-sm" title="Edit"><i class="bi bi-pencil"></i></a>
+                            <a href="{{ url('admin/posts/delete/'.$p->id) }}" class="os-btn os-btn-danger os-btn-sm" title="Delete" onclick="return confirm('Delete this post?')"><i class="bi bi-trash"></i></a>
+                        </div>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="5" class="py-14 text-center">
+                        <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-mango/15 text-2xl text-mango-deep"><i class="bi bi-journal-text"></i></div>
+                        <p class="mt-4 font-semibold text-ink">No posts yet</p>
+                        <p class="mt-1 text-sm text-slate">Publish your first post to share updates with customers.</p>
+                        <a href="{{ route('admin.posts.create') }}" class="os-btn os-btn-brand os-btn-sm mt-4"><i class="bi bi-plus-lg"></i> New Post</a>
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
 </div>
 @endsection

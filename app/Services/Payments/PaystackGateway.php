@@ -7,6 +7,18 @@ use App\Services\Payments\Concerns\ReadsGatewayConfig;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 
+/**
+ * Paystack payment gateway adapter.
+ *
+ * Talks to the Paystack REST API to initialize a charge, verify a transaction
+ * and parse webhook events. The full implementation contract (method shapes,
+ * return arrays, error handling) is defined by PaymentGatewayInterface — keep
+ * this adapter in lock-step with the other two (Flutterwave/Korapay).
+ *
+ * The secret key resolves through the secure config store first, falling back
+ * to the PAYSTACK_SECRET_KEY env var (see ReadsGatewayConfig). Amounts are
+ * sent in kobo (amount × 100).
+ */
 class PaystackGateway implements PaymentGatewayInterface
 {
     use ReadsGatewayConfig;

@@ -1,22 +1,48 @@
-@extends('backend.app')
-@section('title', 'Add Supplier — OwnPace Admin')
+@extends('backend.layouts.console')
+@section('title', 'Add Supplier — '.storeName().' Admin')
 @section('page_title', 'Add Supplier')
 
+@section('breadcrumbs')
+    @include('backend.partials.breadcrumbs', ['crumbs' => [['label' => 'Shop', 'route' => 'admin.suppliers.index'], ['label' => 'Add Supplier']]])
+@endsection
+
 @section('content')
-<div class="fp-table-wrap">
-    <div class="fp-table-header"><h5>Supplier Details</h5></div>
-    <div style="padding:24px;">
-        <form action="{{ route('admin.suppliers.store') }}" method="POST">
-            @csrf
-            <div class="row g-3">
-                <div class="col-sm-6"><label style="display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px;">Company Name</label><input type="text" name="name" class="fp-form-control" required></div>
-                <div class="col-sm-6"><label style="display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px;">Contact Person</label><input type="text" name="contact_person" class="fp-form-control"></div>
-                <div class="col-sm-6"><label style="display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px;">Email</label><input type="email" name="email" class="fp-form-control"></div>
-                <div class="col-sm-6"><label style="display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px;">Phone</label><input type="text" name="phone" class="fp-form-control"></div>
-                <div class="col-12"><label style="display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px;">Address</label><textarea name="address" class="fp-form-control" rows="2"></textarea></div>
-                <div class="col-12"><button type="submit" class="fp-btn fp-btn-gold"><i class="bi bi-check-lg"></i> Save Supplier</button></div>
-            </div>
-        </form>
+<div class="mx-auto max-w-3xl">
+    <div class="os-card overflow-hidden">
+        <div class="border-b border-ink/10 px-6 py-4">
+            <h3 class="font-display text-sm font-bold text-ink">Supplier Details</h3>
+        </div>
+        <div class="p-6">
+            <form action="{{ route('admin.suppliers.store') }}" method="POST" class="space-y-5">
+                @csrf
+                <div class="grid gap-5 sm:grid-cols-2">
+                    <div>
+                        <label for="sup_name" class="os-label">Company Name <span class="text-ember">*</span></label>
+                        <input type="text" id="sup_name" name="name" class="os-input w-full" required>
+                    </div>
+                    <div>
+                        <label for="sup_contact" class="os-label">Contact Person</label>
+                        <input type="text" id="sup_contact" name="contact_person" class="os-input w-full">
+                    </div>
+                    <div>
+                        <label for="sup_email" class="os-label">Email</label>
+                        <input type="email" id="sup_email" name="email" class="os-input w-full">
+                    </div>
+                    <div>
+                        <label for="sup_phone" class="os-label">Phone</label>
+                        <input type="text" id="sup_phone" name="phone" class="os-input w-full">
+                    </div>
+                </div>
+                <div>
+                    <label for="sup_address" class="os-label">Address</label>
+                    <textarea id="sup_address" name="address" class="os-input w-full" rows="3"></textarea>
+                </div>
+                <div class="flex items-center gap-3 border-t border-ink/10 pt-5">
+                    <button type="submit" class="os-btn os-btn-brand"><i class="bi bi-check-lg"></i> Save Supplier</button>
+                    <a href="{{ route('admin.suppliers.index') }}" class="os-btn os-btn-ghost"><i class="bi bi-arrow-left"></i> Back</a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 @endsection

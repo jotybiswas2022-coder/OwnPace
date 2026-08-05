@@ -19,6 +19,7 @@ Route::controller(SiteController::class)->group(function () {
     Route::get('/product/{slug}', 'product')->name('product.show');
     Route::get('/contact', 'contact')->name('contact');
     Route::get('/faq', 'faq')->name('faq');
+    Route::get('/legal', 'legal')->name('legal');
     Route::get('/terms/{type?}', 'terms')->name('terms');
     Route::get('/about', 'about')->name('about');
 });

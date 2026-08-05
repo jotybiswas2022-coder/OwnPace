@@ -1,116 +1,56 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="h-full">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <meta name="theme-color" content="#0A0A0B">
-    <meta name="color-scheme" content="dark">
-    <title>OwnPace — @yield('title', 'Account')</title>
+    <meta name="theme-color" content="#2e2a6b">
+    <title>{{ storeName() }} — @yield('title', 'Account')</title>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="preconnect" href="https://cdn.jsdelivr.net">
-    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=Syne:wght@700;800&family=Space+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --gold-400: #FACC15;
-            --gold-500: #EAB308;
-            --gold-600: #CA8A04;
-            --gold-700: #A16207;
-            --dark-900: #18181B;
-            --dark-950: #09090B;
-            --near-black: #0A0A0B;
-            --surface-dark: #121214;
-            --card-dark: #1A1A1E;
-            --card-border: #2A2A2E;
-            --text-primary: #F4F4F5;
-            --text-muted: #A1A1AA;
-            --text-dim: #71717A;
-            --shadow-gold: 0 4px 20px rgba(234,179,8,0.15);
-            --shadow-gold-lg: 0 8px 32px rgba(234,179,8,0.25);
-            --radius-sm: 8px;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: 'Inter', sans-serif;
-            background: linear-gradient(135deg, #0A0A0B 0%, #121214 50%, #0A0A0B 100%);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            overscroll-behavior: none;
-            -webkit-text-size-adjust: 100%;
-            scrollbar-gutter: stable;
-            print-color-adjust: exact;
-        }
-        a { text-decoration: none; }
-        ::selection { background: var(--gold-500); color: var(--near-black); }
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--near-black); }
-        ::-webkit-scrollbar-thumb { background: #27272A; border-radius: 99px; }
-        ::-webkit-scrollbar-thumb:hover { background: #52525B; }
-        img { max-width: 100%; height: auto; }
-        hr { border: none; height: 1px; background: var(--card-border); margin: 24px 0; }
 
-        .fp-auth-nav {
-            width: 100%;
-            background: rgba(18,18,20,0.9);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            padding: 14px 24px;
-            border-bottom: 2px solid var(--gold-500);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            content-visibility: auto;
-        }
-        .fp-auth-brand { display: flex; align-items: center; gap: 10px; }
-        .fp-auth-brand-icon {
-            width: 38px; height: 38px; border-radius: 10px;
-            background: linear-gradient(135deg, var(--gold-500), var(--gold-600));
-            display: flex; align-items: center; justify-content: center;
-            color: var(--near-black); font-size: 18px;
-        }
-        .fp-auth-brand span { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; font-weight: 800; color: var(--text-primary); }
-        .fp-auth-brand span span { color: var(--gold-500); }
-        .fp-auth-home {
-            color: var(--text-muted);
-            font-weight: 600;
-            font-size: 13px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: color 0.2s;
-        }
-        .fp-auth-home:hover { color: var(--gold-400); }
-        :focus-visible { outline: 2px solid var(--gold-500); outline-offset: 2px; border-radius: 4px; }
-        a, button, input, select, textarea, [tabindex] { -webkit-tap-highlight-color: transparent; }
-        input, textarea { caret-color: var(--gold-500); }
-        input[type=checkbox], input[type=radio] { accent-color: var(--gold-500); }
-        .fp-badge, .fp-tag, .fp-label, .fp-btn, .fp-card-badge { user-select: none; }
-        select { appearance: none; -webkit-appearance: none; background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23A1A1AA' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 12px center; background-size: 12px; }
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
-        }
-    </style>
-<body>
-    <nav class="fp-auth-nav" aria-label="Site navigation">
-        <a href="{{ url('/') }}" class="fp-auth-brand">
-            <div class="fp-auth-brand-icon"><i class="bi bi-currency-exchange"></i></div>
-            <span>Flexi<span>Pay</span></span>
-        </a>
-        <a href="{{ url('/') }}" class="fp-auth-home">
-            <i class="bi bi-house-fill"></i> Back to Home
-        </a>
-    </nav>
-    @yield('content')
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @livewireStyles
+    @stack('styles')
+</head>
+<body class="min-h-screen bg-paper text-ink antialiased">
+    <div class="flex min-h-screen flex-col">
+        <header class="border-b border-ink/10 bg-white/80 backdrop-blur-md">
+            <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5 sm:px-6">
+                <a href="{{ url('/') }}" class="flex items-center gap-2.5" aria-label="{{ storeName() }} home">
+                    <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-mango text-ink">
+                        <svg viewBox="0 0 24 24" fill="none" class="h-5 w-5" aria-hidden="true">
+                            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" opacity="0.45"/>
+                            <circle cx="12" cy="12" r="4.5" fill="currentColor"/>
+                        </svg>
+                    </span>
+                    <span class="font-display text-lg font-bold tracking-tight text-ink">{{ storeName() }}</span>
+                </a>
+                <a href="{{ url('/') }}" class="os-btn os-btn-ghost os-btn-sm"><i class="bi bi-house-fill"></i> Back to home</a>
+            </div>
+        </header>
+
+        <main class="relative flex flex-1 items-center justify-center overflow-hidden px-4 py-12">
+            <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+                <div class="absolute -top-24 right-0 h-96 w-96 rounded-full bg-mango/15 blur-3xl"></div>
+                <div class="absolute bottom-0 left-1/4 h-72 w-72 rounded-full bg-indigo/10 blur-3xl"></div>
+            </div>
+            <div class="relative w-full max-w-md">
+                @yield('content')
+            </div>
+        </main>
+
+        <footer class="border-t border-ink/10 bg-white py-5 text-center">
+            <p class="text-xs text-slate">&copy; {{ date('Y') }} {{ storeName() }} — Own at your own pace.</p>
+        </footer>
+    </div>
+
+    @include('frontend.partials.toasts')
+
+    @livewireScripts
+    @stack('scripts')
 </body>
 </html>

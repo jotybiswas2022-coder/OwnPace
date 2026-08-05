@@ -1,75 +1,69 @@
-@extends('backend.app')
-@section('title', 'Products — OwnPace Admin')
+@extends('backend.layouts.console')
+@section('title', 'Products — '.storeName().' Admin')
 @section('page_title', 'Products')
 
-@push('styles')
-<style>
-@media (max-width: 768px) {
-    .fp-products-header { flex-direction: column; gap: 10px; align-items: stretch !important; }
-    .fp-products-header a { width: 100%; justify-content: center; }
-    .fp-table-resp { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    .fp-table thead { display: none; }
-    .fp-table tbody, .fp-table tr, .fp-table td { display: block; }
-    .fp-table tr {
-        background: var(--card-dark);
-        border: 1px solid var(--card-border);
-        border-radius: var(--radius-sm);
-        padding: 12px;
-        margin-bottom: 12px;
-    }
-    .fp-table td {
-        padding: 8px 0;
-        border-bottom: 1px solid var(--card-border);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 8px;
-    }
-    .fp-table td:last-child { border-bottom: none; }
-    .fp-table td:before {
-        content: attr(data-label);
-        font-weight: 600;
-        color: var(--text-dim);
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        flex-shrink: 0;
-    }
-    .fp-table td:last-child:before { display: none; }
-    .fp-table td:last-child { justify-content: flex-end; gap: 6px; }
-}
-</style>
-@endpush
+@section('breadcrumbs')
+    @include('backend.partials.breadcrumbs', ['crumbs' => [['label' => 'Shop'], ['label' => 'Products']]])
+@endsection
 
 @section('content')
-<div class="d-flex justify-content-between align-items-center mb-4 fp-products-header">
-    <p class="mb-0" style="color:var(--text-muted);">{{ $products->count() ?? 0 }} products total</p>
-    <a href="{{ route('admin.products.create') }}" class="fp-btn fp-btn-gold"><i class="bi bi-plus-lg"></i> Add Product</a>
-</div>
-
-<div class="fp-table-wrap">
-    <div class="fp-table-header"><h5>All Products</h5></div>
-    <div class="fp-table-resp">
-    <table class="fp-table">
-        <thead><tr><th>Name</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Actions</th></tr></thead>
-        <tbody>
-            @forelse($products ?? [] as $p)
-            <tr>
-                <td data-label="Name"><strong style="color:var(--text-primary);">{{ Str::limit($p->name, 40) }}</strong></td>
-                <td data-label="Category">{{ $p->category?->name ?? '—' }}</td>
-                <td data-label="Price" style="color:var(--gold-400);font-weight:600;">₦{{ number_format($p->price, 0) }}</td>
-                <td data-label="Stock">{{ $p->stock ?? 'N/A' }}</td>
-                <td data-label="Status"><span class="fp-badge {{ $p->status == 'active' ? 'fp-badge-active' : 'fp-badge-inactive' }}">{{ ucfirst($p->status) }}</span></td>
-                <td data-label="Actions">
-                    <a href="{{ route('admin.products.edit', $p) }}" class="fp-btn fp-btn-ghost" style="padding:6px 12px;"><i class="bi bi-pencil-fill"></i></a>
-                    <a href="{{ route('admin.products.delete', $p) }}" class="fp-btn fp-btn-ghost" style="padding:6px 12px;color:#ef4444;" onclick="return confirm('Delete this product?')"><i class="bi bi-trash-fill"></i></a>
-                </td>
-            </tr>
-            @empty
-            <tr><td colspan="6" class="text-center py-4" style="color:var(--text-dim);">No products yet</td></tr>
-            @endforelse
-        </tbody>
-    </table>
+<div class="os-card overflow-hidden">
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-ink/10 px-5 py-4">
+        <div>
+            <h3 class="font-display text-sm font-bold text-ink">All Products</h3>
+            <p class="mt-0.5 text-xs text-slate">{{ $products->count() ?? 0 }} products total</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <a href="{{ route('admin.products.import') }}" class="os-btn os-btn-ghost os-btn-sm"><i class="bi bi-upload"></i> Import CSV</a>
+            <a href="{{ route('admin.products.create') }}" class="os-btn os-btn-brand os-btn-sm"><i class="bi bi-plus-lg"></i> Add Product</a>
+        </div>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="os-table w-full">
+            <thead>
+                <tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th class="w-28">Actions</th></tr>
+            </thead>
+            <tbody>
+                @forelse($products ?? [] as $p)
+                <tr>
+                    <td data-label="Product">
+                        <div class="flex items-center gap-3">
+                            @if($p->primaryImage)
+                                <img src="{{ imageUrl($p->primaryImage->image_path) }}" alt="{{ $p->name }}" class="h-10 w-10 flex-shrink-0 rounded-lg border border-ink/10 object-cover">
+                            @else
+                                <span class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-ink/5 text-slate"><i class="bi bi-image"></i></span>
+                            @endif
+                            <span class="font-semibold text-ink">{{ Str::limit($p->name, 40) }}</span>
+                        </div>
+                    </td>
+                    <td data-label="Category" class="text-slate">{{ $p->category?->name ?: '—' }}</td>
+                    <td data-label="Price" class="font-mono font-semibold text-mango-ink">{{ formatPrice($p->price, 0) }}</td>
+                    <td data-label="Stock" class="text-slate">{{ $p->stock ?? 'N/A' }}</td>
+                    <td data-label="Status">
+                        <span class="os-chip {{ $p->status == 'active' ? 'os-chip-grass' : 'os-chip-ember' }}">{{ ucfirst($p->status) }}</span>
+                    </td>
+                    <td data-label="Actions" class="whitespace-nowrap">
+                        <div class="flex gap-2">
+                            <a href="{{ route('admin.products.edit', $p) }}" class="os-btn os-btn-ghost os-btn-sm" title="Edit"><i class="bi bi-pencil"></i></a>
+                            <a href="{{ route('admin.products.delete', $p) }}" class="os-btn os-btn-danger os-btn-sm" title="Delete" onclick="return confirm('Delete this product?')"><i class="bi bi-trash"></i></a>
+                        </div>
+                    </td>
+                </tr>
+                @empty
+                <tr>
+                    <td colspan="6" class="py-14 text-center">
+                        <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-mango/15 text-2xl text-mango-deep"><i class="bi bi-box-seam"></i></div>
+                        <p class="mt-4 font-semibold text-ink">No products yet</p>
+                        <p class="mt-1 text-sm text-slate">Add your first product, or import a batch from a CSV file.</p>
+                        <div class="mt-4 flex items-center justify-center gap-2">
+                            <a href="{{ route('admin.products.create') }}" class="os-btn os-btn-brand os-btn-sm"><i class="bi bi-plus-lg"></i> Add Product</a>
+                            <a href="{{ route('admin.products.import') }}" class="os-btn os-btn-ghost os-btn-sm"><i class="bi bi-upload"></i> Import CSV</a>
+                        </div>
+                    </td>
+                </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
 </div>
 @endsection

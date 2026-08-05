@@ -3,13 +3,6 @@
 
 @section('content')
 
-@if(session('success'))
-<div class="bg-grass/10 border-l-4 border-grass text-grass px-4 py-3 text-sm" role="status">{{ session('success') }}</div>
-@endif
-@if(session('error'))
-<div class="bg-ember/10 border-l-4 border-ember text-ember px-4 py-3 text-sm" role="status">{{ session('error') }}</div>
-@endif
-
 <!-- ===== HERO ===== -->
 <section class="relative overflow-hidden bg-brand">
     <div class="pointer-events-none absolute inset-0" aria-hidden="true">
@@ -17,7 +10,7 @@
         <div class="absolute bottom-0 left-1/4 h-72 w-72 rounded-full bg-white/5 blur-3xl"></div>
     </div>
     <div class="relative mx-auto grid max-w-7xl items-center gap-12 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:py-28">
-        <div class="text-white">
+        <div class="text-white" x-reveal>
             <span class="os-chip os-chip-mango"><i class="bi bi-shield-fill-check"></i> 100% Secure — Flexible Installments</span>
             <h1 class="mt-5 font-display text-4xl font-bold leading-[1.08] tracking-tight sm:text-5xl lg:text-6xl">
                 Own what you love,<br>
@@ -42,8 +35,8 @@
         </div>
 
         <!-- Hero visual: signature progress ring -->
-        <div class="flex justify-center lg:justify-end">
-            <div class="rounded-2xl bg-white/5 p-8 ring-1 ring-white/10 backdrop-blur-sm">
+        <div class="flex justify-center lg:justify-end" x-reveal="120">
+            <div class="rounded-2xl bg-white/5 p-8 ring-1 ring-white/10 backdrop-blur-sm transition-transform duration-300 hover:scale-[1.02]">
                 <div class="flex flex-col items-center gap-6">
                     <x-progress-ring :percentage="100" amount="₦" label="pay down" :size="160" :stroke="10" color="mango"/>
                     <div class="text-center">
@@ -89,7 +82,7 @@
 
         <div class="mt-10 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
             @forelse($featuredProducts ?? [] as $product)
-            <a href="{{ url('/product/'.$product->slug) }}" class="os-card os-card-hover group flex flex-col overflow-hidden">
+            <a href="{{ url('/product/'.$product->slug) }}" x-reveal="{{ $loop->index * 60 }}" class="os-card os-card-hover group flex flex-col overflow-hidden">
                 <div class="relative aspect-square overflow-hidden bg-paper-deep">
                     @php $img = $product->primaryImage ?? $product->images->first(); @endphp
                     @if($img)
@@ -145,7 +138,7 @@
                 ];
             @endphp
             @foreach($steps as [$icon, $title, $desc])
-            <div class="os-card os-card-hover p-8 text-center">
+            <div x-reveal="{{ $loop->index * 80 }}" class="os-card os-card-hover p-8 text-center">
                 <div class="relative mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-mango/15 text-2xl text-mango-deep">
                     <i class="bi {{ $icon }}"></i>
                     <span class="absolute -right-1.5 -top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-brand font-mono text-[11px] font-bold text-white">{{ $loop->iteration }}</span>
@@ -162,7 +155,7 @@
 <section class="os-section">
     <div class="mx-auto max-w-7xl px-4 sm:px-6">
         <div class="grid items-center gap-12 lg:grid-cols-2">
-            <div>
+            <div x-reveal>
                 <span class="os-eyebrow"><i class="bi bi-shield-check"></i> Why {{ storeName() }}</span>
                 <h2 class="mt-2 font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">Built around your balance</h2>
                 <p class="mt-4 max-w-md leading-relaxed text-slate">We built {{ storeName() }} around one idea: things become yours when you pay them down. The Progress Ring on every plan shows exactly where you stand.</p>
@@ -187,8 +180,8 @@
                 </ul>
             </div>
 
-            <div class="relative">
-                <div class="rounded-2xl bg-white p-8 ring-1 ring-ink/10 shadow-lift">
+            <div class="relative" x-reveal="120">
+                <div class="rounded-2xl bg-white p-8 ring-1 ring-ink/10 shadow-lift transition-transform duration-300 hover:-translate-y-1">
                     <div class="flex items-center justify-between">
                         <div>
                             <p class="text-sm text-slate">Example plan — 60% paid off</p>
@@ -222,7 +215,7 @@
         </div>
         <div class="mt-10 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
             @forelse($newArrivals ?? [] as $product)
-            <a href="{{ url('/product/'.$product->slug) }}" class="os-card os-card-hover group flex flex-col overflow-hidden">
+            <a href="{{ url('/product/'.$product->slug) }}" x-reveal="{{ $loop->index * 60 }}" class="os-card os-card-hover group flex flex-col overflow-hidden">
                 <div class="relative aspect-square overflow-hidden bg-paper-deep">
                     @php $img = $product->primaryImage ?? $product->images->first(); @endphp
                     @if($img)
@@ -266,7 +259,7 @@
                 ];
             @endphp
             @foreach($testimonials as [$name, $city, $text, $rating])
-            <figure class="os-card os-card-hover flex flex-col p-7">
+            <figure x-reveal="{{ $loop->index * 80 }}" class="os-card os-card-hover flex flex-col p-7">
                 <div class="flex gap-1 text-mango" aria-label="{{ $rating }} out of 5 stars">
                     @for($s = 0; $s < 5; $s++)
                         <i class="bi {{ $s < $rating ? 'bi-star-fill' : 'bi-star' }}"></i>

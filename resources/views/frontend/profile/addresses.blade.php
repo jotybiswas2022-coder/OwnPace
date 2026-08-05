@@ -1,235 +1,144 @@
-@extends('frontend.app')
-@section('title', 'My Addresses — OwnPace Store')
-
-@push('styles')
-<style>
-/* ===== ADDRESSES HERO ===== */
-.fp-ad-hero {
-    position: relative; padding: 50px 0 28px; overflow: hidden;
-    background: linear-gradient(135deg, #0A0A0B 0%, #1A1A1E 30%, #0A0A0B 70%);
-    border-bottom: 1px solid var(--card-border);
-}
-.fp-ad-hero-grid {
-    position: absolute; inset: 0; pointer-events: none;
-    background-image:
-        linear-gradient(rgba(234,179,8,0.025) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(234,179,8,0.025) 1px, transparent 1px);
-    background-size: 60px 60px;
-}
-.fp-ad-orb {
-    position: absolute; width: 400px; height: 400px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(234,179,8,0.04) 0%, transparent 60%);
-    top: -150px; right: -80px; pointer-events: none;
-    animation: adPulse 6s ease-in-out infinite;
-}
-@keyframes adPulse { 0%,100%{transform:scale(1);opacity:0.4} 50%{transform:scale(1.15);opacity:0.8} }
-
-.fp-ad-section { padding-bottom: 80px; min-height: 60vh; }
-.fp-alert { display:flex;align-items:center;gap:10px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);color:#4ade80;padding:14px 20px;border-radius:var(--radius-sm);font-weight:500;font-size:13px;margin-bottom:24px;animation:alertSlide 0.4s ease-out; }
-@keyframes alertSlide { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
-
-.fp-address-card {
-    background: var(--card-dark); border: 1px solid var(--card-border);
-    border-radius: var(--radius); padding: 24px;
-    position: relative; height: 100%;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-.fp-address-card::after {
-    content: ''; position: absolute; inset: 0; border-radius: var(--radius);
-    pointer-events: none; opacity: 0;
-    transition: opacity 0.4s;
-    box-shadow: inset 0 0 0 1px rgba(234,179,8,0.15);
-}
-.fp-address-card:hover::after { opacity: 1; }
-.fp-address-card.default { border-color: rgba(234,179,8,0.35); }
-.fp-address-card:hover {
-    border-color: rgba(234,179,8,0.25);
-    transform: translateY(-4px);
-    box-shadow: 0 12px 36px rgba(0,0,0,0.3);
-}
-.fp-addr-default-badge {
-    position: absolute; top: 12px; right: 12px; z-index: 1;
-    background: linear-gradient(135deg, var(--gold-500), var(--gold-600));
-    color: var(--near-black); padding: 4px 10px;
-    border-radius: 6px; font-size: 10px; font-weight: 700;
-    display: flex; align-items: center; gap: 4px;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-}
-.fp-addr-icon {
-    width: 44px; height: 44px; border-radius: 10px;
-    background: rgba(234,179,8,0.1);
-    display: flex; align-items: center; justify-content: center;
-    color: var(--gold-500); font-size: 20px; margin-bottom: 12px;
-}
-.fp-address-card h5 { color: var(--text-primary); font-size: 16px; font-weight: 600; margin-bottom: 6px; }
-.fp-address-card p { color: var(--text-muted); font-size: 13px; line-height: 1.6; margin-bottom: 4px; }
-.fp-addr-phone { color: var(--text-dim); font-size: 12px; }
-.fp-addr-actions { margin-top: 14px; display: flex; gap: 6px; }
-.fp-addr-btn {
-    width: 34px; height: 34px; border-radius: 8px;
-    display: flex; align-items: center; justify-content: center;
-    border: 1px solid var(--card-border); color: var(--text-dim);
-    font-size: 14px; transition: all 0.3s; text-decoration: none;
-}
-.fp-addr-btn.edit:hover { border-color: var(--gold-400); color: var(--gold-400); background: rgba(234,179,8,0.04); }
-.fp-addr-btn.delete:hover { border-color: rgba(239,68,68,0.3); color: #ef4444; background: rgba(239,68,68,0.04); }
-
-.fp-input { width:100%;padding:12px 16px;background:var(--surface-dark);border:1.5px solid var(--card-border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:14px;font-family:inherit;outline:none;transition:all 0.25s ease; }
-.fp-input:focus { border-color:var(--gold-500);box-shadow:0 0 0 3px rgba(234,179,8,0.08); }
-.fp-input::placeholder { color:var(--text-dim); }
-
-.fp-addr-empty {
-    text-align: center; padding: 60px 20px;
-}
-.fp-addr-empty-icon {
-    width: 72px; height: 72px; border-radius: 20px;
-    background: var(--card-dark); border: 1px solid var(--card-border);
-    display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 16px; font-size: 28px; color: var(--text-dim);
-    transition: all 0.3s;
-}
-.fp-addr-empty:hover .fp-addr-empty-icon {
-    border-color: rgba(234,179,8,0.2); transform: scale(1.05);
-}
-.fp-addr-empty p { color: var(--text-muted); font-size: 15px; margin: 0; }
-
-.fp-modal .modal-content { background:var(--card-dark);border:1px solid var(--card-border);border-radius:var(--radius-lg); }
-.fp-modal .modal-header { border-bottom-color:var(--card-border);padding:20px 24px; }
-.fp-modal .modal-title { color:var(--text-primary);font-family:'Syne',sans-serif;font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px; }
-.fp-modal .modal-title i { color:var(--gold-500); }
-.fp-modal .modal-body { padding:24px; }
-.fp-modal .modal-footer { border-top-color:var(--card-border);padding:16px 24px; }
-
-@media (max-width: 768px) {
-    .fp-ad-hero { padding: 36px 0 20px; }
-}
-</style>
-@endpush
+@extends('frontend.layouts.store')
+@section('title', 'My Addresses — '.storeName())
 
 @section('content')
-<section class="fp-ad-hero">
-    <div class="fp-ad-hero-grid" aria-hidden="true"></div>
-    <div class="fp-ad-orb" aria-hidden="true"></div>
-    <div class="container">
-        <div class="section-head reveal-up" style="text-align:left;">
-            <div class="section-badge" style="display:inline-flex;"><i class="bi bi-geo-alt-fill"></i> Delivery Addresses</div>
-            <h2>My Addresses</h2>
-            <p>Manage your saved delivery addresses</p>
+
+<section class="os-section-sm border-b border-ink/10 bg-white">
+    <div class="mx-auto flex max-w-7xl flex-wrap items-end justify-between gap-4 px-4 sm:px-6">
+        <div>
+            <span class="os-eyebrow"><i class="bi bi-geo-alt-fill"></i> Delivery addresses</span>
+            <h1 class="mt-2 font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">My addresses</h1>
+            <p class="mt-2 text-sm text-slate">Manage your saved delivery addresses.</p>
         </div>
+        <button type="button" class="os-btn os-btn-brand os-btn-sm" @click="$dispatch('open-address-modal')"><i class="bi bi-plus-lg"></i> Add address</button>
     </div>
 </section>
 
-<section class="fp-ad-section">
-    <div class="container">
-        @if(session('success'))
-        <div class="fp-alert reveal-up"><i class="bi bi-check-circle-fill"></i> {{ session('success') }}</div>
+@include('frontend.partials.account-nav')
+
+<section class="os-section" x-data="{ modal: null }" @open-address-modal.window="modal = 'add'">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6">
+        @if($errors->any())
+        <div class="mb-6 rounded-xl border border-ember/30 bg-ember/5 p-4" role="alert">
+            <p class="flex items-center gap-2 text-sm font-semibold text-ember-deep"><i class="bi bi-exclamation-triangle-fill"></i> Please fix the errors below.</p>
+        </div>
         @endif
 
-        <div class="row g-4">
-            <div class="col-lg-3">
-                @include('frontend.partials.account-sidebar')
-            </div>
-            <div class="col-lg-9">
-                <div class="d-flex justify-content-end mb-4 reveal-up">
-                    <a href="#" class="btn-primary-gold" data-bs-toggle="modal" data-bs-target="#addAddressModal"><i class="bi bi-plus-lg"></i> Add Address</a>
+        @if(($addresses ?? collect())->count() > 0)
+        <div class="grid gap-5 md:grid-cols-2 xl:grid-cols-3" x-reveal>
+            @foreach($addresses ?? [] as $address)
+            <div class="os-card os-card-hover relative p-6 {{ $address->is_default ? 'ring-1 ring-mango/60' : '' }}">
+                @if($address->is_default)
+                <span class="os-chip os-chip-mango absolute right-4 top-4 px-2.5 py-1 text-[10px]"><i class="bi bi-pin-fill"></i> Default</span>
+                @endif
+                <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-mango/15 text-lg text-mango-deep"><i class="bi bi-geo-alt-fill"></i></span>
+                <h2 class="mt-3 text-sm font-bold text-ink">{{ $address->label ?? 'Address' }}</h2>
+                <p class="mt-1 text-sm leading-relaxed text-slate">{{ $address->address_line1 }}{{ $address->address_line2 ? ', '.$address->address_line2 : '' }}, {{ $address->city }}, {{ $address->state }}</p>
+                <p class="mt-1 text-xs text-slate"><i class="bi bi-telephone-fill"></i> {{ $address->phone }}</p>
+                <div class="mt-4 flex gap-2 border-t border-ink/5 pt-4">
+                    <button type="button" class="os-btn os-btn-ghost os-btn-sm flex-1" @click="modal = {{ $address->id }}"><i class="bi bi-pencil-fill"></i> Edit</button>
+                    <a href="{{ route('profile.addresses.delete', $address) }}" class="os-btn os-btn-danger os-btn-sm" onclick="return confirm('Delete this address?')"><i class="bi bi-trash-fill"></i></a>
                 </div>
-                <div class="row g-4">
-            @forelse($addresses ?? [] as $address)
-            <div class="col-lg-4 col-md-6">
-                <div class="fp-address-card {{ $address->is_default ? 'default' : '' }} reveal-up">
-                    @if($address->is_default)<span class="fp-addr-default-badge"><i class="bi bi-pin-fill"></i> Default</span>@endif
-                    <div class="fp-addr-icon"><i class="bi bi-geo-alt-fill"></i></div>
-                    <h5>{{ $address->label ?? 'Address' }}</h5>
-                    <p>{{ $address->address_line1 }}{{ $address->address_line2 ? ', ' . $address->address_line2 : '' }}, {{ $address->city }}, {{ $address->state }}</p>
-                    <span class="fp-addr-phone"><i class="bi bi-telephone-fill"></i> {{ $address->phone }}</span>
-                    <div class="fp-addr-actions">
-                        <a href="#" class="fp-addr-btn edit" data-bs-toggle="modal" data-bs-target="#editAddress{{ $address->id }}"><i class="bi bi-pencil-fill"></i></a>
-                        <a href="{{ route('profile.addresses.delete', $address) }}" class="fp-addr-btn delete" onclick="return confirm('Delete this address?')"><i class="bi bi-trash-fill"></i></a>
+            </div>
+            @endforeach
+        </div>
+        @else
+        <div class="mx-auto max-w-lg" x-reveal>
+            <div class="os-card flex flex-col items-center justify-center px-6 py-16 text-center">
+                <span class="os-empty-icon"><i class="bi bi-geo-alt"></i></span>
+                <h3 class="mt-5 font-display text-lg font-bold text-ink">No addresses saved yet</h3>
+                <p class="mt-2 max-w-sm text-sm leading-relaxed text-slate">Add a delivery address to speed through checkout — it only takes a minute.</p>
+                <button type="button" class="os-btn os-btn-brand os-btn-sm mt-6" @click="modal = 'add'"><i class="bi bi-plus-lg"></i> Add your first address</button>
+            </div>
+        </div>
+        @endif
+
+        {{-- ===== ADD / EDIT MODAL ===== --}}
+        <div x-cloak x-show="modal !== null" x-transition.opacity class="fixed inset-0 z-[90] flex items-end justify-center bg-ink/60 p-0 backdrop-blur-sm sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label="Address form" @keydown.escape.window="modal = null">
+            <div class="w-full max-w-lg rounded-t-2xl bg-white p-6 shadow-lift sm:rounded-2xl sm:p-7" @click.outside="modal = null">
+                <div class="mb-5 flex items-center justify-between">
+                    <h3 class="font-display text-lg font-bold text-ink"><i class="bi bi-geo-alt-fill mr-2 text-mango-deep"></i> <span x-text="modal === 'add' ? 'Add new address' : 'Edit address'"></span></h3>
+                    <button type="button" class="flex h-9 w-9 items-center justify-center rounded-lg text-slate transition-colors hover:bg-paper-deep hover:text-ink" @click="modal = null" aria-label="Close">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+
+                {{-- Add form --}}
+                <form x-show="modal === 'add'" method="POST" action="{{ route('profile.addresses.store') }}" class="grid gap-4 sm:grid-cols-2">
+                    @csrf
+                    <div>
+                        <label for="os-ad-recipient" class="os-label">Recipient name</label>
+                        <input id="os-ad-recipient" type="text" name="recipient_name" class="os-input" placeholder="e.g. Ada Obi" required>
                     </div>
-                </div>
-            </div>
-            @empty
-            <div class="col-12">
-                <div class="fp-addr-empty reveal-up">
-                    <div class="fp-addr-empty-icon"><i class="bi bi-geo-alt"></i></div>
-                    <p>No addresses saved yet. Add a delivery address!</p>
-                </div>
-            </div>
-            @endforelse
-                </div>
+                    <div>
+                        <label for="os-ad-label" class="os-label">Label</label>
+                        <input id="os-ad-label" type="text" name="label" class="os-input" placeholder="Home, Office…">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label for="os-ad-line1" class="os-label">Street address</label>
+                        <input id="os-ad-line1" type="text" name="address_line1" class="os-input" placeholder="12 Marina Road, Phase 2" required>
+                    </div>
+                    <div>
+                        <label for="os-ad-city" class="os-label">City</label>
+                        <input id="os-ad-city" type="text" name="city" class="os-input" placeholder="Lagos" required>
+                    </div>
+                    <div>
+                        <label for="os-ad-state" class="os-label">State</label>
+                        <input id="os-ad-state" type="text" name="state" class="os-input" placeholder="Lagos" required>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label for="os-ad-phone" class="os-label">Phone</label>
+                        <input id="os-ad-phone" type="tel" name="phone" class="os-input" placeholder="0801 234 5678" required>
+                    </div>
+                    <label class="flex items-center gap-2 text-sm text-ink sm:col-span-2">
+                        <input type="checkbox" name="is_default" value="1" class="h-4 w-4 accent-mango"> Set as default address
+                    </label>
+                    <div class="flex items-center justify-end gap-3 sm:col-span-2">
+                        <button type="button" class="os-btn os-btn-ghost" @click="modal = null">Cancel</button>
+                        <button type="submit" class="os-btn os-btn-brand"><i class="bi bi-check-lg"></i> Save address</button>
+                    </div>
+                </form>
+
+                {{-- Edit form --}}
+                @foreach($addresses ?? [] as $address)
+                <form x-cloak x-show="modal === {{ $address->id }}" method="POST" action="{{ route('profile.addresses.update', $address) }}" class="grid gap-4 sm:grid-cols-2">
+                    @csrf
+                    <div>
+                        <label for="os-edit-recipient-{{ $address->id }}" class="os-label">Recipient name</label>
+                        <input id="os-edit-recipient-{{ $address->id }}" type="text" name="recipient_name" class="os-input" value="{{ $address->recipient_name }}" required>
+                    </div>
+                    <div>
+                        <label for="os-edit-label-{{ $address->id }}" class="os-label">Label</label>
+                        <input id="os-edit-label-{{ $address->id }}" type="text" name="label" class="os-input" value="{{ $address->label }}" placeholder="Home, Office…">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label for="os-edit-line1-{{ $address->id }}" class="os-label">Street address</label>
+                        <input id="os-edit-line1-{{ $address->id }}" type="text" name="address_line1" class="os-input" value="{{ $address->address_line1 }}" required>
+                    </div>
+                    <div>
+                        <label for="os-edit-city-{{ $address->id }}" class="os-label">City</label>
+                        <input id="os-edit-city-{{ $address->id }}" type="text" name="city" class="os-input" value="{{ $address->city }}" required>
+                    </div>
+                    <div>
+                        <label for="os-edit-state-{{ $address->id }}" class="os-label">State</label>
+                        <input id="os-edit-state-{{ $address->id }}" type="text" name="state" class="os-input" value="{{ $address->state }}" required>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label for="os-edit-phone-{{ $address->id }}" class="os-label">Phone</label>
+                        <input id="os-edit-phone-{{ $address->id }}" type="tel" name="phone" class="os-input" value="{{ $address->phone }}" required>
+                    </div>
+                    <label class="flex items-center gap-2 text-sm text-ink sm:col-span-2">
+                        <input type="checkbox" name="is_default" value="1" {{ $address->is_default ? 'checked' : '' }} class="h-4 w-4 accent-mango"> Set as default address
+                    </label>
+                    <div class="flex items-center justify-end gap-3 sm:col-span-2">
+                        <button type="button" class="os-btn os-btn-ghost" @click="modal = null">Cancel</button>
+                        <button type="submit" class="os-btn os-btn-brand"><i class="bi bi-check-lg"></i> Save changes</button>
+                    </div>
+                </form>
+                @endforeach
             </div>
         </div>
     </div>
 </section>
 
-<div class="modal fade" id="addAddressModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content fp-modal">
-            <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-geo-alt-fill"></i> Add New Address</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <form method="POST" action="{{ route('profile.addresses.store') }}">
-                @csrf
-                <div class="modal-body">
-                    <div class="row g-3">
-                        <div class="col-6"><input type="text" name="recipient_name" class="fp-input" placeholder="Recipient name" required></div>
-                        <div class="col-6"><input type="text" name="label" class="fp-input" placeholder="Label (e.g. Home, Office)"></div>
-                        <div class="col-12"><input type="text" name="address_line1" class="fp-input" placeholder="Street address" required></div>
-                        <div class="col-6"><input type="text" name="city" class="fp-input" placeholder="City" required></div>
-                        <div class="col-6"><input type="text" name="state" class="fp-input" placeholder="State" required></div>
-                        <div class="col-12"><input type="text" name="phone" class="fp-input" placeholder="Phone number" required></div>
-                        <div class="col-12">
-                            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-                                <input type="checkbox" name="is_default" value="1" style="width:16px;height:16px;accent-color:var(--gold-500);">
-                                <span style="color:var(--text-muted);font-size:13px;">Set as default address</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn-primary-gold w-100 justify-content-center">Save Address</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-{{-- ===== EDIT MODALS ===== --}}
-@foreach($addresses ?? [] as $address)
-<div class="modal fade" id="editAddress{{ $address->id }}" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content fp-modal">
-            <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-pencil-fill"></i> Edit Address</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <form method="POST" action="{{ route('profile.addresses.update', $address) }}">
-                @csrf
-                <div class="modal-body">
-                    <div class="row g-3">
-                        <div class="col-6"><input type="text" name="recipient_name" class="fp-input" value="{{ $address->recipient_name }}" placeholder="Recipient name" required></div>
-                        <div class="col-6"><input type="text" name="label" class="fp-input" value="{{ $address->label }}" placeholder="Label (e.g. Home, Office)"></div>
-                        <div class="col-12"><input type="text" name="address_line1" class="fp-input" value="{{ $address->address_line1 }}" placeholder="Street address" required></div>
-                        <div class="col-6"><input type="text" name="city" class="fp-input" value="{{ $address->city }}" placeholder="City" required></div>
-                        <div class="col-6"><input type="text" name="state" class="fp-input" value="{{ $address->state }}" placeholder="State" required></div>
-                        <div class="col-12"><input type="text" name="phone" class="fp-input" value="{{ $address->phone }}" placeholder="Phone number" required></div>
-                        <div class="col-12">
-                            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-                                <input type="checkbox" name="is_default" value="1" {{ $address->is_default ? 'checked' : '' }} style="width:16px;height:16px;accent-color:var(--gold-500);">
-                                <span style="color:var(--text-muted);font-size:13px;">Set as default address</span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn-primary-gold w-100 justify-content-center">Save Changes</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-@endforeach
-
-@include('frontend.partials.footer')
 @endsection

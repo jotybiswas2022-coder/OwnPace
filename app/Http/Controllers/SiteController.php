@@ -114,6 +114,12 @@ class SiteController extends Controller
         return view('frontend.terms', compact('terms', 'type'));
     }
 
+    // Legal & Policies hub — index of every policy document.
+    public function legal()
+    {
+        return view('frontend.legal');
+    }
+
     // Contact page
     public function contact()
     {

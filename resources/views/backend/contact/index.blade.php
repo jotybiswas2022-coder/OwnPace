@@ -1,107 +1,63 @@
-@extends('backend.app')
-@section('title', 'Contacts — OwnPace Admin')
+@extends('backend.layouts.console')
+@section('title', 'Contacts — '.storeName().' Admin')
 @section('page_title', 'Contact Messages')
 
-@push('styles')
-<style>
-@media (max-width: 768px) {
-    .fp-table thead { display: none; }
-    .fp-table tbody, .fp-table tr, .fp-table td { display: block; }
-    .fp-table tr {
-        background: var(--card-dark);
-        border: 1px solid var(--card-border);
-        border-radius: var(--radius-sm);
-        padding: 12px;
-        margin-bottom: 12px;
-    }
-    .fp-table td {
-        padding: 8px 0;
-        border-bottom: 1px solid var(--card-border);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 8px;
-    }
-    .fp-table td:last-child { border-bottom: none; }
-    .fp-table td:before {
-        content: attr(data-label);
-        font-weight: 600;
-        color: var(--text-dim);
-        font-size: 11px;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        flex-shrink: 0;
-    }
-    .fp-table td:last-child:before { display: none; }
-    .fp-table td:last-child { justify-content: flex-end; gap: 6px; }
-    .fp-table .empty-row td:before { display: none; }
-    .fp-table .empty-row td { justify-content: center; }
-}
-</style>
-@endpush
+@section('breadcrumbs')
+    @include('backend.partials.breadcrumbs', ['crumbs' => [['label' => 'Content'], ['label' => 'Contacts']]])
+@endsection
 
 @section('content')
-
-@if (session('success'))
-<div class="fp-table-wrap mb-4" style="border-left:3px solid #4ade80;">
-    <div class="p-3" style="color:#4ade80;font-size:14px;">
-        <i class="bi bi-check-circle-fill me-1"></i> {{ session('success') }}
+<div class="os-card overflow-hidden">
+    <div class="flex items-center justify-between border-b border-ink/10 px-5 py-4">
+        <div>
+            <h3 class="font-display text-sm font-bold text-ink"><i class="bi bi-envelope text-brand"></i> Customer Messages</h3>
+            <p class="mt-0.5 text-xs text-slate">{{ $contacts->count() ?? 0 }} total messages</p>
+        </div>
     </div>
-</div>
-@endif
-
-<div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
-    <p class="mb-0" style="color:var(--text-muted);">{{ $contacts->count() ?? 0 }} total messages</p>
-</div>
-
-<div class="fp-table-wrap">
-    <div class="fp-table-header"><h5><i class="bi bi-envelope"></i> Customer Messages</h5></div>
-    <div class="table-responsive">
-        <table class="fp-table">
-            <thead><tr><th>#</th><th>Name</th><th>Email</th><th>Message</th><th>Date</th><th>Time</th></tr></thead>
+    <div class="overflow-x-auto">
+        <table class="os-table w-full">
+            <thead>
+                <tr><th>#</th><th>Name</th><th>Email</th><th>Message</th><th>Date</th><th>Time</th></tr>
+            </thead>
             <tbody>
                 @forelse ($contacts as $contact)
-                    <tr>
-                        <td data-label="#" style="color:var(--text-dim);">{{ $loop->iteration }}</td>
-                        <td data-label="Name"><strong style="color:var(--text-primary);">{{ $contact->name }}</strong></td>
-                        <td data-label="Email" style="color:var(--text-muted);font-size:13px;">{{ $contact->email }}</td>
-                        <td data-label="Message">
-                            <button class="fp-btn fp-btn-ghost" style="padding:4px 10px;font-size:12px;" data-bs-toggle="modal" data-bs-target="#msgModal{{ $contact->id }}">
-                                <i class="bi bi-chat-dots" style="color:var(--gold-500);"></i> View
-                            </button>
+                <tr>
+                    <td data-label="#" class="text-slate">{{ $loop->iteration }}</td>
+                    <td data-label="Name" class="font-semibold text-ink">{{ $contact->name }}</td>
+                    <td data-label="Email" class="text-xs text-slate">{{ $contact->email }}</td>
+                    <td data-label="Message">
+                        <div x-data="{ open: false }">
+                            <button type="button" class="os-btn os-btn-ghost os-btn-sm" @click="open = true"><i class="bi bi-chat-dots text-brand"></i> View</button>
 
-                            <!-- Modal -->
-                            <div class="modal fade" id="msgModal{{ $contact->id }}" tabindex="-1">
-                                <div class="modal-dialog modal-dialog-centered modal-lg">
-                                    <div class="modal-content" style="background:var(--card-dark);border:1px solid var(--card-border);border-radius:16px;">
-                                        <div class="modal-header" style="border-bottom:1px solid var(--card-border);padding:18px 24px;">
-                                            <h5 class="modal-title" style="color:var(--text-primary);font-family:'Syne',sans-serif;font-size:15px;">
-                                                <i class="bi bi-chat-dots me-2" style="color:var(--gold-500);"></i> Message from {{ $contact->name }}
-                                            </h5>
-                                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" style="filter:invert(0.6);"></button>
-                                        </div>
-                                        <div class="modal-body p-4" style="color:var(--text-muted);font-size:14px;line-height:1.7;">
-                                            {{ $contact->message }}
-                                        </div>
-                                        <div class="modal-footer" style="border-top:1px solid var(--card-border);padding:16px 24px;">
-                                            <button type="button" class="fp-btn fp-btn-ghost" data-bs-dismiss="modal">Close</button>
-                                        </div>
+                            {{-- Message modal --}}
+                            <div x-cloak x-show="open" class="fixed inset-0 z-50 flex items-center justify-center p-4" @keydown.escape.window="open = false">
+                                <div class="absolute inset-0 bg-ink/40" @click="open = false" aria-hidden="true"></div>
+                                <div class="relative w-full max-w-lg rounded-2xl bg-white shadow-2xl" role="dialog" aria-modal="true" aria-label="Message from {{ $contact->name }}">
+                                    <div class="flex items-center justify-between border-b border-ink/10 px-6 py-4">
+                                        <h5 class="font-display text-sm font-bold text-ink"><i class="bi bi-chat-dots mr-2 text-brand"></i> Message from {{ $contact->name }}</h5>
+                                        <button type="button" class="rounded-lg p-1.5 text-slate transition-colors hover:bg-ink/5 hover:text-ink" @click="open = false" aria-label="Close">
+                                            <i class="bi bi-x-lg"></i>
+                                        </button>
+                                    </div>
+                                    <div class="max-h-[50vh] overflow-y-auto p-6 text-sm leading-relaxed text-slate">{{ $contact->message }}</div>
+                                    <div class="flex justify-end border-t border-ink/10 px-6 py-4">
+                                        <button type="button" class="os-btn os-btn-ghost os-btn-sm" @click="open = false">Close</button>
                                     </div>
                                 </div>
                             </div>
-                        </td>
-                        <td data-label="Date" style="font-size:12px;color:var(--text-dim);">
-                            {{ \Carbon\Carbon::parse($contact->created_at)->timezone('Asia/Dhaka')->format('d M Y') }}
-                        </td>
-                        <td data-label="Time" style="font-size:12px;color:var(--text-dim);">
-                            {{ \Carbon\Carbon::parse($contact->created_at)->timezone('Asia/Dhaka')->format('h:i A') }}
-                        </td>
-                    </tr>
+                        </div>
+                    </td>
+                    <td data-label="Date" class="text-xs text-slate">{{ \Carbon\Carbon::parse($contact->created_at)->timezone(config('app.timezone'))->format('d M Y') }}</td>
+                    <td data-label="Time" class="text-xs text-slate">{{ \Carbon\Carbon::parse($contact->created_at)->timezone(config('app.timezone'))->format('h:i A') }}</td>
+                </tr>
                 @empty
-                    <tr class="empty-row"><td colspan="6" class="text-center py-5" style="color:var(--text-dim);">
-                        <i class="bi bi-inbox" style="font-size:24px;display:block;margin-bottom:8px;color:var(--card-border);"></i>
-                        No messages yet
-                    </td></tr>
+                <tr>
+                    <td colspan="6" class="py-14 text-center">
+                        <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-mango/15 text-2xl text-mango-deep"><i class="bi bi-inbox"></i></div>
+                        <p class="mt-4 font-semibold text-ink">No messages yet</p>
+                        <p class="mt-1 text-sm text-slate">Customer enquiries from the contact form will appear here.</p>
+                    </td>
+                </tr>
                 @endforelse
             </tbody>
         </table>

@@ -1,403 +1,150 @@
-@extends('frontend.app')
-@section('title', 'Checkout — OwnPace Store')
+@extends('frontend.layouts.store')
+@section('title', 'Checkout — '.storeName())
 
 @section('content')
-<style>
-.fp-chk-hero {
-    position: relative; padding: 40px 0 60px; overflow: hidden;
-    background: linear-gradient(180deg, rgba(234,179,8,0.04) 0%, transparent 100%);
-}
-.fp-chk-orb {
-    position: absolute; width: 500px; height: 500px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(234,179,8,0.06) 0%, transparent 60%);
-    top: -200px; right: -100px; pointer-events: none;
-    animation: chkOrbPulse 4s ease-in-out infinite;
-}
-.fp-chk-orb2 {
-    position: absolute; width: 400px; height: 400px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(234,179,8,0.04) 0%, transparent 60%);
-    bottom: -150px; left: -100px; pointer-events: none;
-    animation: chkOrbPulse 5s ease-in-out infinite reverse;
-}
-@keyframes chkOrbPulse { 0%,100%{transform:scale(1);opacity:0.5} 50%{transform:scale(1.1);opacity:1} }
 
-.fp-chk-steps {
-    display: flex; align-items: center; justify-content: center; gap: 0;
-    margin-bottom: 40px; position: relative; z-index: 1;
-}
-.fp-chk-step {
-    display: flex; align-items: center; gap: 10px;
-    padding: 10px 20px; font-size: 13px; font-weight: 600;
-    color: var(--text-dim); position: relative;
-    touch-action: manipulation;
-}
-.fp-chk-step .step-num {
-    width: 32px; height: 32px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 700;
-    background: var(--card-dark); border: 2px solid var(--card-border);
-    color: var(--text-dim); transition: all 0.3s;
-}
-.fp-chk-step.active { color: var(--gold-400); }
-.fp-chk-step.active .step-num {
-    background: var(--gold-500); border-color: var(--gold-500);
-    color: var(--near-black); box-shadow: 0 0 20px rgba(234,179,8,0.3);
-}
-.fp-chk-step.done { color: var(--text-muted); }
-.fp-chk-step.done .step-num {
-    background: rgba(234,179,8,0.15); border-color: var(--gold-500);
-    color: var(--gold-500);
-}
-.fp-chk-step-line {
-    width: 40px; height: 2px; background: var(--card-border);
-}
-.fp-chk-step-line.done { background: var(--gold-500); }
+<section class="os-section-sm border-b border-ink/10 bg-white">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6">
+        <span class="os-eyebrow"><i class="bi bi-credit-card-fill"></i> Secure Checkout</span>
+        <h1 class="mt-2 font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">Complete your purchase</h1>
+        <p class="mt-2 text-sm text-slate sm:text-base">You're just a few steps away from owning your items.</p>
 
-.fp-chk-card {
-    background: var(--card-dark);
-    border: 1px solid var(--card-border);
-    border-radius: var(--radius);
-    padding: 28px;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    position: relative; overflow: hidden;
-    transform: translateZ(0);
-    contain: layout style;
-}
-.fp-chk-card:hover {
-    border-color: rgba(234,179,8,0.15);
-    box-shadow: var(--shadow-card-hover);
-}
-.fp-chk-card-title {
-    font-family: 'Syne', sans-serif;
-    color: var(--text-primary); font-size: 15px;
-    margin-bottom: 20px; display: flex; align-items: center; gap: 10px;
-}
-.fp-chk-card-title i { color: var(--gold-500); font-size: 18px; }
-
-.fp-chk-radio-card {
-    display: flex; align-items: flex-start; gap: 14px;
-    padding: 16px; border: 2px solid var(--card-border);
-    border-radius: var(--radius-sm); cursor: pointer;
-    transition: all 0.3s; position: relative;
-    background: var(--surface-dark); touch-action: manipulation;
-    transform: translateZ(0);
-}
-.fp-chk-radio-card:hover {
-    border-color: rgba(234,179,8,0.3);
-    background: rgba(234,179,8,0.02);
-}
-.fp-chk-radio-card.active {
-    border-color: var(--gold-500);
-    background: rgba(234,179,8,0.05);
-    box-shadow: 0 0 20px rgba(234,179,8,0.08);
-}
-.fp-chk-radio-card input[type="radio"] {
-    position: absolute; opacity: 0; pointer-events: none;
-}
-.fp-chk-radio-dot {
-    width: 20px; height: 20px; border-radius: 50%;
-    border: 2px solid var(--card-border);
-    display: flex; align-items: center; justify-content: center;
-    flex-shrink: 0; margin-top: 1px; transition: all 0.3s;
-}
-.fp-chk-radio-card.active .fp-chk-radio-dot {
-    border-color: var(--gold-500);
-    background: var(--gold-500);
-}
-.fp-chk-radio-dot::after {
-    content: ''; width: 8px; height: 8px; border-radius: 50%;
-    background: var(--near-black); transform: scale(0);
-    transition: transform 0.3s;
-}
-.fp-chk-radio-card.active .fp-chk-radio-dot::after { transform: scale(1); }
-
-.fp-chk-pm-card {
-    flex: 1; padding: 20px; border: 2px solid var(--card-border);
-    border-radius: var(--radius-sm); text-align: center; cursor: pointer;
-    transition: all 0.3s; background: var(--surface-dark);
-    position: relative;
-}
-.fp-chk-pm-card:hover {
-    border-color: rgba(234,179,8,0.3);
-    transform: translateY(-2px);
-}
-.fp-chk-pm-card.active {
-    border-color: var(--gold-500);
-    background: rgba(234,179,8,0.05);
-    box-shadow: 0 0 20px rgba(234,179,8,0.08);
-    transform: translateY(-2px);
-}
-.fp-chk-pm-card input[type="radio"] {
-    position: absolute; opacity: 0; pointer-events: none;
-}
-.fp-chk-pm-card i {
-    font-size: 28px; color: var(--gold-500); display: block; margin-bottom: 8px;
-}
-.fp-chk-pm-card strong {
-    color: var(--text-primary); font-size: 14px; display: block;
-}
-.fp-chk-pm-card small {
-    color: var(--text-dim); display: block; margin-top: 4px; font-size: 12px;
-}
-
-.fp-chk-checkbox {
-    display: flex; align-items: center; gap: 10px; cursor: pointer;
-}
-.fp-chk-checkbox input[type="checkbox"] {
-    width: 20px; height: 20px; accent-color: var(--gold-500);
-    cursor: pointer; flex-shrink: 0;
-}
-
-.fp-chk-select {
-    width: 100%; padding: 12px 14px;
-    background: var(--surface-dark); border: 2px solid var(--card-border);
-    border-radius: var(--radius-sm); color: var(--text-primary);
-    font-size: 14px; font-family: inherit; cursor: pointer;
-    transition: border-color 0.3s;
-    appearance: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23A1A1AA' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat; background-position: right 12px center;
-    padding-right: 36px;
-}
-.fp-chk-select:focus { outline: none; border-color: var(--gold-500); box-shadow: 0 0 0 3px rgba(234,179,8,0.1); }
-.fp-chk-select option { background: var(--near-black); color: var(--text-primary); }
-
-.fp-chk-summary-card {
-    background: var(--card-dark);
-    border: 1px solid var(--card-border);
-    border-radius: var(--radius);
-    padding: 24px;
-    transition: border-color 0.3s;
-    position: relative; transform: translateZ(0);
-    overflow-wrap: break-word;
-}
-.fp-chk-summary-card:hover {
-    border-color: rgba(234,179,8,0.15);
-    box-shadow: var(--shadow-card-hover);
-}
-.fp-chk-summary-title {
-    font-family: 'Syne', sans-serif;
-    color: var(--text-primary); font-size: 16px;
-    margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;
-}
-.fp-chk-summary-title span {
-    font-size: 12px; color: var(--text-dim); font-weight: 400;
-}
-
-.fp-chk-item {
-    display: flex; align-items: center; gap: 12px;
-    padding: 12px 0; border-bottom: 1px solid var(--card-border);
-}
-.fp-chk-item:last-child { border-bottom: none; }
-.fp-chk-item-img {
-    width: 52px; height: 52px; border-radius: 8px; object-fit: cover;
-    background: var(--surface-dark); flex-shrink: 0;
-}
-.fp-chk-item-img-placeholder {
-    width: 52px; height: 52px; border-radius: 8px;
-    background: var(--surface-dark); display: flex; align-items: center;
-    justify-content: center; color: var(--card-border); font-size: 18px;
-    flex-shrink: 0;
-}
-.fp-chk-item-info { flex: 1; min-width: 0; }
-.fp-chk-item-name {
-    color: var(--text-primary); font-size: 13px; font-weight: 600;
-    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.fp-chk-item-qty { color: var(--text-dim); font-size: 12px; margin-top: 2px; }
-.fp-chk-item-price { color: var(--gold-400); font-weight: 700; font-size: 14px; white-space: nowrap; }
-
-.fp-chk-total-line {
-    display: flex; justify-content: space-between;
-    font-size: 14px; color: var(--text-muted); margin-bottom: 10px;
-}
-.fp-chk-total-line.final {
-    font-size: 20px; font-weight: 700; color: var(--text-primary);
-    margin-top: 16px; padding-top: 16px;
-    border-top: 2px solid var(--card-border);
-}
-.fp-chk-total-line.final span:last-child { color: var(--gold-400); }
-
-.fp-chk-place-btn {
-    width: 100%; margin-top: 24px;
-    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
-    background: linear-gradient(135deg, var(--gold-500), var(--gold-600));
-    color: var(--near-black); padding: 16px 28px; border-radius: var(--radius-sm);
-    font-weight: 700; font-size: 15px; border: none; cursor: pointer;
-    transition: all 0.3s; font-family: inherit; position: relative; overflow: hidden;
-}
-.fp-chk-place-btn::before {
-    content: ''; position: absolute; inset: 0;
-    background: linear-gradient(135deg, transparent 20%, rgba(255,255,255,0.15) 50%, transparent 80%);
-    transform: translateX(-100%); transition: transform 0.6s;
-}
-.fp-chk-place-btn:hover::before { transform: translateX(100%); }
-.fp-chk-place-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 32px rgba(234,179,8,0.25);
-    color: var(--near-black);
-}
-
-.fp-chk-trust {
-    display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;
-    margin-top: 20px;
-}
-.fp-chk-trust-item {
-    display: flex; align-items: center; gap: 8px;
-    padding: 10px; border-radius: var(--radius-sm);
-    background: var(--surface-dark); border: 1px solid var(--card-border);
-    font-size: 11px; color: var(--text-dim); font-weight: 500;
-}
-.fp-chk-trust-item i { color: var(--gold-500); font-size: 14px; }
-
-.fp-chk-promo { margin-top:16px; }
-.fp-chk-promo-form { display:flex; gap:8px; }
-.fp-chk-promo-applied { display:flex; align-items:center; gap:10px; padding:10px 14px; background:rgba(74,222,128,0.05); border:1px solid rgba(74,222,128,0.2); border-radius:8px; font-size:13px; }
-.fp-chk-promo-applied span { display:flex; align-items:center; gap:6px; }
-
-.fp-chk-error {
-    display: flex; align-items: center; gap: 8px;
-    background: rgba(239,68,68,0.1);
-    border: 1px solid rgba(239,68,68,0.2);
-    color: #ef4444; padding: 14px 18px;
-    border-radius: var(--radius-sm); font-weight: 500; font-size: 13px;
-    margin-bottom: 24px; animation: chkShake 0.4s ease-out;
-}
-@keyframes chkShake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 50%{transform:translateX(6px)} 75%{transform:translateX(-3px)} }
-
-.fp-chk-field-error {
-    color: #ef4444; font-size: 12px; margin-top: 6px; display: block;
-}
-
-@media (max-width: 768px) {
-    .fp-chk-steps { gap: 4px; }
-    .fp-chk-step { padding: 8px 10px; font-size: 11px; }
-    .fp-chk-step .step-num { width: 26px; height: 26px; font-size: 11px; }
-    .fp-chk-step-line { width: 20px; }
-    .fp-chk-card { padding: 20px; }
-    .fp-chk-pm-card { padding: 14px; }
-    .fp-chk-trust { grid-template-columns: 1fr; }
-}
-</style>
-<section class="fp-chk-hero">
-    <div class="fp-chk-orb"></div>
-    <div class="fp-chk-orb2"></div>
-    <div class="container">
-        <div class="section-head reveal-up">
-            <div class="section-badge"><i class="bi bi-credit-card-fill"></i> Secure Checkout</div>
-            <h2>Complete Your Purchase</h2>
-            <p>You're just a few steps away from owning your items</p>
-        </div>
-
-        <div class="fp-chk-steps reveal-up">
-            <div class="fp-chk-step active" aria-current="step">
-                <span class="step-num">1</span>
-                <span>Delivery</span>
-            </div>
-            <div class="fp-chk-step-line"></div>
-            <div class="fp-chk-step">
-                <span class="step-num">2</span>
-                <span>Payment</span>
-            </div>
-            <div class="fp-chk-step-line"></div>
-            <div class="fp-chk-step">
-                <span class="step-num">3</span>
-                <span>Confirm</span>
-            </div>
-        </div>
+        <ol class="mt-8 flex items-center gap-2 sm:gap-3" aria-label="Checkout steps">
+            <li class="flex items-center gap-2" aria-current="step">
+                <span class="flex h-8 w-8 items-center justify-center rounded-full bg-mango font-mono text-sm font-bold text-ink">1</span>
+                <span class="text-sm font-semibold text-ink">Delivery</span>
+            </li>
+            <li class="h-0.5 w-6 rounded bg-ink/15 sm:w-12" aria-hidden="true"></li>
+            <li class="flex items-center gap-2">
+                <span class="flex h-8 w-8 items-center justify-center rounded-full bg-paper-deep font-mono text-sm font-bold text-slate ring-1 ring-ink/15">2</span>
+                <span class="text-sm font-semibold text-slate">Payment</span>
+            </li>
+            <li class="h-0.5 w-6 rounded bg-ink/15 sm:w-12" aria-hidden="true"></li>
+            <li class="flex items-center gap-2">
+                <span class="flex h-8 w-8 items-center justify-center rounded-full bg-paper-deep font-mono text-sm font-bold text-slate ring-1 ring-ink/15">3</span>
+                <span class="text-sm font-semibold text-slate">Confirm</span>
+            </li>
+        </ol>
     </div>
 </section>
 
-<section style="padding-bottom:80px;">
-    <div class="container">
-        @if(session('error'))
-        <div class="fp-chk-error reveal-up">
-            <i class="bi bi-exclamation-circle-fill"></i> {{ session('error') }}
-        </div>
+<section class="os-section">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6" x-data="checkoutPage(@json($termsByPlan ?? []))">
+        @if($errors->any())
+            <div class="mb-6 flex items-start gap-3 rounded-xl border border-ember/30 bg-ember/5 p-4" role="alert">
+                <i class="bi bi-exclamation-triangle-fill mt-0.5 text-ember-deep"></i>
+                <div class="text-sm text-ink">
+                    <p class="font-semibold text-ember-deep">Please review the highlighted fields below before placing your order.</p>
+                    <ul class="mt-1.5 list-inside list-disc space-y-0.5 text-slate">
+                        @foreach($errors->all() as $osError)
+                            <li>{{ $osError }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            </div>
         @endif
 
-        <form action="{{ route('checkout.process') }}" method="POST" id="checkoutForm" novalidate>
+        <form action="{{ route('checkout.process') }}" method="POST" id="checkoutForm">
             @csrf
-            <div class="row g-4">
-                <div class="col-lg-7">
-                    <div class="fp-chk-card reveal-left" style="transition-delay:0.1s;">
-                        <h5 class="fp-chk-card-title"><i class="bi bi-geo-alt-fill"></i> Delivery Address</h5>
-                        @if($addresses && $addresses->count() > 0)
-                            @foreach($addresses as $addr)
-                            <div class="fp-chk-radio-card mb-2 addr-card {{ old('delivery_address_id') == $addr->id ? 'active' : '' }}" onclick="selectAddr(this, {{ $addr->id }})">
-                                <input type="radio" name="delivery_address_id" value="{{ $addr->id }}" {{ old('delivery_address_id') == $addr->id ? 'checked' : '' }} required>
-                                <div class="fp-chk-radio-dot"></div>
-                                <div style="flex:1;">
-                                    <strong style="color:var(--text-primary);display:block;font-size:14px;">{{ $addr->label ?? 'Address' }}</strong>
-                                    <span style="color:var(--text-muted);font-size:13px;">{{ $addr->address_line1 }}, {{ $addr->city }}, {{ $addr->state }}</span>
-                                    @if($addr->phone)
-                                    <span style="color:var(--text-dim);font-size:12px;display:block;margin-top:4px;"><i class="bi bi-telephone-fill" style="font-size:11px;"></i> {{ $addr->phone }}</span>
-                                    @endif
-                                </div>
-                                @if($addr->is_default)
-                                <span style="font-size:10px;font-weight:700;color:var(--gold-500);background:rgba(234,179,8,0.1);padding:3px 10px;border-radius:99px;white-space:nowrap;">Default</span>
-                                @endif
-                            </div>
-                            @endforeach
-                        @else
-                            <div style="text-align:center;padding:20px;">
-                                <i class="bi bi-geo-alt" style="font-size:40px;color:var(--card-border);display:block;margin-bottom:12px;"></i>
-                                <p style="color:var(--text-dim);font-size:14px;margin-bottom:12px;">No saved addresses found.</p>
-                                <a href="{{ route('profile.addresses') }}" class="btn-primary-gold" style="display:inline-flex;"><i class="bi bi-plus-lg"></i> Add Address</a>
-                            </div>
-                        @endif
-                        @error('delivery_address_id')<small class="fp-chk-field-error">{{ $message }}</small>@enderror
-
-                        <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--card-border);">
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#addCheckoutAddress" class="fp-btn fp-btn-ghost" style="font-size:12px;">
-                                <i class="bi bi-plus-lg"></i> Add a new address
-                            </a>
+            <div class="grid gap-8 lg:grid-cols-5">
+                <div class="space-y-6 lg:col-span-3">
+                    {{-- ===== DELIVERY ADDRESS ===== --}}
+                    <div class="os-card p-6 sm:p-7" x-reveal>
+                        <div class="mb-5 flex items-center gap-3">
+                            <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-mango/15 text-mango-deep"><i class="bi bi-geo-alt-fill"></i></span>
+                            <h2 class="font-display text-base font-bold text-ink">Delivery address</h2>
                         </div>
 
-                        {{-- ===== DELIVERY PROXY ===== --}}
-                        <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--card-border);">
-                            <h5 class="fp-chk-card-title" style="margin-bottom:8px;"><i class="bi bi-person-check"></i> Receive for Someone Else?</h5>
-                            <p style="color:var(--text-dim);font-size:12px;margin-bottom:10px;">
-                                Assign another store member to receive this delivery on your behalf.
-                            </p>
-                            <input type="hidden" name="delivery_proxy_user_id" id="deliveryProxyUserId" value="{{ old('delivery_proxy_user_id') }}">
-                            <div class="fp-partial-form" style="display:flex;gap:8px;">
-                                <input type="text" id="proxySearchInput" placeholder="Search by phone, email or name"
-                                       style="flex:1;background:var(--surface-dark);border:1.5px solid var(--card-border);color:var(--text-primary);padding:10px 12px;border-radius:var(--radius-sm);font-size:13px;outline:none;min-width:0;">
-                                <button type="button" class="fp-action-btn outline" style="padding:10px 16px;font-size:12px;" id="proxySearchBtn">
-                                    <i class="bi bi-search"></i> Find
-                                </button>
+                        @if($addresses && $addresses->count() > 0)
+                            <div class="space-y-3">
+                                @foreach($addresses as $addr)
+                                <label class="addr-card flex cursor-pointer items-start gap-4 rounded-xl border-2 p-4 transition-all has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-mango/50"
+                                       :class="addressId == {{ $addr->id }} ? 'border-mango bg-mango/5' : 'border-ink/10 bg-paper-deep/40 hover:border-mango/40'">
+                                    <input type="radio" name="delivery_address_id" value="{{ $addr->id }}" class="sr-only" x-model="addressId">
+                                    <span class="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors"
+                                          :class="addressId == {{ $addr->id }} ? 'border-mango bg-mango' : 'border-ink/20'">
+                                        <span class="h-2 w-2 rounded-full bg-white" x-show="addressId == {{ $addr->id }}"></span>
+                                    </span>
+                                    <span class="min-w-0 flex-1">
+                                        <span class="flex flex-wrap items-center gap-2">
+                                            <strong class="text-sm text-ink">{{ $addr->label ?? 'Address' }}</strong>
+                                            @if($addr->is_default)
+                                                <span class="os-chip os-chip-mango px-2 py-0.5 text-[10px]">Default</span>
+                                            @endif
+                                        </span>
+                                        <span class="mt-0.5 block text-sm text-slate">{{ $addr->address_line1 }}, {{ $addr->city }}, {{ $addr->state }}</span>
+                                        @if($addr->phone)
+                                            <span class="mt-1 block text-xs text-slate/80"><i class="bi bi-telephone-fill"></i> {{ $addr->phone }}</span>
+                                        @endif
+                                    </span>
+                                </label>
+                                @endforeach
                             </div>
-                            <div id="proxyResults" style="margin-top:10px;"></div>
-                            <div id="proxyAssigned" style="margin-top:10px;display:none;">
-                                <div class="fp-chk-promo-applied">
-                                    <span><i class="bi bi-person-check-fill"></i> <strong id="proxyAssignedName"></strong> will receive your delivery</span>
-                                    <a href="#" id="proxyClear" style="color:#ef4444;font-size:11px;text-decoration:none;">Remove</a>
+                        @else
+                            <div class="rounded-xl border border-dashed border-ink/15 bg-paper-deep/40 p-8 text-center">
+                                <i class="bi bi-geo-alt text-3xl text-ink/20"></i>
+                                <p class="mt-3 text-sm text-slate">No saved addresses yet. Add one to continue — it only takes a minute.</p>
+                            </div>
+                        @endif
+                        @error('delivery_address_id')<p class="os-error-text">{{ $message }}</p>@enderror
+
+                        <button type="button" class="os-btn os-btn-ghost os-btn-sm mt-4" @click="modalOpen = true">
+                            <i class="bi bi-plus-lg"></i> Add a new address
+                        </button>
+
+                        {{-- ===== DELIVERY PROXY ===== --}}
+                        <div class="mt-6 border-t border-ink/10 pt-6">
+                            <div class="mb-3 flex items-center gap-2">
+                                <i class="bi bi-person-check text-mango-deep"></i>
+                                <h3 class="font-display text-sm font-bold text-ink">Receive for someone else?</h3>
+                            </div>
+                            <p class="mb-3 text-xs text-slate">Assign another store member to receive this delivery on your behalf.</p>
+                            <input type="hidden" name="delivery_proxy_user_id" id="deliveryProxyUserId" value="{{ old('delivery_proxy_user_id') }}">
+                            <div class="flex gap-2">
+                                <input type="text" id="proxySearchInput" placeholder="Search by phone, email or name" class="os-input" aria-label="Search for a delivery proxy">
+                                <button type="button" class="os-btn os-btn-brand os-btn-sm shrink-0" id="proxySearchBtn"><i class="bi bi-search"></i> Find</button>
+                            </div>
+                            <div id="proxyResults" class="mt-3 space-y-2"></div>
+                            <div id="proxyAssigned" class="mt-3 hidden">
+                                <div class="flex items-center gap-3 rounded-xl border border-grass/30 bg-grass/5 p-3 text-sm">
+                                    <i class="bi bi-person-check-fill text-grass-deep"></i>
+                                    <p class="flex-1 text-ink"><strong id="proxyAssignedName"></strong> <span class="text-slate">will receive your delivery</span></p>
+                                    <a href="#" id="proxyClear" class="text-xs font-semibold text-ember-deep hover:underline">Remove</a>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div class="fp-chk-card reveal-left" style="transition-delay:0.2s;">
-                        <h5 class="fp-chk-card-title"><i class="bi bi-coin"></i> Payment Method</h5>
-                        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;">
-                            @php $pmType = old('payment_type', 'full'); @endphp
-                            <div class="fp-chk-pm-card {{ $pmType == 'full' ? 'active' : '' }}" onclick="selectPM(this, 'full')">
-                                <input type="radio" name="payment_type" value="full" {{ $pmType == 'full' ? 'checked' : '' }} required>
-                                <i class="bi bi-cash-stack"></i>
-                                <strong>Pay in Full</strong>
-                                <small>One-time payment</small>
-                            </div>
-                            <div class="fp-chk-pm-card {{ $pmType == 'installment' ? 'active' : '' }}" onclick="selectPM(this, 'installment')">
-                                <input type="radio" name="payment_type" value="installment" {{ $pmType == 'installment' ? 'checked' : '' }} required>
-                                <i class="bi bi-calendar-check"></i>
-                                <strong>Pay in Installments</strong>
-                                <small>Flexible plans</small>
-                            </div>
+                    {{-- ===== PAYMENT METHOD ===== --}}
+                    <div class="os-card p-6 sm:p-7" x-reveal="60">
+                        <div class="mb-5 flex items-center gap-3">
+                            <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-mango/15 text-mango-deep"><i class="bi bi-coin"></i></span>
+                            <h2 class="font-display text-base font-bold text-ink">Payment method</h2>
                         </div>
-                        @error('payment_type')<small class="fp-chk-field-error">{{ $message }}</small>@enderror
 
-                        <div id="planSelect" style="display:{{ $pmType == 'installment' ? 'block' : 'none' }};">
+                        <div class="grid gap-3 sm:grid-cols-2">
+                            <label class="flex cursor-pointer items-center gap-3 rounded-xl border-2 p-4 transition-all has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-mango/50"
+                                   :class="paymentType === 'full' ? 'border-mango bg-mango/5' : 'border-ink/10 bg-paper-deep/40 hover:border-mango/40'">
+                                <input type="radio" name="payment_type" value="full" class="sr-only" x-model="paymentType">
+                                <i class="bi bi-cash-stack text-xl" :class="paymentType === 'full' ? 'text-mango-deep' : 'text-slate'"></i>
+                                <span>
+                                    <strong class="block text-sm text-ink">Pay in full</strong>
+                                    <small class="block text-xs text-slate">One-time payment</small>
+                                </span>
+                            </label>
+                            <label class="flex cursor-pointer items-center gap-3 rounded-xl border-2 p-4 transition-all has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-mango/50"
+                                   :class="paymentType === 'installment' ? 'border-mango bg-mango/5' : 'border-ink/10 bg-paper-deep/40 hover:border-mango/40'">
+                                <input type="radio" name="payment_type" value="installment" class="sr-only" x-model="paymentType">
+                                <i class="bi bi-calendar-check text-xl" :class="paymentType === 'installment' ? 'text-mango-deep' : 'text-slate'"></i>
+                                <span>
+                                    <strong class="block text-sm text-ink">Pay in installments</strong>
+                                    <small class="block text-xs text-slate">Flexible plans</small>
+                                </span>
+                            </label>
+                        </div>
+                        @error('payment_type')<p class="os-error-text">{{ $message }}</p>@enderror
+
+                        <div x-cloak x-show="paymentType === 'installment'" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0">
                             <livewire:checkout-breakdown
                                 :subtotal="(float) max($total - $discount, 0)"
                                 :shipping-fee="(float) $shippingFee"
@@ -406,215 +153,221 @@
                         </div>
                     </div>
 
-                    <div class="fp-chk-card reveal-left" style="transition-delay:0.3s;">
-                        <h5 class="fp-chk-card-title"><i class="bi bi-shield-fill-check"></i> Extras</h5>
-                        <div style="display:flex;align-items:center;gap:10px;">
-                            <i class="bi bi-shield-check" style="color:var(--text-dim);font-size:20px;"></i>
-                            <span style="color:var(--text-dim);font-size:14px;">Add insurance in the payment step above to protect your purchase.</span>
-                        </div>
+                    {{-- ===== EXTRAS ===== --}}
+                    <div class="os-card flex items-start gap-3 p-6" x-reveal="120">
+                        <i class="bi bi-shield-check mt-0.5 text-xl text-grass-deep"></i>
+                        <p class="text-sm text-slate">Add <strong class="text-ink">insurance</strong> on the installment plan above to protect your purchase against damage, loss, or theft.</p>
                     </div>
 
-                    <div class="fp-chk-card reveal-left" style="transition-delay:0.4s;">
-                        <h5 class="fp-chk-card-title"><i class="bi bi-credit-card-2-front"></i> Pay Using</h5>
-                        @php $pmMethod = old('payment_method', 'paystack'); @endphp
-                        <div style="display:flex;gap:12px;flex-wrap:wrap;">
-                            <div class="fp-chk-pm-card {{ $pmMethod == 'wallet' ? 'active' : '' }}" onclick="selectGW(this, 'wallet')" style="flex:1;min-width:120px;">
-                                <input type="radio" name="payment_method" value="wallet" {{ $pmMethod == 'wallet' ? 'checked' : '' }} required>
-                                <i class="bi bi-wallet2"></i>
-                                <strong>Wallet</strong>
-                                <small>₦{{ number_format($wallet->balance ?? 0, 0) }}</small>
-                            </div>
-                            <div class="fp-chk-pm-card {{ $pmMethod == 'paystack' ? 'active' : '' }}" onclick="selectGW(this, 'paystack')" style="flex:1;min-width:120px;">
-                                <input type="radio" name="payment_method" value="paystack" {{ $pmMethod == 'paystack' ? 'checked' : '' }} required>
-                                <i class="bi bi-credit-card-fill"></i>
-                                <strong>Paystack</strong>
-                                <small>Card, Bank, USSD</small>
-                            </div>
-                            <div class="fp-chk-pm-card {{ $pmMethod == 'flutterwave' ? 'active' : '' }}" onclick="selectGW(this, 'flutterwave')" style="flex:1;min-width:120px;">
-                                <input type="radio" name="payment_method" value="flutterwave" {{ $pmMethod == 'flutterwave' ? 'checked' : '' }} required>
-                                <i class="bi bi-globe"></i>
-                                <strong>Flutterwave</strong>
-                                <small>Card, Bank, Mobile Money</small>
-                            </div>
-                            <div class="fp-chk-pm-card {{ $pmMethod == 'korapay' ? 'active' : '' }}" onclick="selectGW(this, 'korapay')" style="flex:1;min-width:120px;">
-                                <input type="radio" name="payment_method" value="korapay" {{ $pmMethod == 'korapay' ? 'checked' : '' }} required>
-                                <i class="bi bi-shield-fill-check"></i>
-                                <strong>Korapay</strong>
-                                <small>Card, Bank Transfer, USSD</small>
-                            </div>
+                    {{-- ===== PAY USING ===== --}}
+                    <div class="os-card p-6 sm:p-7" x-reveal="180">
+                        <div class="mb-5 flex items-center gap-3">
+                            <span class="flex h-10 w-10 items-center justify-center rounded-xl bg-indigo/10 text-brand"><i class="bi bi-credit-card-2-front"></i></span>
+                            <h2 class="font-display text-base font-bold text-ink">Pay using</h2>
                         </div>
-                        @error('payment_method')<small class="fp-chk-field-error">{{ $message }}</small>@enderror
+
+                        <div class="grid grid-cols-2 gap-3 lg:grid-cols-4">
+                            <label class="flex cursor-pointer flex-col items-center rounded-xl border-2 p-4 text-center transition-all has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-mango/50"
+                                   :class="method === 'wallet' ? 'border-mango bg-mango/5' : 'border-ink/10 bg-paper-deep/40 hover:border-mango/40'">
+                                <input type="radio" name="payment_method" value="wallet" class="sr-only" x-model="method">
+                                <i class="bi bi-wallet2 text-2xl" :class="method === 'wallet' ? 'text-mango-deep' : 'text-slate'"></i>
+                                <strong class="mt-2 block text-sm text-ink">Wallet</strong>
+                                <small class="mt-0.5 block text-xs text-slate">₦{{ number_format($wallet->balance ?? 0, 0) }}</small>
+                            </label>
+                            <label class="flex cursor-pointer flex-col items-center rounded-xl border-2 p-4 text-center transition-all has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-mango/50"
+                                   :class="method === 'paystack' ? 'border-mango bg-mango/5' : 'border-ink/10 bg-paper-deep/40 hover:border-mango/40'">
+                                <input type="radio" name="payment_method" value="paystack" class="sr-only" x-model="method">
+                                <i class="bi bi-credit-card-fill text-2xl" :class="method === 'paystack' ? 'text-mango-deep' : 'text-slate'"></i>
+                                <strong class="mt-2 block text-sm text-ink">Paystack</strong>
+                                <small class="mt-0.5 block text-xs text-slate">Card, Bank, USSD</small>
+                            </label>
+                            <label class="flex cursor-pointer flex-col items-center rounded-xl border-2 p-4 text-center transition-all has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-mango/50"
+                                   :class="method === 'flutterwave' ? 'border-mango bg-mango/5' : 'border-ink/10 bg-paper-deep/40 hover:border-mango/40'">
+                                <input type="radio" name="payment_method" value="flutterwave" class="sr-only" x-model="method">
+                                <i class="bi bi-globe2 text-2xl" :class="method === 'flutterwave' ? 'text-mango-deep' : 'text-slate'"></i>
+                                <strong class="mt-2 block text-sm text-ink">Flutterwave</strong>
+                                <small class="mt-0.5 block text-xs text-slate">Card, Bank, Mobile Money</small>
+                            </label>
+                            <label class="flex cursor-pointer flex-col items-center rounded-xl border-2 p-4 text-center transition-all has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-mango/50"
+                                   :class="method === 'korapay' ? 'border-mango bg-mango/5' : 'border-ink/10 bg-paper-deep/40 hover:border-mango/40'">
+                                <input type="radio" name="payment_method" value="korapay" class="sr-only" x-model="method">
+                                <i class="bi bi-shield-fill-check text-2xl" :class="method === 'korapay' ? 'text-mango-deep' : 'text-slate'"></i>
+                                <strong class="mt-2 block text-sm text-ink">Korapay</strong>
+                                <small class="mt-0.5 block text-xs text-slate">Card, Transfer, USSD</small>
+                            </label>
+                        </div>
+                        @error('payment_method')<p class="os-error-text">{{ $message }}</p>@enderror
                     </div>
 
-                    <div class="reveal-left" style="transition-delay:0.5s;">
-                        <label class="fp-chk-checkbox" style="padding:8px 0;">
-                            <input type="checkbox" name="agree_terms" value="1" required>
-                            <span style="color:var(--text-muted);font-size:13px;">I agree to the <a href="{{ url('/terms') }}" target="_blank" style="color:var(--gold-500);text-decoration:underline;">Terms & Conditions</a> and <a href="{{ url('/terms/privacy') }}" target="_blank" style="color:var(--gold-500);text-decoration:underline;">Privacy Policy</a></span>
+                    {{-- ===== TERMS ===== --}}
+                    <div class="rounded-xl border border-ink/10 bg-paper-deep/40 p-5" x-reveal="240">
+                        <label class="flex cursor-pointer items-start gap-3">
+                            <input type="checkbox" name="agree_terms" value="1" required class="mt-0.5 h-5 w-5 shrink-0 accent-mango">
+                            <span class="text-sm leading-relaxed text-slate">
+                                I agree to the <a href="{{ url('/terms') }}" target="_blank" rel="noopener" class="font-semibold text-brand underline underline-offset-2">Terms &amp; Conditions</a> and
+                                <a href="{{ url('/terms/privacy') }}" target="_blank" rel="noopener" class="font-semibold text-brand underline underline-offset-2">Privacy Policy</a>.
+                            </span>
                         </label>
-                        <div id="planTermsNote" style="display:none;margin:4px 0 0 30px;font-size:12px;color:var(--text-dim);">
-                            <i class="bi bi-file-earmark-text-fill" style="color:var(--gold-500);font-size:11px;"></i>
-                            Also bound by: <a id="planTermsLink" href="#" target="_blank" style="color:var(--gold-500);text-decoration:underline;"></a>
+                        <div id="planTermsNote" x-cloak class="mt-2 pl-8 text-xs text-slate">
+                            <i class="bi bi-file-earmark-text-fill text-mango-deep"></i>
+                            Also bound by: <a id="planTermsLink" href="#" target="_blank" rel="noopener" class="font-semibold text-brand underline underline-offset-2"></a>
                         </div>
-                        @error('agree_terms')<small class="fp-chk-field-error">{{ $message }}</small>@enderror
+                        @error('agree_terms')<p class="os-error-text">{{ $message }}</p>@enderror
                     </div>
                 </div>
 
-                <div class="col-lg-5">
-                    <div class="fp-chk-summary-card reveal-right" style="transition-delay:0.2s;">
-                        <div class="fp-chk-summary-title">
-                            Order Summary
-                            <span>{{ count($cart) }} {{ count($cart) === 1 ? 'item' : 'items' }}</span>
+                {{-- ===== ORDER SUMMARY ===== --}}
+                <div class="lg:col-span-2 lg:sticky lg:top-24 lg:self-start" x-reveal="120">
+                    <div class="os-card p-6">
+                        <div class="mb-4 flex items-center justify-between">
+                            <h2 class="font-display text-base font-bold text-ink">Order summary</h2>
+                            <span class="text-xs font-semibold text-slate">{{ count($cart) }} {{ count($cart) === 1 ? 'item' : 'items' }}</span>
                         </div>
 
-                        <div style="max-height:320px;overflow-y:auto;">
+                        <div class="max-h-80 space-y-4 overflow-y-auto pr-1">
                             @foreach($cart as $item)
-                            <div class="fp-chk-item">
+                            <div class="flex items-center gap-3">
                                 @if($item['thumbnail'])
-                                <img src="{{ asset('storage/'.$item['thumbnail']) }}" alt="" class="fp-chk-item-img" loading="lazy" decoding="async">
+                                    <img src="{{ asset('storage/'.$item['thumbnail']) }}" alt="{{ $item['name'] }}" class="h-13 w-13 shrink-0 rounded-lg object-cover ring-1 ring-ink/10" style="width:52px;height:52px;" loading="lazy" decoding="async">
                                 @else
-                                <div class="fp-chk-item-img-placeholder"><i class="bi bi-image"></i></div>
+                                    <span class="flex h-13 w-13 shrink-0 items-center justify-center rounded-lg bg-paper-deep text-ink/20" style="width:52px;height:52px;"><i class="bi bi-image"></i></span>
                                 @endif
-                                <div class="fp-chk-item-info">
-                                    <div class="fp-chk-item-name">{{ $item['name'] }}</div>
-                                    <div class="fp-chk-item-qty">Qty: {{ $item['quantity'] }}</div>
+                                <div class="min-w-0 flex-1">
+                                    <p class="truncate text-sm font-semibold text-ink">{{ $item['name'] }}</p>
+                                    <p class="text-xs text-slate">Qty: {{ $item['quantity'] }}</p>
                                 </div>
-                                <div class="fp-chk-item-price">₦{{ number_format($item['price'] * $item['quantity'], 0) }}</div>
+                                <p class="os-price text-sm">₦{{ number_format($item['price'] * $item['quantity'], 0) }}</p>
                             </div>
                             @endforeach
                         </div>
 
-                        <div class="fp-chk-promo">
+                        {{-- Promo --}}
+                        <div class="mt-5">
                             @if($promoCode ?? null)
-                                <div class="fp-chk-promo-applied">
-                                    <span><i class="bi bi-tag-fill"></i> {{ $promoCode->code }}</span>
-                                    <span style="color:#4ade80;">-₦{{ number_format($discount, 0) }}</span>
-                                    <a href="{{ route('checkout.remove-promo') }}" style="color:#ef4444;font-size:11px;text-decoration:none;">Remove</a>
+                                <div class="flex items-center gap-2.5 rounded-lg border border-grass/30 bg-grass/5 p-3 text-sm">
+                                    <i class="bi bi-tag-fill text-grass-deep"></i>
+                                    <span class="font-mono font-semibold text-ink">{{ $promoCode->code }}</span>
+                                    <span class="os-price text-grass-deep">-₦{{ number_format($discount, 0) }}</span>
+                                    <a href="{{ route('checkout.remove-promo') }}" class="ml-auto text-xs font-semibold text-ember-deep hover:underline">Remove</a>
                                 </div>
                             @else
-                                <form action="{{ route('checkout.apply-promo') }}" method="POST" class="fp-chk-promo-form">
+                                <form action="{{ route('checkout.apply-promo') }}" method="POST" class="flex gap-2">
                                     @csrf
-                                    <input type="text" name="code" class="fp-chk-promo-input" placeholder="Promo code" style="flex:1;background:#121214;border:1px solid #2A2A2E;border-radius:6px;padding:8px 12px;color:#F4F4F5;font-size:13px;font-family:inherit;">
-                                    <button type="submit" class="fp-chk-promo-btn" style="background:rgba(234,179,8,0.1);border:1px solid rgba(234,179,8,0.2);border-radius:6px;padding:8px 14px;color:var(--gold-400);font-size:12px;font-weight:600;cursor:pointer;font-family:inherit;">Apply</button>
+                                    <input type="text" name="code" placeholder="Promo code" class="os-input" aria-label="Promo code">
+                                    <button type="submit" class="os-btn os-btn-ghost os-btn-sm shrink-0">Apply</button>
                                 </form>
                             @endif
                         </div>
 
-                        <div style="margin-top:16px;">
-                            <div class="fp-chk-total-line">
-                                <span>Subtotal</span>
-                                <span>₦{{ number_format($total, 0) }}</span>
+                        <div class="os-hr"></div>
+
+                        <dl class="space-y-2.5 text-sm">
+                            <div class="flex items-center justify-between">
+                                <dt class="text-slate">Subtotal</dt>
+                                <dd class="os-price text-ink">₦{{ number_format($total, 0) }}</dd>
                             </div>
                             @if($discount > 0)
-                            <div class="fp-chk-total-line">
-                                <span>Discount</span>
-                                <span style="color:#4ade80;">-₦{{ number_format($discount, 0) }}</span>
+                            <div class="flex items-center justify-between">
+                                <dt class="text-slate">Discount</dt>
+                                <dd class="os-price text-grass-deep">-₦{{ number_format($discount, 0) }}</dd>
                             </div>
                             @endif
-                            <div class="fp-chk-total-line">
-                                <span>Delivery fee</span>
-                                <span class="fp-mono" style="color:var(--gold-400);">₦{{ number_format((float) $shippingFee, 2) }}</span>
+                            <div class="flex items-center justify-between">
+                                <dt class="text-slate">Delivery fee</dt>
+                                <dd class="os-price text-ink">₦{{ number_format((float) $shippingFee, 2) }}</dd>
                             </div>
-                            <div class="fp-chk-total-line final">
-                                <span>Total</span>
-                                <span class="fp-mono">₦{{ number_format(max($total - $discount + $shippingFee, 0), 0) }}</span>
+                            <div class="os-hr my-3"></div>
+                            <div class="flex items-center justify-between">
+                                <dt class="font-display text-base font-bold text-ink">Total</dt>
+                                <dd class="os-price text-lg font-bold text-brand">₦{{ number_format(max($total - $discount + $shippingFee, 0), 0) }}</dd>
                             </div>
-                            <p style="margin-top:12px;padding:10px 12px;background:rgba(234,179,8,0.05);border:1px dashed rgba(234,179,8,0.25);border-radius:var(--radius-sm);font-size:11px;color:var(--text-dim);line-height:1.6;">
-                                <i class="bi bi-truck-front-fill" style="color:var(--gold-500);"></i>
-                                Your delivery fee is included here and covered within your first 70% of payments — it is never charged as a separate line later.
-                            </p>
-                        </div>
+                        </dl>
 
-                        <button type="submit" class="fp-chk-place-btn" id="placeOrderBtn">
-                            <i class="bi bi-shield-lock-fill"></i> Place Order
+                        <p class="mt-4 rounded-lg border border-dashed border-mango/40 bg-mango/5 p-3 text-xs leading-relaxed text-slate">
+                            <i class="bi bi-truck-front-fill text-mango-deep"></i>
+                            Your delivery fee is included here and covered within your first 70% of payments — never charged as a separate line later.
+                        </p>
+
+                        <button type="submit" class="os-btn os-btn-mango mt-5 w-full py-3.5 text-base" id="placeOrderBtn">
+                            <i class="bi bi-shield-lock-fill"></i> Place order
                         </button>
 
-                        <div class="fp-chk-trust">
-                            <div class="fp-chk-trust-item">
-                                <i class="bi bi-lock-fill"></i> Secure SSL
-                            </div>
-                            <div class="fp-chk-trust-item">
-                                <i class="bi bi-shield-fill-check"></i> Encrypted
-                            </div>
-                            <div class="fp-chk-trust-item">
-                                <i class="bi bi-arrow-repeat"></i> Easy Returns
-                            </div>
+                        <div class="mt-5 grid grid-cols-3 gap-2 text-center text-[11px] font-medium text-slate">
+                            <span class="rounded-lg bg-paper-deep/60 p-2.5"><i class="bi bi-lock-fill mr-1 text-brand"></i>Secure SSL</span>
+                            <span class="rounded-lg bg-paper-deep/60 p-2.5"><i class="bi bi-shield-fill-check mr-1 text-grass-deep"></i>Encrypted</span>
+                            <span class="rounded-lg bg-paper-deep/60 p-2.5"><i class="bi bi-arrow-repeat mr-1 text-mango-ink"></i>Easy returns</span>
                         </div>
                     </div>
                 </div>
             </div>
         </form>
+
+        {{-- ===== ADD-ADDRESS MODAL (Alpine) ===== --}}
+        <div x-cloak x-show="modalOpen" x-transition.opacity class="fixed inset-0 z-[90] flex items-end justify-center bg-ink/60 p-0 backdrop-blur-sm sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label="Add delivery address" @keydown.escape.window="modalOpen = false">
+            <div class="w-full max-w-lg rounded-t-2xl bg-white p-6 shadow-lift sm:rounded-2xl sm:p-7" @click.outside="modalOpen = false">
+                <div class="mb-5 flex items-center justify-between">
+                    <h3 class="font-display text-lg font-bold text-ink"><i class="bi bi-geo-alt-fill mr-2 text-mango-deep"></i> Add delivery address</h3>
+                    <button type="button" class="flex h-9 w-9 items-center justify-center rounded-lg text-slate transition-colors hover:bg-paper-deep hover:text-ink" @click="modalOpen = false" aria-label="Close">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
+                </div>
+                <form method="POST" action="{{ route('profile.addresses.store') }}" class="grid gap-4 sm:grid-cols-2">
+                    @csrf
+                    <div>
+                        <label for="os-addr-recipient" class="os-label">Recipient name</label>
+                        <input id="os-addr-recipient" type="text" name="recipient_name" class="os-input" placeholder="e.g. Ada Obi" required>
+                    </div>
+                    <div>
+                        <label for="os-addr-label" class="os-label">Label</label>
+                        <input id="os-addr-label" type="text" name="label" class="os-input" placeholder="Home, Office…">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label for="os-addr-line1" class="os-label">Street address</label>
+                        <input id="os-addr-line1" type="text" name="address_line1" class="os-input" placeholder="12 Marina Road, Phase 2" required>
+                    </div>
+                    <div>
+                        <label for="os-addr-city" class="os-label">City</label>
+                        <input id="os-addr-city" type="text" name="city" class="os-input" placeholder="Lagos" required>
+                    </div>
+                    <div>
+                        <label for="os-addr-state" class="os-label">State</label>
+                        <input id="os-addr-state" type="text" name="state" class="os-input" placeholder="Lagos" required>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label for="os-addr-phone" class="os-label">Phone</label>
+                        <input id="os-addr-phone" type="tel" name="phone" class="os-input" placeholder="0801 234 5678" required>
+                    </div>
+                    <div class="flex items-center justify-end gap-3 sm:col-span-2">
+                        <button type="button" class="os-btn os-btn-ghost" @click="modalOpen = false">Cancel</button>
+                        <button type="submit" class="os-btn os-btn-brand"><i class="bi bi-check-lg"></i> Save address</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </section>
 
-@include('frontend.partials.footer')
 @endsection
 
-{{-- ===== ADD-ADDRESS MODAL (keeps checkout to one page) ===== --}}
-<div class="modal fade" id="addCheckoutAddress" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="background:var(--card-dark);border:1px solid var(--card-border);border-radius:var(--radius-lg);">
-            <div class="modal-header" style="border-bottom:1px solid var(--card-border);padding:20px 24px;">
-                <h5 class="modal-title" style="color:var(--text-primary);font-family:'Syne',sans-serif;font-size:16px;font-weight:700;"><i class="bi bi-geo-alt-fill" style="color:var(--gold-500);"></i> Add Delivery Address</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <form method="POST" action="{{ route('profile.addresses.store') }}">
-                @csrf
-                <div class="modal-body" style="padding:24px;">
-                    <div class="row g-3">
-                        <div class="col-6"><input type="text" name="recipient_name" class="fp-chk-select" style="padding:10px 12px;" placeholder="Recipient name" required></div>
-                        <div class="col-6"><input type="text" name="label" class="fp-chk-select" style="padding:10px 12px;" placeholder="Label (Home, Office)"></div>
-                        <div class="col-12"><input type="text" name="address_line1" class="fp-chk-select" style="padding:10px 12px;" placeholder="Street address" required></div>
-                        <div class="col-6"><input type="text" name="city" class="fp-chk-select" style="padding:10px 12px;" placeholder="City" required></div>
-                        <div class="col-6"><input type="text" name="state" class="fp-chk-select" style="padding:10px 12px;" placeholder="State" required></div>
-                        <div class="col-12"><input type="text" name="phone" class="fp-chk-select" style="padding:10px 12px;" placeholder="Phone number" required></div>
-                    </div>
-                </div>
-                <div class="modal-footer" style="border-top:1px solid var(--card-border);padding:16px 24px;">
-                    <button type="submit" class="btn-primary-gold w-100 justify-content-center">Save Address</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
+@push('scripts')
 <script>
-function selectAddr(el, id) {
-    document.querySelectorAll('.addr-card').forEach(c => c.classList.remove('active'));
-    el.classList.add('active');
-    el.querySelector('input[type="radio"]').checked = true;
+function checkoutPage(planTerms) {
+    return {
+        planTerms: planTerms || {},
+        paymentType: {{ old('payment_type', 'full') === 'installment' ? '1' : '0' }} ? 'installment' : 'full',
+        method: '{{ old('payment_method', 'paystack') }}',
+        addressId: null,
+        modalOpen: false,
+        init() {
+            const checked = document.querySelector('input[name="delivery_address_id"]:checked');
+            if (checked) this.addressId = parseInt(checked.value, 10);
+            else {
+                const first = document.querySelector('input[name="delivery_address_id"]');
+                if (first) { this.addressId = parseInt(first.value, 10); }
+            }
+        },
+    };
 }
-
-function selectPM(el, type) {
-    document.querySelectorAll('.fp-chk-pm-card').forEach(c => {
-        const input = c.querySelector('input[name="payment_type"]');
-        if (input) c.classList.remove('active');
-    });
-    el.classList.add('active');
-    el.querySelector('input[type="radio"]').checked = true;
-    const planSelect = document.getElementById('planSelect');
-    if (type === 'installment') {
-        planSelect.style.display = 'block';
-        planSelect.style.animation = 'fadeIn 0.3s ease';
-    } else {
-        planSelect.style.display = 'none';
-    }
-}
-
-function selectGW(el, value) {
-    document.querySelectorAll('.fp-chk-pm-card').forEach(c => {
-        const input = c.querySelector('input[name="payment_method"]');
-        if (input) c.classList.remove('active');
-    });
-    el.classList.add('active');
-    el.querySelector('input[type="radio"]').checked = true;
-}
-
-document.getElementById('checkoutForm')?.addEventListener('submit', function(e) {
-    const btn = document.getElementById('placeOrderBtn');
-    if (btn.disabled) { e.preventDefault(); return; }
-    btn.disabled = true;
-    btn.innerHTML = '<span class="spinner-border spinner-border-sm" style="width:16px;height:16px;"></span> Processing...';
-});
 
 // ===== PLAN-SCOPED TERMS: surface the selected plan's T&C before checkout =====
 (function () {
@@ -637,6 +390,14 @@ document.getElementById('checkoutForm')?.addEventListener('submit', function(e) 
     Livewire.on('checkout-plan-changed', ({ planId }) => update(planId));
 })();
 
+// ===== PLACE ORDER: disable + show progress while submitting =====
+document.getElementById('checkoutForm')?.addEventListener('submit', function (e) {
+    const btn = document.getElementById('placeOrderBtn');
+    if (btn.disabled) { e.preventDefault(); return; }
+    btn.disabled = true;
+    btn.innerHTML = '<i class="bi bi-arrow-repeat animate-spin"></i> Processing…';
+});
+
 // ===== DELIVERY PROXY: search a registered user, confirm, assign =====
 (function () {
     const searchInput = document.getElementById('proxySearchInput');
@@ -650,17 +411,20 @@ document.getElementById('checkoutForm')?.addEventListener('submit', function(e) 
 
     async function search() {
         const q = searchInput.value.trim();
-        if (q.length < 3) { results.innerHTML = '<small style="color:var(--text-dim);font-size:12px;">Type at least 3 characters to search.</small>'; return; }
+        if (q.length < 3) {
+            results.innerHTML = '<p class="text-xs text-slate">Type at least 3 characters to search.</p>';
+            return;
+        }
         searchBtn.disabled = true;
-        searchBtn.innerHTML = '<span class="spinner-border spinner-border-sm" style="width:12px;height:12px;"></span>';
+        searchBtn.innerHTML = '<i class="bi bi-arrow-repeat animate-spin"></i>';
         try {
             const res = await fetch('/checkout/proxy/search?q=' + encodeURIComponent(q), {
-                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrf }
+                headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-CSRF-TOKEN': csrf },
             });
             const data = await res.json();
             renderResults(data.users || []);
         } catch (e) {
-            results.innerHTML = '<small style="color:#ef4444;font-size:12px;">Could not search. Try again.</small>';
+            results.innerHTML = '<p class="text-xs font-semibold text-ember-deep">Could not search. Try again.</p>';
         } finally {
             searchBtn.disabled = false;
             searchBtn.innerHTML = '<i class="bi bi-search"></i> Find';
@@ -669,16 +433,16 @@ document.getElementById('checkoutForm')?.addEventListener('submit', function(e) 
 
     function renderResults(users) {
         if (!users.length) {
-            results.innerHTML = '<small style="color:var(--text-dim);font-size:12px;">No matching store members found.</small>';
+            results.innerHTML = '<p class="text-xs text-slate">No matching store members found.</p>';
             return;
         }
         results.innerHTML = users.map(u => `
-            <div class="fp-chk-radio-card mb-2" style="padding:12px 14px;cursor:default;">
-                <div style="flex:1;min-width:0;">
-                    <strong style="color:var(--text-primary);font-size:13px;display:block;">${esc(u.name)}</strong>
-                    <span style="color:var(--text-dim);font-size:12px;">${esc(u.email || '')}${u.phone ? ' · ' + esc(u.phone) : ''}</span>
+            <div class="flex items-center gap-3 rounded-lg border border-ink/10 bg-paper-deep/40 p-3">
+                <div class="min-w-0 flex-1">
+                    <p class="truncate text-sm font-semibold text-ink">${esc(u.name)}</p>
+                    <p class="truncate text-xs text-slate">${esc(u.email || '')}${u.phone ? ' · ' + esc(u.phone) : ''}</p>
                 </div>
-                <button type="button" class="fp-btn fp-btn-gold" data-id="${u.id}" data-name="${escAttr(u.name)}" style="padding:6px 14px;font-size:12px;flex-shrink:0;">Assign</button>
+                <button type="button" class="os-btn os-btn-mango os-btn-sm shrink-0" data-id="${u.id}" data-name="${escAttr(u.name)}">Assign</button>
             </div>
         `).join('');
         results.querySelectorAll('button[data-id]').forEach(btn => {
@@ -687,20 +451,17 @@ document.getElementById('checkoutForm')?.addEventListener('submit', function(e) 
     }
 
     function confirmAssign(id, name) {
-        // Confirmation step before the proxy is actually assigned.
         const ok = window.confirm('Assign ' + name + ' to receive this delivery on your behalf?');
         if (!ok) return;
         hidden.value = id;
         assignedName.textContent = name;
-        assigned.style.display = 'block';
+        assigned.classList.remove('hidden');
         results.innerHTML = '';
         searchInput.value = '';
     }
 
     function esc(s) {
-        const d = document.createElement('div');
-        d.textContent = s || '';
-        return d.innerHTML;
+        return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
     }
     function escAttr(s) {
         return esc(s).replace(/"/g, '&quot;');
@@ -711,7 +472,8 @@ document.getElementById('checkoutForm')?.addEventListener('submit', function(e) 
     clearBtn?.addEventListener('click', e => {
         e.preventDefault();
         hidden.value = '';
-        assigned.style.display = 'none';
+        assigned.classList.add('hidden');
     });
 })();
 </script>
+@endpush

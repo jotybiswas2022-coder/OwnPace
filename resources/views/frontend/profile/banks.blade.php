@@ -1,181 +1,85 @@
-@extends('frontend.app')
-@section('title', 'My Bank Accounts — OwnPace Store')
-
-@push('styles')
-<style>
-/* ===== BANKS HERO ===== */
-.fp-bk-hero {
-    position: relative; padding: 50px 0 28px; overflow: hidden;
-    background: linear-gradient(135deg, #0A0A0B 0%, #1A1A1E 30%, #0A0A0B 70%);
-    border-bottom: 1px solid var(--card-border);
-}
-.fp-bk-hero-grid {
-    position: absolute; inset: 0; pointer-events: none;
-    background-image:
-        linear-gradient(rgba(234,179,8,0.025) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(234,179,8,0.025) 1px, transparent 1px);
-    background-size: 60px 60px;
-}
-.fp-bk-orb {
-    position: absolute; width: 400px; height: 400px; border-radius: 50%;
-    background: radial-gradient(circle, rgba(234,179,8,0.04) 0%, transparent 60%);
-    top: -150px; right: -80px; pointer-events: none;
-    animation: bkPulse 6s ease-in-out infinite;
-}
-@keyframes bkPulse { 0%,100%{transform:scale(1);opacity:0.4} 50%{transform:scale(1.15);opacity:0.8} }
-
-.fp-bk-section { padding-bottom: 80px; min-height: 60vh; }
-.fp-alert { display:flex;align-items:center;gap:10px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);color:#4ade80;padding:14px 20px;border-radius:var(--radius-sm);font-weight:500;font-size:13px;margin-bottom:24px;animation:alertSlide 0.4s ease-out; }
-@keyframes alertSlide { from{opacity:0;transform:translateY(-10px)} to{opacity:1;transform:translateY(0)} }
-
-.fp-bank-card {
-    background: var(--card-dark);border: 1px solid var(--card-border);
-    border-radius: var(--radius); padding: 24px;
-    position: relative; height: 100%;
-    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-.fp-bank-card::after {
-    content: ''; position: absolute; inset: 0; border-radius: var(--radius);
-    pointer-events: none; opacity: 0;
-    transition: opacity 0.4s;
-    box-shadow: inset 0 0 0 1px rgba(234,179,8,0.15);
-}
-.fp-bank-card:hover::after { opacity: 1; }
-.fp-bank-card:hover {
-    border-color: rgba(234,179,8,0.25);
-    transform: translateY(-4px);
-    box-shadow: 0 12px 36px rgba(0,0,0,0.3);
-}
-.fp-bank-icon {
-    width: 44px; height: 44px; border-radius: 10px;
-    background: rgba(234,179,8,0.1);
-    display: flex; align-items: center; justify-content: center;
-    color: var(--gold-500); font-size: 20px; margin-bottom: 12px;
-}
-.fp-bank-card h5 { color: var(--text-primary); font-size: 16px; font-weight: 600; }
-.fp-bank-account {
-    font-family: 'Syne', sans-serif;
-    color: var(--gold-400); font-size: 18px;
-    font-weight: 700; margin: 4px 0;
-    letter-spacing: 1px;
-}
-.fp-bank-name { color: var(--text-dim); font-size: 13px; }
-.fp-bank-delete {
-    position: absolute; top: 12px; right: 12px;
-    color: var(--text-dim); padding: 6px;
-    border-radius: 6px; transition: all 0.3s;
-    text-decoration: none;
-}
-.fp-bank-delete:hover { color: #ef4444; background: rgba(239,68,68,0.06); }
-
-.fp-bank-empty {
-    text-align: center; padding: 60px 20px;
-}
-.fp-bank-empty-icon {
-    width: 72px; height: 72px; border-radius: 20px;
-    background: var(--card-dark); border: 1px solid var(--card-border);
-    display: flex; align-items: center; justify-content: center;
-    margin: 0 auto 16px; font-size: 28px; color: var(--text-dim);
-    transition: all 0.3s;
-}
-.fp-bank-empty:hover .fp-bank-empty-icon {
-    border-color: rgba(234,179,8,0.2); transform: scale(1.05);
-}
-.fp-bank-empty p { color: var(--text-muted); font-size: 15px; margin: 0; }
-
-.fp-input { width:100%;padding:12px 16px;background:var(--surface-dark);border:1.5px solid var(--card-border);border-radius:var(--radius-sm);color:var(--text-primary);font-size:14px;font-family:inherit;outline:none;transition:all 0.25s ease; }
-.fp-input:focus { border-color:var(--gold-500);box-shadow:0 0 0 3px rgba(234,179,8,0.08); }
-.fp-input::placeholder { color:var(--text-dim); }
-
-.fp-modal .modal-content { background:var(--card-dark);border:1px solid var(--card-border);border-radius:var(--radius-lg); }
-.fp-modal .modal-header { border-bottom-color:var(--card-border);padding:20px 24px; }
-.fp-modal .modal-title { color:var(--text-primary);font-family:'Syne',sans-serif;font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px; }
-.fp-modal .modal-title i { color:var(--gold-500); }
-.fp-modal .modal-body { padding:24px; }
-.fp-modal .modal-footer { border-top-color:var(--card-border);padding:16px 24px; }
-
-@media (max-width: 768px) {
-    .fp-bk-hero { padding: 36px 0 20px; }
-}
-</style>
-@endpush
+@extends('frontend.layouts.store')
+@section('title', 'My Bank Accounts — '.storeName())
 
 @section('content')
-<section class="fp-bk-hero">
-    <div class="fp-bk-hero-grid" aria-hidden="true"></div>
-    <div class="fp-bk-orb" aria-hidden="true"></div>
-    <div class="container">
-        <div class="section-head reveal-up" style="text-align:left;">
-            <div class="section-badge" style="display:inline-flex;"><i class="bi bi-bank"></i> Bank Accounts</div>
-            <h2>My Bank Accounts</h2>
-            <p>Manage your saved bank accounts for withdrawals</p>
+
+<section class="os-section-sm border-b border-ink/10 bg-white">
+    <div class="mx-auto flex max-w-7xl flex-wrap items-end justify-between gap-4 px-4 sm:px-6">
+        <div>
+            <span class="os-eyebrow"><i class="bi bi-bank"></i> Bank accounts</span>
+            <h1 class="mt-2 font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">My bank accounts</h1>
+            <p class="mt-2 text-sm text-slate sm:text-base">Manage your saved bank accounts for withdrawals.</p>
         </div>
+        <button type="button" class="os-btn os-btn-brand os-btn-sm" x-data @click="$dispatch('open-bank-modal')"><i class="bi bi-plus-lg"></i> Add bank</button>
     </div>
 </section>
 
-<section class="fp-bk-section">
-    <div class="container">
-        @if(session('success'))
-        <div class="fp-alert reveal-up"><i class="bi bi-check-circle-fill"></i> {{ session('success') }}</div>
+@include('frontend.partials.account-nav')
+
+<section class="os-section" x-data="{ modalOpen: false }" @open-bank-modal.window="modalOpen = true">
+    <div class="mx-auto max-w-5xl px-4 sm:px-6">
+        @if($errors->any())
+        <div class="mb-6 rounded-xl border border-ember/30 bg-ember/5 p-4" role="alert">
+            <p class="flex items-center gap-2 text-sm font-semibold text-ember-deep"><i class="bi bi-exclamation-triangle-fill"></i> Please fix the errors below.</p>
+        </div>
         @endif
 
-        <div class="row g-4">
-            <div class="col-lg-3">
-                @include('frontend.partials.account-sidebar')
+        @if(($banks ?? collect())->count() > 0)
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3" x-reveal>
+            @foreach($banks ?? [] as $bank)
+            <div class="os-card os-card-hover relative p-5">
+                <span class="flex h-11 w-11 items-center justify-center rounded-xl bg-mango/15 text-lg text-mango-deep"><i class="bi bi-bank2"></i></span>
+                <h2 class="mt-3 text-sm font-bold text-ink">{{ $bank->bank_name }}</h2>
+                <p class="os-price mt-1">•••• {{ substr($bank->account_number, -4) }}</p>
+                <p class="mt-0.5 text-xs text-slate">{{ $bank->account_name }}</p>
+                <a href="{{ route('profile.banks.delete', $bank) }}" class="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-lg text-slate transition-colors hover:bg-ember/10 hover:text-ember-deep" onclick="return confirm('Remove this bank account?')" aria-label="Remove bank account ending in {{ substr($bank->account_number, -4) }}">
+                    <i class="bi bi-trash-fill"></i>
+                </a>
             </div>
-            <div class="col-lg-9">
-                <div class="d-flex justify-content-end mb-4 reveal-up">
-                    <a href="#" class="btn-primary-gold" data-bs-toggle="modal" data-bs-target="#addBankModal"><i class="bi bi-plus-lg"></i> Add Bank</a>
-                </div>
-                <div class="row g-4">
-            @forelse($banks ?? [] as $bank)
-            <div class="col-lg-4 col-md-6">
-                <div class="fp-bank-card reveal-up">
-                    <div class="fp-bank-icon"><i class="bi bi-bank2"></i></div>
-                    <h5>{{ $bank->bank_name }}</h5>
-                    <p class="fp-bank-account">•••• {{ substr($bank->account_number, -4) }}</p>
-                    <span class="fp-bank-name">{{ $bank->account_name }}</span>
-                    <a href="{{ route('profile.banks.delete', $bank) }}" class="fp-bank-delete" onclick="return confirm('Remove this bank account?')" aria-label="Remove bank account ending in {{ substr($bank->account_number, -4) }}">
-                        <i class="bi bi-trash-fill"></i>
-                    </a>
-                </div>
+            @endforeach
+        </div>
+        @else
+        <div class="mx-auto max-w-lg" x-reveal>
+            <div class="os-card flex flex-col items-center justify-center px-6 py-16 text-center">
+                <span class="os-empty-icon"><i class="bi bi-bank"></i></span>
+                <h3 class="mt-5 font-display text-lg font-bold text-ink">No bank accounts yet</h3>
+                <p class="mt-2 max-w-sm text-sm leading-relaxed text-slate">Add a bank account to withdraw your wallet funds — a 10% processing fee applies.</p>
+                <button type="button" class="os-btn os-btn-brand os-btn-sm mt-6" @click="modalOpen = true"><i class="bi bi-plus-lg"></i> Add bank account</button>
             </div>
-            @empty
-            <div class="col-12">
-                <div class="fp-bank-empty reveal-up">
-                    <div class="fp-bank-empty-icon"><i class="bi bi-bank"></i></div>
-                    <p>No bank accounts added yet.</p>
+        </div>
+        @endif
+
+        {{-- Add bank modal --}}
+        <div x-cloak x-show="modalOpen" x-transition.opacity class="fixed inset-0 z-[90] flex items-end justify-center bg-ink/60 p-0 backdrop-blur-sm sm:items-center sm:p-6" role="dialog" aria-modal="true" aria-label="Add bank account" @keydown.escape.window="modalOpen = false">
+            <div class="w-full max-w-md rounded-t-2xl bg-white p-6 shadow-lift sm:rounded-2xl sm:p-7" @click.outside="modalOpen = false">
+                <div class="mb-5 flex items-center justify-between">
+                    <h3 class="font-display text-lg font-bold text-ink"><i class="bi bi-bank mr-2 text-mango-deep"></i> Add bank account</h3>
+                    <button type="button" class="flex h-9 w-9 items-center justify-center rounded-lg text-slate transition-colors hover:bg-paper-deep hover:text-ink" @click="modalOpen = false" aria-label="Close">
+                        <i class="bi bi-x-lg"></i>
+                    </button>
                 </div>
-            </div>
-            @endforelse
-                </div>
+                <form method="POST" action="{{ route('profile.banks.store') }}" class="grid gap-4">
+                    @csrf
+                    <div>
+                        <label for="os-bank-name" class="os-label">Bank name</label>
+                        <input id="os-bank-name" type="text" name="bank_name" class="os-input" placeholder="e.g. GTBank" required>
+                    </div>
+                    <div>
+                        <label for="os-bank-acct-name" class="os-label">Account name</label>
+                        <input id="os-bank-acct-name" type="text" name="account_name" class="os-input" placeholder="Name on the account" required>
+                    </div>
+                    <div>
+                        <label for="os-bank-acct-number" class="os-label">Account number</label>
+                        <input id="os-bank-acct-number" type="text" name="account_number" class="os-input" placeholder="10-digit account number" required>
+                    </div>
+                    <div class="flex items-center justify-end gap-3">
+                        <button type="button" class="os-btn os-btn-ghost" @click="modalOpen = false">Cancel</button>
+                        <button type="submit" class="os-btn os-btn-brand"><i class="bi bi-check-lg"></i> Save bank account</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </section>
 
-<div class="modal fade" id="addBankModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content fp-modal">
-            <div class="modal-header">
-                <h5 class="modal-title"><i class="bi bi-bank"></i> Add Bank Account</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <form method="POST" action="{{ route('profile.banks.store') }}">
-                @csrf
-                <div class="modal-body">
-                    <div class="row g-3">
-                        <div class="col-12"><input type="text" name="bank_name" class="fp-input" placeholder="Bank Name" required></div>
-                        <div class="col-12"><input type="text" name="account_name" class="fp-input" placeholder="Account Name" required></div>
-                        <div class="col-12"><input type="text" name="account_number" class="fp-input" placeholder="Account Number" required></div>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="submit" class="btn-primary-gold w-100 justify-content-center">Save Bank Account</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-@include('frontend.partials.footer')
 @endsection

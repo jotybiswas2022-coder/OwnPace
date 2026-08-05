@@ -125,6 +125,8 @@
         </div>
     </div>
 
+    @include('frontend.partials.toasts')
+
     @livewireScripts
     @stack('scripts')
 </body>

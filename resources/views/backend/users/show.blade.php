@@ -188,17 +188,17 @@
                     <tbody>
                         @forelse($user->orders as $o)
                         <tr>
-                            <td class="font-mono text-xs text-slate">{{ $o->order_number }}</td>
-                            <td>
+                            <td data-label="Order" class="font-mono text-xs text-slate">{{ $o->order_number }}</td>
+                            <td data-label="Plan">
                                 @if($o->installmentPlan)
                                     <span class="os-chip">{{ $o->installmentPlan->name }}</span>
                                 @else
                                     <span class="text-xs text-slate">Pay once</span>
                                 @endif
                             </td>
-                            <td class="font-mono text-sm text-ink">{{ formatPrice($o->grand_total ?? $o->total_amount, 0) }}</td>
-                            <td class="font-mono text-sm text-grass">{{ formatPrice($o->paid_amount, 0) }}</td>
-                            <td>
+                            <td data-label="Total" class="font-mono text-sm text-ink">{{ formatPrice($o->grand_total ?? $o->total_amount, 0) }}</td>
+                            <td data-label="Paid" class="font-mono text-sm text-grass">{{ formatPrice($o->paid_amount, 0) }}</td>
+                            <td data-label="Progress">
                                 @php
                                     $total = (float) ($o->grand_total ?? $o->total_amount ?: 1);
                                     $pct = $total > 0 ? round(((float) $o->paid_amount / $total) * 100) : 0;
@@ -210,13 +210,13 @@
                                     <span class="font-mono text-xs text-slate">{{ min($pct, 100) }}%</span>
                                 </div>
                             </td>
-                            <td>
+                            <td data-label="Status">
                                 @php
                                     $ochip = in_array($o->status, ['completed', 'fully_paid']) ? 'grass' : (in_array($o->status, ['cancelled', 'failed']) ? 'ember' : (in_array($o->status, ['pending', 'partial_paid']) ? 'mango' : 'brand'));
                                 @endphp
                                 <span class="os-chip os-chip-{{ $ochip }}">{{ ucwords(str_replace('_', ' ', $o->status)) }}</span>
                             </td>
-                            <td><a href="{{ route('admin.orders.show', $o) }}" class="os-btn os-btn-ghost os-btn-sm"><i class="bi bi-arrow-right"></i></a></td>
+                            <td data-label="View"><a href="{{ route('admin.orders.show', $o) }}" class="os-btn os-btn-ghost os-btn-sm"><i class="bi bi-arrow-right"></i></a></td>
                         </tr>
                         @empty
                         <tr><td colspan="7" class="py-8 text-center text-sm text-slate">No orders yet.</td></tr>

@@ -76,7 +76,7 @@
             <tbody>
                 @forelse($users as $u)
                 <tr>
-                    <td>
+                    <td data-label="Customer">
                         <div class="flex items-center gap-3">
                             <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand/10 font-display text-sm font-bold text-brand">{{ strtoupper(substr($u->name ?? '?', 0, 1)) }}</span>
                             <div class="min-w-0">
@@ -85,16 +85,16 @@
                             </div>
                         </div>
                     </td>
-                    <td class="text-sm text-slate">{{ $u->phone ?? '—' }}</td>
-                    <td class="font-mono text-sm text-ink">{{ $u->orders_count }}</td>
-                    <td>
+                    <td data-label="Phone" class="text-sm text-slate">{{ $u->phone ?? '—' }}</td>
+                    <td data-label="Orders" class="font-mono text-sm text-ink">{{ $u->orders_count }}</td>
+                    <td data-label="Identity">
                         @php
                             $iv = $u->identity_verification ?? 'unverified';
                             $vchip = $iv === 'verified' ? 'grass' : ($iv === 'rejected' ? 'ember' : ($iv === 'pending' ? 'mango' : 'brand'));
                         @endphp
                         <span class="os-chip os-chip-{{ $vchip }}">{{ ucfirst($iv) }}</span>
                     </td>
-                    <td>
+                    <td data-label="Status">
                         @if($u->is_suspended)
                             <span class="os-chip os-chip-ember"><i class="bi bi-lock-fill"></i> Suspended</span>
                         @elseif(!$u->is_active)
@@ -103,7 +103,7 @@
                             <span class="os-chip os-chip-grass"><i class="bi bi-check-circle-fill"></i> Active</span>
                         @endif
                     </td>
-                    <td>
+                    <td data-label="Role">
                         @if($u->getRoleNames()->isNotEmpty())
                             @foreach($u->getRoleNames() as $rn)
                                 <span class="os-chip {{ $rn === 'Super Admin' ? 'os-chip-mango' : 'os-chip-brand' }}">{{ $rn }}</span>
@@ -112,7 +112,7 @@
                             <span class="text-xs text-slate">{{ $u->is_admin ? 'Admin (legacy)' : 'Customer' }}</span>
                         @endif
                     </td>
-                    <td>
+                    <td data-label="Actions">
                         <div class="flex items-center gap-1.5">
                             <a href="{{ route('admin.users.show', $u) }}" class="os-btn os-btn-ghost os-btn-sm"><i class="bi bi-eye-fill"></i> View</a>
                             @if($u->is_suspended)
