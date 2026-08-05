@@ -25,7 +25,7 @@
                         <div class="os-card flex flex-wrap items-center gap-4 p-4 sm:flex-nowrap sm:p-5" data-item-id="{{ $item['id'] }}">
                             <a href="{{ url('/product/'.$item['slug']) }}" class="block h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-paper-deep ring-1 ring-ink/10 transition-transform duration-200 hover:scale-[1.03]">
                                 @if($item['thumbnail'])
-                                    <img src="{{ asset('storage/'.$item['thumbnail']) }}" alt="{{ $item['name'] }}" loading="lazy" class="h-full w-full object-cover">
+                                    <img src="{{ imageUrl($item['thumbnail']) }}" alt="{{ $item['name'] }}" loading="lazy" class="h-full w-full object-cover">
                                 @else
                                     <span class="flex h-full w-full items-center justify-center text-2xl text-ink/20"><i class="bi bi-image"></i></span>
                                 @endif

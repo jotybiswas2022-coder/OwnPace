@@ -12,9 +12,21 @@ class CartController extends Controller
     {
         $cart = session()->get('cart', []);
         $total = 0;
-        foreach ($cart as $item) {
+        foreach ($cart as $key => $item) {
+            $product = Product::with('primaryImage')->find($item['id'] ?? $key);
+            if ($product) {
+                $image = $product->thumbnail && !preg_match('/^https?:\/\//i', $product->thumbnail)
+                    && !str_starts_with($product->thumbnail, 'C:\\')
+                    && !str_starts_with($product->thumbnail, '/tmp/')
+                    ? $product->thumbnail
+                    : ($product->primaryImage?->image_path ?: $product->images()->first()?->image_path);
+                $cart[$key]['thumbnail'] = $image;
+                $cart[$key]['name'] = $product->name;
+                $cart[$key]['slug'] = $product->slug;
+            }
             $total += $item['price'] * $item['quantity'];
         }
+        session()->put('cart', $cart);
         return view('frontend.cart', compact('cart', 'total'));
     }
 
@@ -32,6 +44,14 @@ class CartController extends Controller
         $product = Product::findOrFail($request->product_id);
         $cart = session()->get('cart', []);
 
+        $image = null;
+        if ($product->thumbnail && !preg_match('/^https?:\/\//i', $product->thumbnail) && !str_starts_with($product->thumbnail, 'C:\\') && !str_starts_with($product->thumbnail, '/tmp/')) {
+            $image = $product->thumbnail;
+        }
+        if (!$image) {
+            $image = $product->primaryImage?->image_path ?: $product->images()->first()?->image_path;
+        }
+
         if (isset($cart[$product->id])) {
             $cart[$product->id]['quantity'] += $request->quantity;
         } else {
@@ -40,7 +60,7 @@ class CartController extends Controller
                 'name' => $product->name,
                 'slug' => $product->slug,
                 'price' => $product->price,
-                'thumbnail' => $product->thumbnail,
+                'thumbnail' => $image,
                 'quantity' => $request->quantity,
             ];
         }
