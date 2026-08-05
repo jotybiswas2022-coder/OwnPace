@@ -38,7 +38,7 @@
                     </td>
                     <td data-label="Category" class="text-slate">{{ $p->category?->name ?: '—' }}</td>
                     <td data-label="Price" class="font-mono font-semibold text-mango-ink">{{ formatPrice($p->price, 0) }}</td>
-                    <td data-label="Stock" class="text-slate">{{ $p->stock ?? 'N/A' }}</td>
+                    <td data-label="Stock" class="text-slate">{{ $p->stock_quantity ?? 'N/A' }}</td>
                     <td data-label="Status">
                         <span class="os-chip {{ $p->status == 'active' ? 'os-chip-grass' : 'os-chip-ember' }}">{{ ucfirst($p->status) }}</span>
                     </td>
