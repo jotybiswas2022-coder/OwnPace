@@ -11,6 +11,13 @@ use App\Http\Controllers\user\ProfileController;
 use App\Http\Controllers\api\PaymentController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 
+// ===== LOCAL ASSET SERVING =====
+// Custom docroot deployment (see app/helper.php::servePublicFile): stream
+// Vite bundles (/build/*) and public storage files (/storage/*) through the
+// framework when the webserver cannot serve them as static files.
+Route::get('/build/{path}', fn (string $path) => servePublicFile('build/'.$path))->where('path', '.*');
+Route::get('/storage/{path}', fn (string $path) => servePublicFile('storage/'.$path))->where('path', '.*');
+
 // ===== FRONTEND / PUBLIC ROUTES =====
 Route::controller(SiteController::class)->group(function () {
     Route::get('/', 'index')->name('home');

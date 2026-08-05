@@ -55,6 +55,75 @@ function imageUrl($path)
     return asset('storage/' . $path);
 }
 
+/**
+ * Serve a file from the Laravel public dir through the framework.
+ *
+ * This deployment boots Laravel from a custom docroot (XAMPP htdocs root),
+ * so Vite's /build/* bundles and the public storage symlink are not reachable
+ * as static files. This helper streams them via a scoped route while keeping
+ * the file inside the intended directories (path-traversal safe).
+ */
+function servePublicFile($relative)
+{
+    $relative = str_replace('\\', '/', ltrim((string) $relative, '/'));
+
+    // Reject empty, traversal and null-byte payloads.
+    if ($relative === '' || str_contains($relative, "\0") || preg_match('#(^|/)\.\.(/|$)#', $relative)) {
+        abort(404);
+    }
+
+    $full = realpath(public_path($relative));
+    if (! $full || ! is_file($full)) {
+        abort(404);
+    }
+
+    // Allow files inside the public dir itself, or inside the public storage
+    // symlink target (core/storage/app/public).
+    $allowedBases = array_filter([realpath(public_path()), realpath(public_path('storage'))]);
+    $within = false;
+    foreach ($allowedBases as $base) {
+        if ($base && str_starts_with($full, $base . DIRECTORY_SEPARATOR)) {
+            $within = true;
+            break;
+        }
+    }
+    if (! $within) {
+        abort(404);
+    }
+
+    // Symfony's file mime guesser is unreliable on Windows — map by extension.
+    $mimes = [
+        'css' => 'text/css',
+        'js' => 'application/javascript',
+        'mjs' => 'application/javascript',
+        'map' => 'application/json',
+        'json' => 'application/json',
+        'svg' => 'image/svg+xml',
+        'png' => 'image/png',
+        'jpg' => 'image/jpeg',
+        'jpeg' => 'image/jpeg',
+        'gif' => 'image/gif',
+        'webp' => 'image/webp',
+        'avif' => 'image/avif',
+        'ico' => 'image/x-icon',
+        'woff' => 'font/woff',
+        'woff2' => 'font/woff2',
+        'ttf' => 'font/ttf',
+        'otf' => 'font/otf',
+        'eot' => 'application/vnd.ms-fontobject',
+        'pdf' => 'application/pdf',
+        'mp4' => 'video/mp4',
+        'webm' => 'video/webm',
+        'txt' => 'text/plain',
+    ];
+    $ext = strtolower(pathinfo($full, PATHINFO_EXTENSION));
+
+    return response()->file($full, [
+        'Content-Type' => $mimes[$ext] ?? 'application/octet-stream',
+        'Cache-Control' => 'public, max-age=86400',
+    ]);
+}
+
 function getFee($slug)
 {
     $fee = ProductFee::where('slug', $slug)->first();

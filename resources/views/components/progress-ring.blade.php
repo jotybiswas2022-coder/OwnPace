@@ -6,6 +6,7 @@
     'stroke' => 8,          // ring thickness in px
     'color' => 'mango',     // mango | grass (paid-off)
     'animate' => true,      // fill in on view
+    'bound' => null,        // Alpine expression driving the fill reactively (overrides animate)
     'className' => '',
 ])
 
@@ -17,16 +18,21 @@
     $done = $pct >= 100;
     $uid = 'pr-' . md5(uniqid($size . $pct . $amount, true));
     $barColor = $done || $color === 'grass' ? 'var(--grass)' : 'var(--mango)';
+    $dataAttr = $bound
+        ? 'get pct() { return Math.max(0, Math.min(100, Number(' . $bound . ') || 0)); }'
+        : 'pct: ' . ($animate ? 0 : $pct);
 @endphp
 
 <div
     class="progress-ring {{ $done ? 'pr-done' : '' }} {{ $className }}"
+    {!! $bound ? ' :class="pct >= 100 ? \'pr-done\' : \'\'"' : '' !!}
     style="width: {{ $size }}px; height: {{ $size }}px;"
     role="img"
     aria-label="{{ $label ?: 'Progress' }} {{ number_format($pct) }}%"
-    x-data="{ pct: {{ $animate ? 0 : $pct }}, target: {{ $pct }} }"
+    x-data="{ {{ $dataAttr }}, target: {{ $pct }} }"
     x-init="
         $nextTick(() => {
+            if ({{ $bound ? 'true' : 'false' }}) return;
             if (!{{ $animate ? 'true' : 'false' }}) { pct = target; return; }
             const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
             if (reduced) { pct = target; return; }

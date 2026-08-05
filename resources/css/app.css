@@ -636,6 +636,434 @@
 }
 
 /* ============================================================
+   Glass layer — frosted panels, aurora backdrops, motion
+   These classes power the modern storefront surfaces: translucent
+   blur panels, drifting aurora blobs, marquee strips and the
+   micro-interactions used across the homepage.
+   ============================================================ */
+
+/* ---- Frosted panels ---- */
+.glass {
+    background: rgba(255, 255, 255, 0.55);
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    backdrop-filter: blur(18px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    box-shadow:
+        0 18px 40px -18px rgba(46, 42, 107, 0.22),
+        inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.glass-strong {
+    background: rgba(255, 255, 255, 0.74);
+    -webkit-backdrop-filter: blur(26px) saturate(160%);
+    backdrop-filter: blur(26px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    box-shadow:
+        0 30px 60px -24px rgba(46, 42, 107, 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.95);
+}
+
+.glass-dark {
+    background: rgba(18, 16, 48, 0.42);
+    -webkit-backdrop-filter: blur(18px) saturate(150%);
+    backdrop-filter: blur(18px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 18px 40px -18px rgba(10, 9, 30, 0.5);
+}
+
+.glass-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.9rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.glass-chip i {
+    color: var(--mango);
+}
+
+/* ---- Aurora backdrops ---- */
+.aurora-blob {
+    position: absolute;
+    border-radius: 9999px;
+    filter: blur(72px);
+    animation: os-drift 20s ease-in-out infinite alternate;
+    will-change: transform;
+}
+
+.aurora-a {
+    width: 44rem;
+    height: 44rem;
+    top: -16rem;
+    right: -12rem;
+    background: radial-gradient(circle at 30% 30%, rgba(245, 166, 35, 0.45), rgba(74, 69, 153, 0.14) 45%, transparent 72%);
+}
+
+.aurora-b {
+    width: 38rem;
+    height: 38rem;
+    bottom: -14rem;
+    left: -10rem;
+    background: radial-gradient(circle at 60% 40%, rgba(74, 69, 153, 0.55), rgba(46, 42, 107, 0.22) 52%, transparent 74%);
+    animation-delay: -7s;
+}
+
+.aurora-c {
+    width: 30rem;
+    height: 30rem;
+    top: 28%;
+    left: 38%;
+    background: radial-gradient(circle at 50% 50%, rgba(245, 166, 35, 0.22), transparent 66%);
+    animation-delay: -13s;
+}
+
+@keyframes os-drift {
+    0%   { transform: translate3d(0, 0, 0) scale(1); }
+    50%  { transform: translate3d(46px, -34px, 0) scale(1.08); }
+    100% { transform: translate3d(-34px, 28px, 0) scale(0.94); }
+}
+
+/* Film grain — kills the flat AI-gradient look */
+.grain {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.7'/%3E%3C/svg%3E");
+}
+
+/* ---- Gradient display text ---- */
+.text-aurora {
+    background: linear-gradient(92deg, #ffd28a 0%, #f5a623 48%, #ffe0b2 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+/* ---- Marquee strip ---- */
+.marquee {
+    position: relative;
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
+}
+
+.marquee-track {
+    display: flex;
+    align-items: center;
+    width: max-content;
+    animation: os-marquee 32s linear infinite;
+}
+
+.marquee-copy {
+    display: flex;
+    align-items: center;
+    gap: 3rem;
+    padding-right: 3rem;
+}
+
+.marquee:hover .marquee-track {
+    animation-play-state: paused;
+}
+
+@keyframes os-marquee {
+    to { transform: translateX(-50%); }
+}
+
+/* ---- Shine sweep (buttons / cards) ---- */
+.os-shine {
+    position: relative;
+    overflow: hidden;
+}
+
+.os-shine::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-130%) skewX(-18deg);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.38), transparent);
+    pointer-events: none;
+}
+
+.os-shine:hover::after {
+    animation: os-shine-sweep 0.9s ease;
+}
+
+@keyframes os-shine-sweep {
+    to { transform: translateX(130%) skewX(-18deg); }
+}
+
+/* ---- Gentle float ---- */
+@keyframes os-float {
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-12px); }
+}
+
+.os-float-slow  { animation: os-float 7s ease-in-out infinite; }
+.os-float-slower { animation: os-float 9.5s ease-in-out infinite; animation-delay: -3.2s; }
+
+/* ---- 3D tilt scene ---- */
+.tilt-scene {
+    perspective: 1300px;
+}
+
+.tilt-3d {
+    transform-style: preserve-3d;
+    transform-origin: 50% 100%;
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.5s ease;
+    will-change: transform;
+}
+
+.tilt-scene:hover .tilt-3d {
+    transform: translateY(-8px) rotateX(3deg) rotateY(-3deg);
+}
+
+/* ---- Hero backdrop ---- */
+.hero-dark {
+    background: linear-gradient(168deg, #211e52 0%, #19163f 46%, #110e2c 100%);
+}
+
+/* ---- Glass ghost button (on dark) ---- */
+.glass-btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.875rem 1.5rem;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    font-size: 0.875rem;
+    line-height: 1;
+    white-space: nowrap;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.glass-btn-ghost:hover {
+    background: rgba(255, 255, 255, 0.16);
+    border-color: rgba(255, 255, 255, 0.55);
+    transform: translateY(-1px);
+    box-shadow: 0 14px 30px -12px rgba(10, 9, 30, 0.5);
+}
+
+/* ---- Hero card ---- */
+.hero-card {
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.45s ease;
+}
+
+.hero-card:hover {
+    box-shadow: 0 44px 80px -28px rgba(8, 7, 26, 0.55);
+}
+
+/* ---- Glass nav ---- */
+.nav-glass {
+    background: rgba(255, 255, 255, 0.66);
+    -webkit-backdrop-filter: blur(20px) saturate(160%);
+    backdrop-filter: blur(20px) saturate(160%);
+    border-bottom: 1px solid rgba(46, 42, 107, 0.08);
+}
+
+.nav-link {
+    position: relative;
+}
+
+.nav-link::after {
+    content: "";
+    position: absolute;
+    left: 0.75rem;
+    right: 0.75rem;
+    bottom: 0.45rem;
+    height: 2px;
+    border-radius: 2px;
+    background: var(--mango);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.nav-link:hover::after,
+.nav-link.active::after {
+    transform: scaleX(1);
+}
+
+/* ---- Glass footer ---- */
+.footer-glass {
+    background:
+        radial-gradient(1100px 420px at 85% -10%, rgba(74, 69, 153, 0.55), transparent 60%),
+        radial-gradient(900px 380px at 0% 110%, rgba(245, 166, 35, 0.1), transparent 55%),
+        linear-gradient(180deg, #171531 0%, #100e29 100%);
+    color: rgba(255, 255, 255, 0.82);
+}
+
+/* ---- Product cards ---- */
+.pcard {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: rgba(255, 255, 255, 0.78);
+    border: 1px solid rgba(255, 255, 255, 0.95);
+    border-radius: 1.25rem;
+    overflow: hidden;
+    box-shadow: 0 12px 34px -16px rgba(46, 42, 107, 0.16);
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease, border-color 0.35s ease;
+}
+
+.pcard:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 32px 64px -26px rgba(46, 42, 107, 0.34);
+    border-color: rgba(245, 166, 35, 0.55);
+}
+
+.pcard-media {
+    position: relative;
+    aspect-ratio: 1;
+    overflow: hidden;
+    background: var(--paper-deep);
+}
+
+.pcard-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.pcard:hover .pcard-img {
+    transform: scale(1.08);
+}
+
+.pcard-arrow {
+    position: absolute;
+    right: 0.9rem;
+    bottom: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--indigo);
+    box-shadow: 0 10px 24px -8px rgba(46, 42, 107, 0.45);
+    opacity: 0;
+    transform: translateY(8px) scale(0.85);
+    transition: opacity 0.3s ease, transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.pcard:hover .pcard-arrow {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+}
+
+.pcard-arrow i {
+    transition: transform 0.3s ease;
+}
+
+.pcard:hover .pcard-arrow i {
+    transform: translateX(2px);
+}
+
+/* ---- Interactive simulator range ---- */
+.sim-range {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 9999px;
+    background: linear-gradient(90deg, var(--mango) var(--fill, 14%), rgba(46, 42, 107, 0.14) var(--fill, 14%));
+    outline: none;
+    cursor: pointer;
+}
+
+.sim-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 22px;
+    height: 22px;
+    border-radius: 9999px;
+    background: #fff;
+    border: 3px solid var(--mango);
+    box-shadow: 0 6px 16px -4px rgba(245, 166, 35, 0.65);
+    cursor: grab;
+    transition: transform 0.15s ease;
+}
+
+.sim-range::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+}
+
+.sim-range::-webkit-slider-thumb:active {
+    cursor: grabbing;
+}
+
+.sim-range::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 9999px;
+    background: #fff;
+    border: 3px solid var(--mango);
+    box-shadow: 0 6px 16px -4px rgba(245, 166, 35, 0.65);
+    cursor: grab;
+}
+
+.sim-range::-moz-range-track {
+    height: 6px;
+    border-radius: 9999px;
+    background: rgba(46, 42, 107, 0.14);
+}
+
+/* ---- CTA glow panel ---- */
+.cta-panel {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(135deg, rgba(33, 30, 82, 0.96), rgba(74, 69, 153, 0.88));
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 2rem;
+    box-shadow: 0 40px 90px -40px rgba(46, 42, 107, 0.6);
+}
+
+.cta-panel::before {
+    content: "";
+    position: absolute;
+    top: -60%;
+    left: 55%;
+    width: 55%;
+    height: 220%;
+    background: radial-gradient(circle at 50% 50%, rgba(245, 166, 35, 0.35), transparent 60%);
+    pointer-events: none;
+}
+
+/* ---- Step connector (how it works) ---- */
+.step-line {
+    position: absolute;
+    top: 2.9rem;
+    left: 18%;
+    right: 18%;
+    height: 0;
+    border-top: 2px dashed rgba(46, 42, 107, 0.18);
+    pointer-events: none;
+}
+
+/* ---- Selection & scrollbar ---- */
+::selection {
+    background: rgba(245, 166, 35, 0.35);
+}
+
+/* ============================================================
    Motion — respect reduced motion globally
    ============================================================ */
 @media (prefers-reduced-motion: reduce) {
