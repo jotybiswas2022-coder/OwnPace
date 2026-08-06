@@ -16,8 +16,24 @@
     @include('partials.os-inline-styles')
     @livewireStyles
     @stack('styles')
+
+    <style>
+        /* Immersive auth pages (e.g. sign in) hide the shared header/footer so
+           the page itself owns the whole viewport. Activate with
+           @section('body_class', 'auth-immersive'). */
+        body.auth-immersive {
+            background: #0e0c24;
+        }
+        body.auth-immersive > .flex > header,
+        body.auth-immersive > .flex > footer {
+            display: none;
+        }
+        body.auth-immersive > .flex > main {
+            padding: 0;
+        }
+    </style>
 </head>
-<body class="min-h-screen bg-paper text-ink antialiased">
+<body class="min-h-screen bg-paper text-ink antialiased @yield('body_class')">
     <div class="flex min-h-screen flex-col">
         <header class="border-b border-ink/10 bg-white/80 backdrop-blur-md">
             <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3.5 sm:px-6">
