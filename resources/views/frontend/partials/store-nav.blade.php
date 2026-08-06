@@ -31,9 +31,7 @@
                     <path d="M9 10V6a3 3 0 0 1 6 0v4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
                 </svg>
                 @php $cartCount = cartCount(); @endphp
-                @if($cartCount > 0)
-                    <span class="absolute -right-0.5 -top-0.5 flex h-4.5 min-w-[18px] items-center justify-center rounded-full bg-mango px-1 font-mono text-[10px] font-bold text-ink">{{ $cartCount > 99 ? '99+' : $cartCount }}</span>
-                @endif
+                <span class="js-cart-badge absolute -right-0.5 -top-0.5 flex h-4.5 min-w-[18px] items-center justify-center rounded-full bg-mango px-1 font-mono text-[10px] font-bold text-ink transition-all {{ $cartCount > 0 ? '' : 'hidden' }}">{{ $cartCount > 99 ? '99+' : $cartCount }}</span>
             </a>
 
             @auth

@@ -26,6 +26,29 @@ class Product extends Model
         'insurance_fee' => 'decimal:2',
     ];
 
+    /**
+     * Legacy "compare at" price. The products table stores the original
+     * (pre-sale) price in `base_price`; expose it as `compare_price` so
+     * existing views keep working. Only returned when a real discount exists.
+     */
+    public function getComparePriceAttribute()
+    {
+        return $this->base_price > $this->price ? $this->base_price : null;
+    }
+
+    /**
+     * Whole-number percent off when a sale price is active.
+     */
+    public function getDiscountPercentAttribute()
+    {
+        $compare = $this->compare_price;
+        if (! $compare) {
+            return 0;
+        }
+
+        return (int) round(($compare - $this->price) / $compare * 100);
+    }
+
     public function category()
     {
         return $this->belongsTo(Category::class);

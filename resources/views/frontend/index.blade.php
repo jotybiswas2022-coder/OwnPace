@@ -13,7 +13,7 @@
     </div>
     <div class="grain" aria-hidden="true"></div>
 
-    <div class="relative mx-auto grid max-w-7xl items-center gap-16 px-4 pb-32 pt-16 sm:px-6 lg:grid-cols-12 lg:gap-10 lg:pb-40 lg:pt-24">
+    <div class="relative mx-auto grid max-w-7xl items-center gap-16 px-4 pb-32 pt-14 sm:px-6 lg:grid-cols-12 lg:gap-10 lg:pb-40 lg:pt-20">
         <!-- Copy -->
         <div class="lg:col-span-6" x-reveal>
             <span class="glass-chip"><i class="bi bi-shield-fill-check"></i> 100% Secure — Flexible Installments</span>
@@ -27,7 +27,16 @@
                 Shop thousands of products from trusted brands. Pick a weekly or monthly plan that fits your budget — and watch your balance shrink until it's fully yours.
             </p>
 
-            <div class="mt-9 flex flex-wrap items-center gap-4">
+            <!-- Search -->
+            <form action="{{ url('/shop') }}" method="GET" class="mt-8 max-w-md" role="search">
+                <div class="hero-search">
+                    <i class="bi bi-search" aria-hidden="true"></i>
+                    <input type="text" name="search" placeholder="Search phones, laptops, fashion…" aria-label="Search products">
+                    <button type="submit" class="os-btn os-btn-mango os-btn-sm">Search</button>
+                </div>
+            </form>
+
+            <div class="mt-7 flex flex-wrap items-center gap-4">
                 <a href="{{ url('/shop') }}" class="os-shine os-btn os-btn-mango" style="padding:0.9rem 1.75rem;font-size:0.9375rem;">
                     <i class="bi bi-grid-fill"></i> Start Shopping
                 </a>
@@ -38,16 +47,16 @@
 
             <dl class="mt-12 grid max-w-md grid-cols-3 gap-6 border-t border-white/10 pt-8">
                 <div>
-                    <dt class="font-mono text-2xl font-semibold text-mango"><span x-countup="10000">10,000</span>+</dt>
-                    <dd class="mt-1 text-xs text-white/55">Happy customers</dd>
-                </div>
-                <div>
-                    <dt class="font-mono text-2xl font-semibold text-mango"><span x-countup="5000">5,000</span>+</dt>
+                    <dt class="font-mono text-2xl font-semibold text-mango"><span x-countup="{{ $stats['products'] }}">{{ number_format($stats['products']) }}</span>+</dt>
                     <dd class="mt-1 text-xs text-white/55">Products in store</dd>
                 </div>
                 <div>
-                    <dt class="font-mono text-2xl font-semibold text-mango">4.8<i class="bi bi-star-fill ml-1 align-middle text-sm"></i></dt>
-                    <dd class="mt-1 text-xs text-white/55">Average rating</dd>
+                    <dt class="font-mono text-2xl font-semibold text-mango"><span x-countup="{{ $stats['categories'] }}">{{ number_format($stats['categories']) }}</span>+</dt>
+                    <dd class="mt-1 text-xs text-white/55">Categories</dd>
+                </div>
+                <div>
+                    <dt class="font-mono text-2xl font-semibold text-mango"><span x-countup="{{ $stats['brands'] }}">{{ number_format($stats['brands']) }}</span>+</dt>
+                    <dd class="mt-1 text-xs text-white/55">Trusted brands</dd>
                 </div>
             </dl>
         </div>
@@ -57,7 +66,7 @@
             <div class="pointer-events-none absolute -inset-10 -z-10 rounded-full" style="background: radial-gradient(closest-side, rgba(245,166,35,0.16), transparent 70%);" aria-hidden="true"></div>
 
             <div class="tilt-scene">
-                <div class="glass-strong hero-card tilt-3d relative z-10 rounded-[1.75rem] p-7 sm:p-10">
+                <div class="glass-strong hero-card tilt-3d tilt-js relative z-10 rounded-[1.75rem] p-7 sm:p-10">
                     <div class="flex flex-wrap items-center justify-between gap-3">
                         <div>
                             <p class="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate">Featured plan</p>
@@ -115,11 +124,12 @@
     <div class="mx-auto max-w-7xl px-4 sm:px-6">
         @php
             $trustItems = [
-                ['bi-truck', 'Free delivery over ₦50,000'],
+                ['bi-truck', 'Free delivery over '.currency().'50,000'],
                 ['bi-arrow-repeat', '30-day easy exchange'],
                 ['bi-shield-check', '256-bit SSL payments'],
                 ['bi-coin', '0% interest plans'],
                 ['bi-headset', '24/7 human support'],
+                ['bi-patch-check', 'Paystack · Flutterwave · Kora'],
             ];
             $marqueeItems = array_map(fn($t) => ['icon' => $t[0], 'text' => $t[1]], $trustItems);
             foreach (collect($brands ?? [])->pluck('name')->take(8) as $b) {
@@ -138,6 +148,32 @@
                         @endforeach
                     </div>
                     @endfor
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== LIVE STAT BAND ===================== -->
+<section class="os-section-sm">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6">
+        <div class="stat-band px-6 py-9 sm:px-10" x-reveal>
+            <div class="relative z-10 grid grid-cols-2 gap-8 text-center md:grid-cols-4">
+                <div>
+                    <p class="stat-num"><span x-countup="{{ $stats['products'] }}">{{ number_format($stats['products']) }}</span><small>+</small></p>
+                    <p class="mt-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/55">Products in store</p>
+                </div>
+                <div>
+                    <p class="stat-num"><span x-countup="{{ $stats['categories'] }}">{{ number_format($stats['categories']) }}</span><small>+</small></p>
+                    <p class="mt-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/55">Categories</p>
+                </div>
+                <div>
+                    <p class="stat-num"><span x-countup="{{ $stats['brands'] }}">{{ number_format($stats['brands']) }}</span><small>+</small></p>
+                    <p class="mt-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/55">Trusted brands</p>
+                </div>
+                <div>
+                    <p class="stat-num"><span x-countup="{{ $stats['plans'] }}">{{ number_format($stats['plans']) }}</span><small>+</small></p>
+                    <p class="mt-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-white/55">Payment plans</p>
                 </div>
             </div>
         </div>
@@ -164,7 +200,7 @@
                 </span>
                 <span class="min-w-0">
                     <span class="block truncate font-display text-sm font-bold text-ink">{{ $category->name }}</span>
-                    <span class="block text-[11px] text-slate">Shop now</span>
+                    <span class="block text-[11px] text-slate">{{ $category->products_count ?? 0 }} {{ Str::plural('item', $category->products_count ?? 0) }}</span>
                 </span>
                 <i class="bi bi-arrow-right ml-auto shrink-0 text-slate transition-all duration-300 group-hover:translate-x-1 group-hover:text-brand"></i>
             </a>
@@ -192,36 +228,9 @@
 
         <div class="mt-10 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
             @forelse($featuredProducts ?? [] as $product)
-            <a href="{{ url('/product/'.$product->slug) }}" x-reveal="{{ $loop->index * 60 }}" class="pcard group">
-                <div class="pcard-media">
-                    @php $img = $product->primaryImage ?? $product->images->first(); @endphp
-                    @if($img)
-                        <img src="{{ imageUrl($img->image_path) }}" alt="{{ $product->name }}" loading="lazy" class="pcard-img">
-                    @else
-                        <div class="flex h-full w-full items-center justify-center text-4xl text-ink/20"><i class="bi bi-image"></i></div>
-                    @endif
-                    @if($product->compare_price && $product->compare_price > $product->price)
-                        @php $discount = round((($product->compare_price - $product->price) / $product->compare_price) * 100); @endphp
-                        @if($discount > 0)
-                            <span class="absolute left-3 top-3 os-chip os-chip-ember">-{{ $discount }}%</span>
-                        @endif
-                    @endif
-                    <span class="pcard-arrow"><i class="bi bi-arrow-right"></i></span>
-                </div>
-                <div class="flex flex-1 flex-col p-4">
-                    <h3 class="line-clamp-2 text-sm font-semibold leading-snug text-ink transition-colors group-hover:text-brand">{{ Str::limit($product->name, 46) }}</h3>
-                    <div class="mt-2 flex items-baseline gap-2">
-                        <span class="font-mono text-lg font-semibold text-brand">{{ formatPrice($product->price, 0) }}</span>
-                        @if($product->compare_price)
-                            <span class="font-mono text-xs text-slate line-through">{{ formatPrice($product->compare_price, 0) }}</span>
-                        @endif
-                    </div>
-                    <div class="mt-3 flex items-center justify-between border-t border-ink/5 pt-3">
-                        <span class="os-chip os-chip-brand"><i class="bi bi-coin"></i> {{ $product->installment_plans_count ?? 'Flexible' }} plans</span>
-                        <x-progress-ring :percentage="25" amount="from" :label="$product->installment_from ? '₦'.number_format($product->installment_from, 0).'/mo' : '₦0/mo'" :size="44" :stroke="4" :animate="false"/>
-                    </div>
-                </div>
-            </a>
+            <div x-reveal="{{ $loop->index * 60 }}">
+                <x-frontend.pcard :product="$product" :wishlist-ids="$wishlistIds"/>
+            </div>
             @empty
             <div class="col-span-full rounded-2xl border border-dashed border-ink/15 bg-white p-12 text-center">
                 <i class="bi bi-box text-4xl text-ink/15"></i>
@@ -294,6 +303,16 @@
                     </li>
                     @endforeach
                 </ul>
+
+                <!-- Payment partners -->
+                <div class="mt-8">
+                    <p class="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate">We partner with</p>
+                    <div class="mt-3 flex flex-wrap gap-2">
+                        @foreach(['Paystack', 'Flutterwave', 'Kora Pay', 'Verve', 'Visa', 'Mastercard'] as $pay)
+                        <span class="pay-chip"><i class="bi bi-patch-check-fill"></i> {{ $pay }}</span>
+                        @endforeach
+                    </div>
+                </div>
             </div>
 
             <!-- Interactive simulator -->
@@ -358,8 +377,41 @@
     </div>
 </section>
 
-<!-- ===================== NEW ARRIVALS ===================== -->
+<!-- ===================== HOT DEALS ===================== -->
+@if(($deals ?? collect())->count())
 <section class="os-section bg-white border-y border-ink/5">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6">
+        <div class="flex flex-wrap items-end justify-between gap-6">
+            <div>
+                <span class="os-eyebrow"><i class="bi bi-fire"></i> This week only</span>
+                <h2 class="mt-2 font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">Hot deals you can't miss</h2>
+                <p class="mt-3 max-w-lg text-sm text-slate">Snap up the season's biggest markdowns — on plans that fit your pocket.</p>
+            </div>
+
+            <div x-data="countdown()" class="flex items-center gap-3">
+                <span class="hidden text-[11px] font-semibold uppercase tracking-[0.12em] text-slate sm:block">Ends in</span>
+                <div class="flex gap-1.5">
+                    <div class="countdown-box"><strong x-text="days">0</strong><span>days</span></div>
+                    <div class="countdown-box"><strong x-text="hours">0</strong><span>hrs</span></div>
+                    <div class="countdown-box"><strong x-text="minutes">0</strong><span>min</span></div>
+                    <div class="countdown-box"><strong x-text="seconds">0</strong><span>sec</span></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-10 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
+            @foreach($deals as $product)
+            <div x-reveal="{{ $loop->index * 60 }}">
+                <x-frontend.pcard :product="$product" :wishlist-ids="$wishlistIds" badge="Hot deal"/>
+            </div>
+            @endforeach
+        </div>
+    </div>
+</section>
+@endif
+
+<!-- ===================== NEW ARRIVALS ===================== -->
+<section class="os-section @if(($deals ?? collect())->count()) bg-white border-t border-ink/5 @endif">
     <div class="mx-auto max-w-7xl px-4 sm:px-6">
         <div class="flex flex-wrap items-end justify-between gap-4">
             <div>
@@ -372,31 +424,9 @@
 
         <div class="mt-10 grid grid-cols-2 gap-4 sm:gap-6 lg:grid-cols-4">
             @forelse($newArrivals ?? [] as $product)
-            <a href="{{ url('/product/'.$product->slug) }}" x-reveal="{{ $loop->index * 60 }}" class="pcard group">
-                <div class="pcard-media">
-                    @php $img = $product->primaryImage ?? $product->images->first(); @endphp
-                    @if($img)
-                        <img src="{{ imageUrl($img->image_path) }}" alt="{{ $product->name }}" loading="lazy" class="pcard-img">
-                    @else
-                        <div class="flex h-full w-full items-center justify-center text-4xl text-ink/20"><i class="bi bi-image"></i></div>
-                    @endif
-                    <span class="absolute left-3 top-3 os-chip os-chip-brand"><i class="bi bi-stars"></i> New</span>
-                    @if($product->compare_price && $product->compare_price > $product->price)
-                        @php $discount = round((($product->compare_price - $product->price) / $product->compare_price) * 100); @endphp
-                        @if($discount > 0)
-                            <span class="absolute right-3 top-3 os-chip os-chip-ember">-{{ $discount }}%</span>
-                        @endif
-                    @endif
-                    <span class="pcard-arrow"><i class="bi bi-arrow-right"></i></span>
-                </div>
-                <div class="flex flex-1 flex-col p-4">
-                    <h3 class="line-clamp-2 text-sm font-semibold leading-snug text-ink transition-colors group-hover:text-brand">{{ Str::limit($product->name, 46) }}</h3>
-                    <div class="mt-2 flex items-baseline gap-2">
-                        <span class="font-mono text-lg font-semibold text-brand">{{ formatPrice($product->price, 0) }}</span>
-                    </div>
-                    <span class="os-chip os-chip-slate mt-3 w-fit"><i class="bi bi-coin"></i> Flexible plans</span>
-                </div>
-            </a>
+            <div x-reveal="{{ $loop->index * 60 }}">
+                <x-frontend.pcard :product="$product" :wishlist-ids="$wishlistIds" badge="New"/>
+            </div>
             @empty
             <div class="col-span-full rounded-2xl border border-dashed border-ink/15 bg-white p-12 text-center">
                 <i class="bi bi-clock-history text-4xl text-ink/15"></i>
@@ -408,6 +438,13 @@
 </section>
 
 <!-- ===================== TESTIMONIALS ===================== -->
+@php
+    $testimonials = !empty($homeTestimonials) ? $homeTestimonials : [
+        ['name' => 'Amara O.', 'city' => 'Lagos', 'text' => 'I got my dream laptop without breaking the bank. Watching the ring fill up each week kept me motivated — it was fully mine in four months.', 'rating' => 5],
+        ['name' => 'Chidi E.', 'city' => 'Abuja', 'text' => 'Finally a platform that understands budgeting. The plan changed when I needed it, and the whole process felt honest.', 'rating' => 5],
+        ['name' => 'Zainab K.', 'city' => 'Kano', 'text' => 'Delivery was faster than expected and the Progress Ring makes it satisfying to pay. I have recommended '.storeName().' to everyone.', 'rating' => 4],
+    ];
+@endphp
 <section class="os-section">
     <div class="mx-auto max-w-7xl px-4 sm:px-6">
         <div class="text-center">
@@ -416,35 +453,84 @@
             <p class="mx-auto mt-3 max-w-md text-slate">Real people, real rings — fully filled.</p>
         </div>
 
-        <div class="mt-12 grid gap-6 md:grid-cols-3">
-            @php
-                $testimonials = [
-                    ['Amara O.', 'Lagos', 'I got my dream laptop without breaking the bank. Watching the ring fill up each week kept me motivated — it was fully mine in four months.', 5],
-                    ['Chidi E.', 'Abuja', 'Finally a platform that understands budgeting. The plan changed when I needed it, and the whole process felt honest.', 5],
-                    ['Zainab K.', 'Kano', 'Delivery was faster than expected and the Progress Ring makes it satisfying to pay. I have recommended '.storeName().' to everyone.', 4],
-                ];
-            @endphp
-            @foreach($testimonials as [$name, $city, $text, $rating])
-            <figure x-reveal="{{ $loop->index * 80 }}" class="glass group relative rounded-3xl p-7 transition-all duration-300 hover:-translate-y-2 hover:border-mango/45 hover:shadow-lift">
-                <i class="bi bi-quote absolute right-6 top-6 text-3xl text-brand/10 transition-colors duration-300 group-hover:text-mango/30"></i>
-                <div class="flex gap-1 text-mango" aria-label="{{ $rating }} out of 5 stars">
-                    @for($s = 0; $s < 5; $s++)
-                        <i class="bi {{ $s < $rating ? 'bi-star-fill' : 'bi-star' }}"></i>
-                    @endfor
-                </div>
-                <blockquote class="mt-4 flex-1 text-sm leading-relaxed text-ink/80">"{{ $text }}"</blockquote>
-                <figcaption class="mt-6 flex items-center gap-3 border-t border-ink/5 pt-5">
-                    <span class="flex h-11 w-11 items-center justify-center rounded-full font-display text-sm font-bold text-white shadow-soft" style="background: linear-gradient(135deg, {{ $loop->index % 2 ? '#f5a623' : '#2e2a6b' }}, {{ $loop->index % 2 ? '#d98c0f' : '#4a4599' }});">{{ substr($name, 0, 1) }}</span>
-                    <div>
-                        <p class="text-sm font-semibold text-ink">{{ $name }}</p>
-                        <p class="text-xs text-slate">{{ $city }}</p>
+        <div class="relative mx-auto mt-12 max-w-3xl" x-data="testimonialCarousel({{ count($testimonials) }})">
+            <div class="relative">
+                @foreach($testimonials as $i => $t)
+                <figure
+                    x-show="active === {{ $i }}"
+                    x-transition:enter="transition ease-out duration-500"
+                    x-transition:enter-start="opacity-0 translate-y-4"
+                    x-transition:enter-end="opacity-100 translate-y-0"
+                    x-transition:leave="transition ease-in duration-200"
+                    x-transition:leave-start="opacity-100"
+                    x-transition:leave-end="opacity-0"
+                    x-cloak
+                    class="glass flex min-h-[16rem] flex-col rounded-3xl p-7 sm:min-h-[15rem] sm:p-9"
+                >
+                    <div class="flex gap-1 text-mango" aria-label="{{ $t['rating'] }} out of 5 stars">
+                        @for($s = 0; $s < 5; $s++)
+                            <i class="bi {{ $s < $t['rating'] ? 'bi-star-fill' : 'bi-star' }}"></i>
+                        @endfor
                     </div>
-                </figcaption>
-            </figure>
+                    <blockquote class="mt-4 flex-1 text-base leading-relaxed text-ink/85 sm:text-lg">"{{ $t['text'] }}"</blockquote>
+                    <figcaption class="mt-6 flex items-center gap-3 border-t border-ink/5 pt-5">
+                        <span class="flex h-11 w-11 items-center justify-center rounded-full font-display text-sm font-bold text-white shadow-soft" style="background: linear-gradient(135deg, {{ $loop->index % 2 ? '#f5a623' : '#2e2a6b' }}, {{ $loop->index % 2 ? '#d98c0f' : '#4a4599' }});">{{ substr($t['name'], 0, 1) }}</span>
+                        <div>
+                            <p class="text-sm font-semibold text-ink">{{ $t['name'] }}</p>
+                            <p class="text-xs text-slate">{{ $t['city'] }}</p>
+                        </div>
+                    </figcaption>
+                </figure>
+                @endforeach
+            </div>
+
+            <button type="button" class="tst-nav absolute -left-3 top-1/2 z-10 -translate-y-1/2 sm:-left-16" @click="prev()" aria-label="Previous testimonial">
+                <i class="bi bi-chevron-left"></i>
+            </button>
+            <button type="button" class="tst-nav absolute -right-3 top-1/2 z-10 -translate-y-1/2 sm:-right-16" @click="next()" aria-label="Next testimonial">
+                <i class="bi bi-chevron-right"></i>
+            </button>
+
+            <div class="mt-8 flex justify-center gap-2">
+                @foreach($testimonials as $i => $t)
+                <button type="button" class="tst-dot" :class="{ 'is-active': active === {{ $i }} }" @click="active = {{ $i }}" :aria-label="'Show testimonial ' + ({{ $i }} + 1)"></button>
+                @endforeach
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===================== QUICK ANSWERS ===================== -->
+@if(($faqs ?? collect())->count())
+<section class="os-section bg-white border-y border-ink/5">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6">
+        <div class="flex flex-wrap items-end justify-between gap-4">
+            <div>
+                <span class="os-eyebrow"><i class="bi bi-question-circle"></i> Quick answers</span>
+                <h2 class="mt-2 font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">Questions, answered</h2>
+                <p class="mt-3 max-w-lg text-sm text-slate">The things everyone asks before their first plan.</p>
+            </div>
+            <a href="{{ url('/faq') }}" class="os-btn os-btn-ghost os-btn-sm">All FAQs <i class="bi bi-arrow-right"></i></a>
+        </div>
+
+        <div class="mx-auto mt-9 max-w-3xl space-y-3">
+            @foreach($faqs as $faq)
+            <div class="faq-item" :class="open && 'is-open'" x-data="{ open: false }">
+                <button type="button" class="flex w-full items-center justify-between gap-4 px-5 py-4 text-left" @click="open = !open" :aria-expanded="open.toString()">
+                    <span class="font-display text-sm font-bold text-ink sm:text-base">{{ $faq->question }}</span>
+                    <span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand/5 text-brand transition-all duration-300" :class="open && 'rotate-45 bg-mango text-ink'">
+                        <i class="bi bi-plus-lg text-sm"></i>
+                    </span>
+                </button>
+                <div x-show="open" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" x-cloak>
+                    <p class="px-5 pb-5 text-sm leading-relaxed text-slate">{{ $faq->answer }}</p>
+                </div>
+            </div>
             @endforeach
         </div>
     </div>
 </section>
+@endif
 
 <!-- ===================== CTA ===================== -->
 <section class="os-section-sm">

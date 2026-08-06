@@ -3,13 +3,17 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Brand;
 use App\Models\Setting;
 use App\Models\Slider;
 use App\Models\Faq;
+use App\Models\Review;
+use App\Models\InstallmentPlan;
 use App\Models\TermsAndCondition;
+use App\Services\InstallmentCalculatorService;
 
 class SiteController extends Controller
 {
@@ -18,28 +22,108 @@ class SiteController extends Controller
     {
         $settings = Setting::first();
         $sliders = Slider::latest()->get();
-        $featuredProducts = Product::where('featured', true)
-            ->where('status', 'active')
-            ->with(['category', 'primaryImage', 'images', 'installmentPlans'])
-            ->latest()
-            ->take(12)
-            ->get()
-            ->each(function ($product) {
-                $product->installment_plans_count = $product->installmentPlans->count();
-                return $product;
-            });
-        $categories = Category::all();
+
+        // Product lists are cached briefly — the home page is the most-hit
+        // route and these are the three heaviest queries on it.
+        $featuredProducts = $this->withInstallmentData(
+            Cache::remember('home.products.featured', 300, fn () =>
+                Product::where('featured', true)
+                    ->where('status', 'active')
+                    ->with(['category', 'primaryImage', 'images', 'installmentPlans'])
+                    ->latest()
+                    ->take(12)
+                    ->get()
+            )
+        );
+
+        // Hot deals — products currently on sale (base_price > price),
+        // biggest discount first.
+        $deals = $this->withInstallmentData(
+            Cache::remember('home.products.deals', 300, fn () =>
+                Product::where('status', 'active')
+                    ->whereColumn('base_price', '>', 'price')
+                    ->with(['category', 'primaryImage', 'images', 'installmentPlans'])
+                    ->orderByRaw('(base_price - price) / base_price DESC')
+                    ->take(8)
+                    ->get()
+            )
+        );
+
+        $newArrivals = $this->withInstallmentData(
+            Cache::remember('home.products.new', 300, fn () =>
+                Product::where('status', 'active')
+                    ->with(['category', 'primaryImage', 'images', 'installmentPlans'])
+                    ->latest()
+                    ->take(8)
+                    ->get()
+            )
+        );
+
+        $categories = Category::withCount(['products' => fn ($q) => $q->where('status', 'active')])->get();
         $brands = Brand::where('is_active', true)->get();
-        $newArrivals = Product::where('status', 'active')
-            ->with(['category', 'primaryImage', 'images'])
+
+        $stats = Cache::remember('home.stats', 300, function () use ($categories, $brands) {
+            return [
+                'products' => Product::where('status', 'active')->count(),
+                'categories' => $categories->count(),
+                'brands' => $brands->count(),
+                'plans' => InstallmentPlan::where('is_active', true)->count(),
+            ];
+        });
+
+        $wishlistIds = auth()->check()
+            ? auth()->user()->wishlist()->pluck('product_id')->all()
+            : [];
+
+        $faqs = Faq::where('is_active', true)->orderBy('sort_order')->take(4)->get();
+
+        // Testimonials — real customer reviews when available, the view falls
+        // back to a curated set when the store is still young.
+        $homeTestimonials = Review::query()
+            ->whereNotNull('comment')
+            ->where('comment', '!=', '')
+            ->with('user')
             ->latest()
-            ->take(8)
-            ->get();
+            ->take(6)
+            ->get()
+            ->map(fn (Review $review) => [
+                'name' => $review->user?->name ?: 'Verified customer',
+                'city' => 'Verified buyer',
+                'text' => $review->comment,
+                'rating' => max(1, min(5, (int) $review->rating)),
+            ])
+            ->all();
 
         return view('frontend.index', compact(
-            'settings', 'sliders', 'featuredProducts',
-            'categories', 'brands', 'newArrivals'
+            'settings', 'sliders', 'featuredProducts', 'deals',
+            'categories', 'brands', 'newArrivals', 'stats',
+            'wishlistIds', 'faqs', 'homeTestimonials'
         ));
+    }
+
+    /**
+     * Attach the per-product card data the storefront needs: how many plans
+     * a product offers and the lowest per-payment installment ("from ₦X/wk").
+     */
+    private function withInstallmentData($products)
+    {
+        return $products->each(function ($product) {
+            $product->installment_plans_count = $product->installmentPlans->count();
+
+            $lowest = $product->installmentPlans
+                ->where('is_active', true)
+                ->sortBy('duration')
+                ->first();
+
+            if ($lowest) {
+                $breakdown = InstallmentCalculatorService::breakdown((float) $product->price, $lowest);
+                $product->installment_from = $breakdown['per_installment'];
+                $product->installment_type = $lowest->type;
+            } else {
+                $product->installment_from = null;
+                $product->installment_type = null;
+            }
+        });
     }
 
     // Shop page now lives in the Livewire ShopCatalog component (see
