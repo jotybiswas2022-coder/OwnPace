@@ -71,7 +71,7 @@
             <div class="flex min-w-0 items-center gap-1.5">
                 <span class="os-chip os-chip-brand shrink-0"><i class="bi bi-coin"></i> {{ $plansCount ?: 'Flexible' }} plans</span>
                 @if($product->installment_from)
-                    <span class="os-chip os-chip-grass hidden shrink-0 min-[420px]:inline-flex"><i class="bi bi-lightning-charge-fill"></i> from {{ currency() }}{{ number_format($product->installment_from, 0) }}/{{ $product->installment_type === 'weekly' ? 'wk' : 'mo' }}</span>
+                    <span class="os-chip os-chip-grass hidden shrink-0 sm:inline-flex"><i class="bi bi-lightning-charge-fill"></i> from {{ currency() }}{{ number_format($product->installment_from, 0) }}/{{ $product->installment_type === 'weekly' ? 'wk' : 'mo' }}</span>
                 @endif
             </div>
             <button

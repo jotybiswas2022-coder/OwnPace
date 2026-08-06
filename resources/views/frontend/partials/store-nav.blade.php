@@ -20,7 +20,7 @@
             </span>
             <span class="flex flex-col leading-none">
                 <span class="font-display text-lg font-bold tracking-tight text-ink">{{ storeName() }}</span>
-                <span class="text-[10px] font-medium uppercase tracking-[0.14em] text-slate">Own at your own pace</span>
+                <span class="hidden text-[10px] font-medium uppercase tracking-[0.14em] text-slate min-[380px]:block">Own at your own pace</span>
             </span>
         </a>
 

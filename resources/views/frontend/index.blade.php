@@ -13,7 +13,7 @@
     </div>
     <div class="grain" aria-hidden="true"></div>
 
-    <div class="relative mx-auto grid max-w-7xl items-center gap-16 px-4 pb-32 pt-14 sm:px-6 lg:grid-cols-12 lg:gap-10 lg:pb-40 lg:pt-20">
+    <div class="relative mx-auto grid max-w-7xl items-center gap-10 px-4 pb-24 pt-12 sm:px-6 sm:gap-16 sm:pb-32 sm:pt-14 lg:grid-cols-12 lg:gap-10 lg:pb-40 lg:pt-20">
         <!-- Copy -->
         <div class="lg:col-span-6" x-reveal>
             <span class="glass-chip"><i class="bi bi-shield-fill-check"></i> 100% Secure — Flexible Installments</span>
@@ -61,8 +61,8 @@
             </dl>
         </div>
 
-        <!-- Visual -->
-        <div class="relative lg:col-span-6" x-reveal="140">
+        <!-- Visual (desktop only — keeps the mobile hero clean) -->
+        <div class="relative hidden lg:col-span-6 lg:block" x-reveal="140">
             <div class="pointer-events-none absolute -inset-10 -z-10 rounded-full" style="background: radial-gradient(closest-side, rgba(245,166,35,0.16), transparent 70%);" aria-hidden="true"></div>
 
             <div class="tilt-scene">

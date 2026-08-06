@@ -119,7 +119,7 @@ $description = $settings?->store_description ?: "Nigeria's installment store. Ow
         <div class="mt-14 flex flex-col items-center justify-between gap-5 border-t border-white/10 pt-7 lg:flex-row">
             <p class="text-xs text-white/60">&copy; {{ date('Y') }} {{ storeName() }} — All rights reserved.</p>
 
-            <div class="flex flex-wrap items-center justify-center gap-2">
+            <div class="hidden flex-wrap items-center justify-center gap-2 md:flex">
                 <span class="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/55">We accept</span>
                 @foreach(['Paystack', 'Flutterwave', 'Kora', 'Verve', 'Visa', 'Mastercard'] as $pay)
                 <span class="glass-dark flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold text-white/85 transition-all duration-300 hover:-translate-y-0.5 hover:text-mango">
