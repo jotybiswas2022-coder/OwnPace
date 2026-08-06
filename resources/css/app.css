@@ -1064,6 +1064,89 @@
 }
 
 /* ============================================================
+   Navbar v2 — user dropdown with logout, polished avatar button.
+   ============================================================ */
+.nav-user-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.3rem 0.6rem 0.3rem 0.3rem;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.72);
+    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(46, 42, 107, 0.12);
+    box-shadow: var(--shadow-soft);
+    cursor: pointer;
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.nav-user-btn:hover {
+    transform: translateY(-1px);
+    border-color: rgba(245, 166, 35, 0.55);
+    box-shadow: var(--shadow-lift);
+}
+
+.user-dropdown {
+    background: rgba(255, 255, 255, 0.92);
+    -webkit-backdrop-filter: blur(22px) saturate(160%);
+    backdrop-filter: blur(22px) saturate(160%);
+    border: 1px solid rgba(46, 42, 107, 0.1);
+    border-radius: 1.1rem;
+    box-shadow: var(--shadow-lift);
+    overflow: hidden;
+    padding: 0.5rem;
+    transform-origin: top right;
+}
+
+.user-dropdown a,
+.user-dropdown button {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border-radius: 0.7rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--ink);
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.user-dropdown a:hover {
+    background: rgba(46, 42, 107, 0.06);
+    color: var(--brand);
+}
+
+.user-dropdown a i {
+    color: var(--slate);
+    width: 1.15rem;
+    text-align: center;
+    transition: color 0.15s ease;
+}
+
+.user-dropdown a:hover i {
+    color: var(--mango-deep);
+}
+
+.user-dropdown .ud-logout {
+    color: var(--ember-deep);
+}
+
+.user-dropdown .ud-logout:hover {
+    background: rgba(224, 72, 62, 0.1);
+    color: var(--ember);
+}
+
+.user-dropdown .ud-logout i {
+    color: var(--ember);
+}
+
+/* ============================================================
    Homepage v2 — announcement bar, hero search, live stat band,
    wishlist/quick-add buttons, deals countdown, testimonial
    carousel, FAQ accordion, back-to-top + scroll progress.
