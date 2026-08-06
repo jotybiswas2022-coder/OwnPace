@@ -909,6 +909,24 @@
     color: rgba(255, 255, 255, 0.82);
 }
 
+/* Anchors do NOT inherit `color` from parents — the UA stylesheet paints them
+   blue by default. Give footer links an explicit light colour on the dark
+   surface and a mango hover, matching the rest of the storefront. */
+.footer-glass a {
+    color: rgba(255, 255, 255, 0.66);
+    transition: color 0.2s ease;
+}
+
+.footer-glass a:hover {
+    color: var(--mango);
+}
+
+/* Buttons keep their own ink-on-mango colours. */
+.footer-glass a.ft-cta,
+.footer-glass a.ft-cta:hover {
+    color: var(--ink);
+}
+
 /* ---- Product cards ---- */
 .pcard {
     position: relative;

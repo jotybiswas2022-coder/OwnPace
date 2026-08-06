@@ -40,7 +40,7 @@ $description = $settings?->store_description ?: "Nigeria's installment store. Ow
                     </span>
                     <span class="font-display text-lg font-bold tracking-tight text-white">{{ storeName() }}</span>
                 </a>
-                <p class="mt-5 max-w-xs text-sm leading-relaxed text-white/55">{{ $description }}</p>
+                <p class="mt-5 max-w-xs text-sm leading-relaxed text-white/60">{{ $description }}</p>
 
                 <div class="mt-6 space-y-2.5 text-sm text-white/60">
                     <p class="flex items-center gap-2.5"><span class="flex h-7 w-7 items-center justify-center rounded-lg bg-white/5 text-mango"><i class="bi bi-geo-alt-fill text-xs"></i></span> {{ $location }}</p>
@@ -52,7 +52,7 @@ $description = $settings?->store_description ?: "Nigeria's installment store. Ow
                 <div class="glass-dark mt-7 rounded-2xl p-5">
                     <p class="font-display text-sm font-bold text-white">Own it today.</p>
                     <p class="mt-1 text-xs leading-relaxed text-white/55">Pay it down at your own pace — weekly or monthly plans from a tiny deposit.</p>
-                    <a href="{{ url('/shop') }}" class="mt-4 inline-flex items-center gap-2 rounded-xl bg-mango px-4 py-2 text-xs font-bold text-ink shadow-soft transition-all duration-300 hover:-translate-y-0.5 hover:bg-mango-deep hover:shadow-lift">
+                    <a href="{{ url('/shop') }}" class="ft-cta mt-4 inline-flex items-center gap-2 rounded-xl bg-mango px-4 py-2 text-xs font-bold shadow-soft transition-all duration-300 hover:-translate-y-0.5 hover:bg-mango-deep hover:shadow-lift">
                         <i class="bi bi-grid-fill"></i> Shop now
                     </a>
                 </div>
@@ -117,10 +117,10 @@ $description = $settings?->store_description ?: "Nigeria's installment store. Ow
 
         <!-- Bottom bar -->
         <div class="mt-14 flex flex-col items-center justify-between gap-5 border-t border-white/10 pt-7 lg:flex-row">
-            <p class="text-xs text-white/45">&copy; {{ date('Y') }} {{ storeName() }} — All rights reserved.</p>
+            <p class="text-xs text-white/60">&copy; {{ date('Y') }} {{ storeName() }} — All rights reserved.</p>
 
             <div class="flex flex-wrap items-center justify-center gap-2">
-                <span class="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/40">We accept</span>
+                <span class="text-[10px] font-semibold uppercase tracking-[0.14em] text-white/55">We accept</span>
                 @foreach(['Paystack', 'Flutterwave', 'Kora', 'Verve', 'Visa', 'Mastercard'] as $pay)
                 <span class="glass-dark flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-semibold text-white/85 transition-all duration-300 hover:-translate-y-0.5 hover:text-mango">
                     <i class="bi bi-patch-check-fill text-[9px] text-mango"></i> {{ $pay }}
