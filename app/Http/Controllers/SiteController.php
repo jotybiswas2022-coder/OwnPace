@@ -25,7 +25,7 @@ class SiteController extends Controller
 
         // Product lists are cached briefly — the home page is the most-hit
         // route and these are the three heaviest queries on it.
-        $featuredProducts = $this->withInstallmentData(
+        $featuredProducts = attachInstallmentData(
             Cache::remember('home.products.featured', 300, fn () =>
                 Product::where('featured', true)
                     ->where('status', 'active')
@@ -38,7 +38,7 @@ class SiteController extends Controller
 
         // Hot deals — products currently on sale (base_price > price),
         // biggest discount first.
-        $deals = $this->withInstallmentData(
+        $deals = attachInstallmentData(
             Cache::remember('home.products.deals', 300, fn () =>
                 Product::where('status', 'active')
                     ->whereColumn('base_price', '>', 'price')
@@ -49,7 +49,7 @@ class SiteController extends Controller
             )
         );
 
-        $newArrivals = $this->withInstallmentData(
+        $newArrivals = attachInstallmentData(
             Cache::remember('home.products.new', 300, fn () =>
                 Product::where('status', 'active')
                     ->with(['category', 'primaryImage', 'images', 'installmentPlans'])
@@ -101,30 +101,7 @@ class SiteController extends Controller
         ));
     }
 
-    /**
-     * Attach the per-product card data the storefront needs: how many plans
-     * a product offers and the lowest per-payment installment ("from ₦X/wk").
-     */
-    private function withInstallmentData($products)
-    {
-        return $products->each(function ($product) {
-            $product->installment_plans_count = $product->installmentPlans->count();
 
-            $lowest = $product->installmentPlans
-                ->where('is_active', true)
-                ->sortBy('duration')
-                ->first();
-
-            if ($lowest) {
-                $breakdown = InstallmentCalculatorService::breakdown((float) $product->price, $lowest);
-                $product->installment_from = $breakdown['per_installment'];
-                $product->installment_type = $lowest->type;
-            } else {
-                $product->installment_from = null;
-                $product->installment_type = null;
-            }
-        });
-    }
 
     // Shop page now lives in the Livewire ShopCatalog component (see
     // app/Livewire/ShopCatalog.php + routes/web.php) — debounced search,

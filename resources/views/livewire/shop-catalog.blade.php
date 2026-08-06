@@ -1,7 +1,13 @@
 <div>
-    <section class="os-section-sm bg-white border-b border-ink/10">
-        <div class="mx-auto max-w-7xl px-4 sm:px-6">
-            <div class="flex flex-wrap items-end justify-between gap-4">
+    <!-- ===== HEADER ===== -->
+    <section class="relative overflow-hidden border-b border-ink/5 bg-white">
+        <div class="pointer-events-none absolute inset-0" aria-hidden="true">
+            <div class="absolute -top-24 right-[8%] h-60 w-96 rounded-full bg-mango/10 blur-3xl"></div>
+            <div class="absolute -bottom-28 left-[5%] h-60 w-80 rounded-full bg-brand/10 blur-3xl"></div>
+        </div>
+
+        <div class="relative mx-auto max-w-7xl px-4 py-12 sm:px-6 sm:py-14">
+            <div class="flex flex-wrap items-end justify-between gap-5">
                 <div>
                     <span class="os-eyebrow"><i class="bi bi-grid-fill"></i> Shop</span>
                     <h1 class="mt-2 font-display text-3xl font-bold tracking-tight text-ink sm:text-4xl">Find something to own</h1>
@@ -18,16 +24,46 @@
                     >
                 </div>
             </div>
+
+            <!-- Active filter chips -->
+            @php
+                $activeChips = [];
+                foreach ($selectedCategories as $cid) {
+                    $name = $this->categories->firstWhere('id', $cid)?->name;
+                    if ($name) $activeChips[] = ['key' => 'categories', 'id' => $cid, 'label' => $name];
+                }
+                foreach ($selectedBrands as $bid) {
+                    $name = $this->brands->firstWhere('id', $bid)?->name;
+                    if ($name) $activeChips[] = ['key' => 'brands', 'id' => $bid, 'label' => $name];
+                }
+            @endphp
+            @if(trim($search) !== '' || count($activeChips))
+            <div class="mt-6 flex flex-wrap items-center gap-2">
+                <span class="text-xs font-semibold uppercase tracking-[0.12em] text-slate">Active:</span>
+                @if(trim($search) !== '')
+                <button type="button" wire:click="clearSearch" class="os-chip os-chip-brand transition-colors hover:bg-ember/10 hover:text-ember-deep" title="Remove search">
+                    <i class="bi bi-search"></i> "{{ Str::limit($search, 24) }}" <i class="bi bi-x-lg text-[9px]"></i>
+                </button>
+                @endif
+                @foreach($activeChips as $chip)
+                <button type="button" wire:click="removeFilter('{{ $chip['key'] }}', {{ $chip['id'] }})" class="os-chip os-chip-brand transition-colors hover:bg-ember/10 hover:text-ember-deep" title="Remove filter">
+                    {{ $chip['label'] }} <i class="bi bi-x-lg text-[9px]"></i>
+                </button>
+                @endforeach
+                <button type="button" wire:click="resetFilters" class="text-xs font-semibold text-brand underline-offset-2 transition-colors hover:text-ember hover:underline">Clear all</button>
+            </div>
+            @endif
         </div>
     </section>
 
+    <!-- ===== CATALOG ===== -->
     <section class="os-section">
         <div class="mx-auto max-w-7xl px-4 sm:px-6">
-            <div class="grid gap-8 lg:grid-cols-[240px_1fr]">
+            <div class="grid gap-8 lg:grid-cols-[250px_1fr]">
 
                 <!-- ===== FILTER SIDEBAR ===== -->
                 <aside class="lg:sticky lg:top-24 lg:self-start">
-                    <div class="os-card p-5">
+                    <div class="glass rounded-2xl p-5 shadow-soft">
                         <div class="flex items-center justify-between">
                             <h2 class="font-display text-sm font-bold uppercase tracking-[0.12em] text-ink">Filters</h2>
                             @if(count($selectedCategories) || count($selectedBrands) || trim($search) !== '')
@@ -39,7 +75,7 @@
                         <div class="mt-5">
                             <p class="mb-2 text-xs font-semibold text-slate">Category</p>
                             <div class="space-y-1.5">
-                                @foreach($this->categories as $category)
+                                @forelse($this->categories as $category)
                                 <label class="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-ink transition-colors hover:bg-brand/5">
                                     <input
                                         type="checkbox"
@@ -47,9 +83,12 @@
                                         wire:model.live="selectedCategories"
                                         class="h-4 w-4 rounded border-ink/20 accent-brand"
                                     >
-                                    {{ $category->name }}
+                                    <span class="min-w-0 flex-1 truncate">{{ $category->name }}</span>
+                                    <span class="font-mono text-[10px] text-slate">{{ $category->products_count ?? 0 }}</span>
                                 </label>
-                                @endforeach
+                                @empty
+                                <p class="px-2 py-1 text-sm text-slate">No categories yet.</p>
+                                @endforelse
                             </div>
                         </div>
 
@@ -57,7 +96,7 @@
                         <div class="mt-5 border-t border-ink/5 pt-5">
                             <p class="mb-2 text-xs font-semibold text-slate">Brand</p>
                             <div class="space-y-1.5">
-                                @foreach($this->brands as $brand)
+                                @forelse($this->brands as $brand)
                                 <label class="flex cursor-pointer items-center gap-2 rounded-lg px-2 py-1.5 text-sm text-ink transition-colors hover:bg-brand/5">
                                     <input
                                         type="checkbox"
@@ -65,9 +104,11 @@
                                         wire:model.live="selectedBrands"
                                         class="h-4 w-4 rounded border-ink/20 accent-brand"
                                     >
-                                    {{ $brand->name }}
+                                    <span class="min-w-0 flex-1 truncate">{{ $brand->name }}</span>
                                 </label>
-                                @endforeach
+                                @empty
+                                <p class="px-2 py-1 text-sm text-slate">No brands yet.</p>
+                                @endforelse
                             </div>
                         </div>
 
@@ -87,33 +128,9 @@
                 <div>
                     <div class="grid grid-cols-2 gap-4 sm:gap-6 xl:grid-cols-3">
                         @forelse($products as $product)
-                        <a href="{{ url('/product/'.$product->slug) }}" class="os-card os-card-hover group flex flex-col overflow-hidden">
-                            <div class="relative aspect-square overflow-hidden bg-paper-deep">
-                                @php $img = $product->primaryImage ?? $product->images->first(); @endphp
-                                @if($img)
-                                    <img src="{{ imageUrl($img->image_path) }}" alt="{{ $product->name }}" loading="lazy" class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105">
-                                @else
-                                    <div class="flex h-full w-full items-center justify-center text-4xl text-ink/20"><i class="bi bi-image"></i></div>
-                                @endif
-                            </div>
-                            <div class="flex flex-1 flex-col p-4">
-                                <h3 class="line-clamp-2 text-sm font-semibold leading-snug text-ink">{{ Str::limit($product->name, 46) }}</h3>
-                                <div class="mt-2 flex items-baseline gap-2">
-                                    <span class="font-mono text-lg font-semibold text-brand">{{ formatPrice($product->price, 0) }}</span>
-                                </div>
-                                <div class="mt-3 flex items-center justify-between border-t border-ink/5 pt-3">
-                                    <span class="os-chip os-chip-brand"><i class="bi bi-coin"></i> Flexible plans</span>
-                                    <x-progress-ring
-                                        :percentage="25"
-                                        amount="from"
-                                        label="{{ $product->installment_from ? currency().number_format($product->installment_from, 0).'/mo' : currency().'0/mo' }}"
-                                        :size="44"
-                                        :stroke="4"
-                                        :animate="false"
-                                    />
-                                </div>
-                            </div>
-                        </a>
+                        <div wire:key="product-{{ $product->id }}">
+                            <x-frontend.pcard :product="$product" :wishlist-ids="$wishlistIds"/>
+                        </div>
                         @empty
                         <div class="col-span-full rounded-2xl border border-dashed border-ink/15 bg-white p-14 text-center">
                             <i class="bi bi-search text-4xl text-ink/15"></i>

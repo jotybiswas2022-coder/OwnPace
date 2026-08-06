@@ -191,6 +191,33 @@ function calculateInstallmentBreakdown($totalAmount, $installmentPlan)
 }
 
 /**
+ * Attach the per-product card data the storefront needs: how many plans a
+ * product offers and the lowest per-payment installment ("from ₦X/wk").
+ * Shared by the home page and the shop catalog so every card shows the
+ * same numbers. Expects products loaded with the `installmentPlans` relation.
+ */
+function attachInstallmentData($products)
+{
+    return $products->each(function ($product) {
+        $product->installment_plans_count = $product->installmentPlans->count();
+
+        $lowest = $product->installmentPlans
+            ->where('is_active', true)
+            ->sortBy('duration')
+            ->first();
+
+        if ($lowest) {
+            $breakdown = InstallmentCalculatorService::breakdown((float) $product->price, $lowest);
+            $product->installment_from = $breakdown['per_installment'];
+            $product->installment_type = $lowest->type;
+        } else {
+            $product->installment_from = null;
+            $product->installment_type = null;
+        }
+    });
+}
+
+/**
  * Product progress badge for an order card — one of In Progress /
  * Completed / Canceled, shown across the account area.
  */

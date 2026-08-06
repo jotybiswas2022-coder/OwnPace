@@ -65,6 +65,29 @@ class ShopCatalog extends Component
     }
 
     /**
+     * Remove a single filter (used by the active-filter chips).
+     */
+    public function removeFilter(string $key, int $id): void
+    {
+        if ($key === 'categories') {
+            $this->selectedCategories = array_values(array_diff($this->selectedCategories, [$id]));
+        } elseif ($key === 'brands') {
+            $this->selectedBrands = array_values(array_diff($this->selectedBrands, [$id]));
+        }
+
+        $this->perPage = 12;
+    }
+
+    /**
+     * Clear just the search term, keeping category/brand filters.
+     */
+    public function clearSearch(): void
+    {
+        $this->search = '';
+        $this->perPage = 12;
+    }
+
+    /**
      * Infinite scroll: called by wire:intersect when the sentinel scrolls
      * into view, and by the fallback "Load more" button.
      */
@@ -76,7 +99,9 @@ class ShopCatalog extends Component
     #[Computed]
     public function categories()
     {
-        return Category::orderBy('name')->get();
+        return Category::withCount(['products' => fn ($q) => $q->where('status', 'active')])
+            ->orderBy('name')
+            ->get();
     }
 
     #[Computed]
@@ -150,11 +175,16 @@ class ShopCatalog extends Component
         }
 
         $total = (clone $query)->count();
-        $products = $query->limit($this->perPage)->get();
+        $products = attachInstallmentData($query->limit($this->perPage)->get());
+
+        $wishlistIds = auth()->check()
+            ? auth()->user()->wishlist()->pluck('product_id')->all()
+            : [];
 
         return view('livewire.shop-catalog', [
             'products' => $products,
             'hasMore' => $total > $this->perPage,
+            'wishlistIds' => $wishlistIds,
         ]);
     }
 }
