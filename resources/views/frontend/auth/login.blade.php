@@ -5,480 +5,358 @@
 @section('content')
 <style>
 /* ============================================================
-   {{ storeName() }} — Sign In (immersive dark glass)
-   Deep-indigo night, drifting aurora, floating gold dust and a
-   frosted glass card. Matches the storefront glassmorphism
-   system (indigo + mango) while owning the full viewport.
+   {{ storeName() }} — Sign In (light split-panel redesign)
+   Mirrors the storefront design system (paper + indigo + mango):
+   a two-column card with a brand story panel on the left and the
+   login form on the right. Cohesive with the rest of the site.
    ============================================================ */
 :root {
-    --lg-gold: #f5a623;
-    --lg-gold-2: #ffce7a;
-    --lg-gold-deep: #d98c0f;
-    --lg-ink: #f2f1f7;
-    --lg-muted: #a8a3c2;
-    --lg-dim: #8b86ad;
-    --lg-line: rgba(255, 255, 255, 0.12);
-    --lg-font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
-    --lg-font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
-    color-scheme: dark;
+    --sp-ink: #2e2a6b;          /* indigo — brand / trust  */
+    --sp-ink-deep: #211e52;
+    --sp-ink-soft: #4a4599;
+    --sp-mango: #f5a623;        /* accent                  */
+    --sp-mango-deep: #d98c0f;
+    --sp-mango-soft: #ffd28a;
+    --sp-mango-ink: #8a5800;
+    --sp-paper: #f6f6f4;
+    --sp-line: #e6e4de;
+    --sp-muted: #5d6771;
+    --sp-dim: #8b93a0;
+    --sp-font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+    --sp-font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+    color-scheme: light;
 }
-::selection { background: rgba(245, 166, 35, 0.4); color: #fff; }
+::selection { background: rgba(245, 166, 35, 0.45); color: #2e2a6b; }
 html, body { overflow-x: hidden; }
-body { scrollbar-color: rgba(245, 166, 35, 0.35) rgba(255, 255, 255, 0.05); }
 
-#lgParticles {
-    position: fixed; inset: 0; z-index: 1;
-    pointer-events: none; opacity: 0.45;
-}
-
-/* ---- Backdrop ---- */
-.lg-bg {
-    position: fixed; inset: 0; z-index: 0; overflow: hidden;
+.sp-scroll {
+    min-height: 100vh; min-height: 100dvh;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 1.5rem 1rem;
     background:
-        radial-gradient(1200px 600px at 85% -10%, rgba(74, 69, 153, 0.5), transparent 60%),
-        radial-gradient(900px 520px at 0% 110%, rgba(245, 166, 35, 0.14), transparent 55%),
-        linear-gradient(165deg, #1b1740 0%, #171531 46%, #0e0c24 100%);
+        radial-gradient(1000px 520px at 110% -10%, rgba(245, 166, 35, 0.18), transparent 60%),
+        radial-gradient(820px 480px at -10% 110%, rgba(46, 42, 107, 0.14), transparent 60%),
+        var(--sp-paper);
 }
 
-.lg-grid {
-    position: absolute; inset: 0;
+/* ---- Split panel ---- */
+.sp-panel {
+    display: grid; grid-template-columns: 0.95fr 1.05fr;
+    width: 100%; max-width: 58rem;
+    border-radius: 1.6rem; overflow: hidden;
+    background: #fff;
+    border: 1px solid rgba(46, 42, 107, 0.08);
+    box-shadow: 0 30px 70px -30px rgba(46, 42, 107, 0.35);
+    animation: spUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes spUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ---- Brand (left) ---- */
+.sp-brand {
+    position: relative; overflow: hidden; isolation: isolate;
+    display: flex; flex-direction: column; justify-content: space-between;
+    padding: 2.4rem 2.1rem;
+    color: #fff;
+    background: linear-gradient(160deg, #37327f 0%, var(--sp-ink-soft) 55%, var(--sp-ink-deep) 100%);
+}
+.sp-brand::before {
+    content: ""; position: absolute; inset: 0; z-index: -1;
     background-image:
-        linear-gradient(rgba(245, 166, 35, 0.035) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(245, 166, 35, 0.035) 1px, transparent 1px);
-    background-size: 46px 46px;
-    -webkit-mask-image: radial-gradient(ellipse 95% 80% at 50% 38%, #000 25%, transparent 78%);
-    mask-image: radial-gradient(ellipse 95% 80% at 50% 38%, #000 25%, transparent 78%);
-    animation: lgDrift 22s linear infinite;
-    will-change: transform;
+        linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 34px 34px;
+    -webkit-mask-image: radial-gradient(ellipse 90% 90% at 50% 18%, #000 28%, transparent 76%);
+    mask-image: radial-gradient(ellipse 90% 90% at 50% 18%, #000 28%, transparent 76%);
 }
-@keyframes lgDrift { 0% { transform: translate(0, 0); } 100% { transform: translate(46px, 46px); } }
-
-.lg-blob {
-    position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.32;
-    animation: lgBlob 11s ease-in-out infinite alternate;
-    will-change: transform;
+.sp-brand::after {
+    content: ""; position: absolute; z-index: -1; border-radius: 50%; filter: blur(60px); opacity: 0.55;
+    width: 20rem; height: 20rem; right: -6rem; bottom: -7rem;
+    background: radial-gradient(circle, var(--sp-mango), transparent 65%);
 }
-.lg-blob-1 { width: 34rem; height: 34rem; top: -10rem; right: -8rem; background: radial-gradient(circle, rgba(245, 166, 35, 0.5), transparent 62%); }
-.lg-blob-2 { width: 30rem; height: 30rem; bottom: -9rem; left: -7rem; background: radial-gradient(circle, rgba(74, 69, 153, 0.68), transparent 62%); animation-delay: -5s; }
-.lg-blob-3 { width: 22rem; height: 22rem; top: 32%; left: 44%; background: radial-gradient(circle, rgba(245, 166, 35, 0.22), transparent 64%); animation-delay: -9s; }
-@keyframes lgBlob {
-    0%   { transform: translate(0, 0) scale(1); }
-    100% { transform: translate(30px, -26px) scale(1.07); }
-}
-
-.lg-grain {
-    position: absolute; inset: 0; pointer-events: none; opacity: 0.05;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.7'/%3E%3C/svg%3E");
-}
-
-.lg-vignette {
-    position: absolute; inset: 0; pointer-events: none;
-    background: radial-gradient(ellipse 130% 95% at 50% 42%, transparent 55%, rgba(8, 7, 22, 0.55) 100%);
-}
-
-/* ---- Layout shell ---- */
-.lg-wrap {
-    position: relative; z-index: 2;
-    min-height: 100vh;
-    min-height: 100dvh;
-    display: flex; flex-direction: column;
-    align-items: center;
-    padding: 4.5rem 1rem 2rem;
-}
-.lg-wrap > .lg-logo { margin-top: auto; }
-.lg-wrap > .lg-foot { margin-bottom: auto; }
-
-/* Floating back-to-store pill */
-.lg-home {
-    position: fixed; top: 1.1rem; left: 1.1rem; z-index: 3;
-    display: inline-flex; align-items: center; gap: 0.45rem;
-    padding: 0.5rem 0.95rem; border-radius: 999px;
-    font-size: 0.78rem; font-weight: 600; color: var(--lg-muted); text-decoration: none;
-    background: rgba(255, 255, 255, 0.06);
-    -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease, transform 0.2s ease;
-}
-.lg-home:hover {
-    color: var(--lg-gold-2); text-decoration: none; border-color: rgba(245, 166, 35, 0.5);
-    background: rgba(245, 166, 35, 0.1); transform: translateY(-1px);
-}
-
-/* ---- Logo ---- */
-.lg-logo {
-    display: flex; align-items: center; gap: 0.7rem;
-    margin-bottom: 1.6rem; text-decoration: none;
-    animation: lgDown 0.6s ease both;
-}
-.lg-logo:hover { text-decoration: none; }
-.lg-logo-mark {
-    position: relative; display: flex; align-items: center; justify-content: center;
-    width: 2.9rem; height: 2.9rem; border-radius: 0.9rem; font-size: 1.2rem; color: #1a1b23;
-    background: linear-gradient(135deg, var(--lg-gold) 0%, var(--lg-gold-deep) 100%);
-    box-shadow: 0 10px 30px -8px rgba(245, 166, 35, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.4);
-}
-.lg-logo-mark::after {
-    content: ""; position: absolute; inset: -4px; border-radius: 1.15rem;
-    border: 1px solid rgba(245, 166, 35, 0.4);
-    animation: lgPulse 2.6s ease-in-out infinite;
-}
-@keyframes lgPulse { 0%, 100% { opacity: 0.55; transform: scale(1); } 50% { opacity: 0; transform: scale(1.2); } }
-.lg-logo-name {
-    font-family: var(--lg-font-display); font-size: 1.3rem; font-weight: 700;
-    letter-spacing: -0.01em; color: var(--lg-ink);
-}
-.lg-logo-name span { color: var(--lg-gold); }
-
-/* ---- Glass card ---- */
-.lg-card {
-    position: relative; overflow: hidden;
-    width: 100%; max-width: 26.5rem;
-    padding: 2.1rem 2rem 1.8rem;
-    border-radius: 1.5rem;
-    background: rgba(255, 255, 255, 0.065);
-    -webkit-backdrop-filter: blur(26px) saturate(150%);
-    backdrop-filter: blur(26px) saturate(150%);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    box-shadow: 0 40px 90px -30px rgba(6, 5, 20, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.18);
-    animation: lgUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
-}
-.lg-card::before {
-    content: ""; position: absolute; top: 0; left: 12%; right: 12%; height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(245, 166, 35, 0.85), transparent);
-}
-.lg-card::after {
-    content: ""; position: absolute; top: -5.5rem; left: 50%; transform: translateX(-50%);
-    width: 24rem; height: 9.5rem; border-radius: 50%;
-    background: radial-gradient(circle, rgba(245, 166, 35, 0.16), transparent 68%);
-    pointer-events: none;
-}
-@keyframes lgUp {
-    from { opacity: 0; transform: translateY(34px) scale(0.985); }
-    to   { opacity: 1; transform: translateY(0) scale(1); }
-}
-@keyframes lgDown { from { opacity: 0; transform: translateY(-18px); } to { opacity: 1; transform: translateY(0); } }
-
-/* ---- Header ---- */
-.lg-head { text-align: center; }
-.lg-badge {
-    display: inline-flex; align-items: center; gap: 0.4rem;
-    padding: 0.34rem 0.9rem; margin-bottom: 1rem;
-    border-radius: 999px; font-size: 0.68rem; font-weight: 700;
-    letter-spacing: 0.14em; text-transform: uppercase;
-    color: var(--lg-gold-2);
-    background: rgba(245, 166, 35, 0.12);
-    border: 1px solid rgba(245, 166, 35, 0.3);
-}
-.lg-head h1 {
-    margin: 0; font-family: var(--lg-font-display);
-    font-size: 1.8rem; font-weight: 700; letter-spacing: -0.02em; color: var(--lg-ink);
-}
-.lg-head h1 em {
-    font-style: normal;
-    background: linear-gradient(92deg, #ffd28a 0%, var(--lg-gold) 50%, #ffe0b2 100%);
-    -webkit-background-clip: text; background-clip: text; color: transparent;
-}
-.lg-head p { margin: 0.5rem 0 0; font-size: 0.85rem; color: var(--lg-muted); }
-
-/* ---- Alert ---- */
-.lg-alert {
-    display: flex; align-items: flex-start; gap: 0.6rem;
-    margin-top: 1.4rem; padding: 0.85rem 1rem; border-radius: 0.85rem;
-    font-size: 0.83rem; font-weight: 600; color: #ffb3ab;
-    background: rgba(224, 72, 62, 0.12);
-    border: 1px solid rgba(224, 72, 62, 0.35);
-    animation: lgDown 0.4s ease both;
-}
-
-/* ---- Form ---- */
-.lg-form { margin-top: 1.6rem; display: flex; flex-direction: column; gap: 1.1rem; }
-.lg-label {
-    display: block; margin-bottom: 0.5rem;
-    font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em;
-    text-transform: uppercase; color: var(--lg-muted);
-}
-.lg-input-wrap { position: relative; }
-.lg-input-icon {
-    position: absolute; left: 0.95rem; top: 50%; transform: translateY(-50%);
-    font-size: 0.95rem; color: var(--lg-dim); pointer-events: none;
-    transition: color 0.2s ease;
-}
-.lg-input {
-    width: 100%; height: 3.15rem;
-    padding: 0 0.95rem 0 2.7rem;
-    border-radius: 0.8rem; font-size: 0.9rem; color: var(--lg-ink); outline: none;
-    background: rgba(255, 255, 255, 0.055);
-    border: 1.5px solid rgba(255, 255, 255, 0.13);
-    transition: border-color 0.2s ease, box-shadow 0.25s ease, background 0.2s ease;
-}
-.lg-input-has-toggle { padding-right: 3rem; }
-.lg-input::placeholder { color: var(--lg-dim); }
-.lg-input:hover { border-color: rgba(255, 255, 255, 0.22); }
-.lg-input:focus-visible { outline: 2px solid rgba(245, 166, 35, 0.75); outline-offset: 2px; }
-.lg-input:focus {
-    border-color: rgba(245, 166, 35, 0.75);
-    background: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 0 0 4px rgba(245, 166, 35, 0.14);
-}
-.lg-input-wrap:focus-within .lg-input-icon { color: var(--lg-gold); }
-.lg-input.is-invalid { border-color: rgba(224, 72, 62, 0.6); box-shadow: 0 0 0 4px rgba(224, 72, 62, 0.12); }
-.lg-input:-webkit-autofill,
-.lg-input:-webkit-autofill:hover,
-.lg-input:-webkit-autofill:focus {
-    -webkit-box-shadow: 0 0 0 1000px #262052 inset;
-    -webkit-text-fill-color: var(--lg-ink);
-    caret-color: var(--lg-ink);
-    transition: background-color 9999s ease-in-out 0s;
-}
-.lg-error {
-    display: flex; align-items: center; gap: 0.35rem;
-    margin-top: 0.45rem; font-size: 0.75rem; font-weight: 600; color: #ff9d94;
-}
-.lg-toggle {
-    position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%);
+.sp-brand-logo { display: inline-flex; align-items: center; gap: 0.7rem; text-decoration: none; }
+.sp-brand-logo:hover { text-decoration: none; }
+.sp-brand-mark {
     display: flex; align-items: center; justify-content: center;
-    width: 2.6rem; height: 2.6rem; border-radius: 0.7rem;
-    background: none; border: none; cursor: pointer;
-    font-size: 1rem; color: var(--lg-dim);
-    transition: color 0.2s ease, background 0.2s ease;
+    width: 2.7rem; height: 2.7rem; border-radius: 0.85rem; font-size: 1.15rem; color: var(--sp-ink-deep);
+    background: linear-gradient(135deg, var(--sp-mango-soft), var(--sp-mango));
+    box-shadow: 0 8px 22px -6px rgba(245, 166, 35, 0.7);
 }
-.lg-toggle:hover { color: var(--lg-gold); background: rgba(245, 166, 35, 0.1); }
-.lg-toggle:focus-visible { outline: 2px solid rgba(245, 166, 35, 0.75); outline-offset: 2px; color: var(--lg-gold); }
+.sp-brand-name { font-family: var(--sp-font-display); font-weight: 700; font-size: 1.1rem; }
 
-/* Consistent keyboard focus for every interactive element */
-.lg-home:focus-visible,
-.lg-logo:focus-visible,
-.lg-forgot:focus-visible,
-.lg-register a:focus-visible,
-.lg-btn:focus-visible {
-    outline: 2px solid rgba(245, 166, 35, 0.75);
-    outline-offset: 3px;
+.sp-brand-body { margin: 2.2rem 0 2.4rem; }
+.sp-brand-eyebrow {
+    display: inline-flex; align-items: center; gap: 0.4rem;
+    font-size: 0.7rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--sp-mango-soft); margin-bottom: 0.85rem;
 }
+.sp-brand-body h2 {
+    margin: 0 0 0.75rem; font-family: var(--sp-font-display);
+    font-size: 1.9rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15;
+}
+.sp-brand-body h2 em { font-style: normal; color: var(--sp-mango-soft); }
+.sp-brand-body p { margin: 0; font-size: 0.92rem; line-height: 1.65; color: rgba(255, 255, 255, 0.78); }
 
-.lg-row { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem 0.75rem; flex-wrap: wrap; }
-.lg-check {
-    display: inline-flex; align-items: center; gap: 0.5rem;
-    cursor: pointer; user-select: none;
-    font-size: 0.82rem; font-weight: 500; color: var(--lg-muted);
+.sp-features { display: grid; gap: 0.7rem; margin-top: 1.6rem; }
+.sp-feature { display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.85rem; color: rgba(255, 255, 255, 0.88); }
+.sp-feature i { color: var(--sp-mango-soft); font-size: 0.95rem; margin-top: 0.08rem; }
+
+.sp-brand-quote {
+    display: block; padding: 0.9rem 1rem; border-radius: 0.9rem;
+    font-size: 0.8rem; line-height: 1.5; color: rgba(255, 255, 255, 0.85);
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.14);
 }
-.lg-check input { position: absolute; opacity: 0; width: 0; height: 0; }
-.lg-check-box {
+.sp-brand-quote i { color: var(--sp-mango-soft); }
+
+/* ---- Form (right) ---- */
+.sp-form-side { padding: 2.6rem 2.4rem 2.2rem; display: flex; flex-direction: column; }
+.sp-title { margin-bottom: 1.7rem; }
+.sp-title h1 {
+    margin: 0 0 0.45rem; font-family: var(--sp-font-display);
+    font-size: 1.7rem; font-weight: 700; letter-spacing: -0.02em; color: var(--sp-ink);
+}
+.sp-title p { margin: 0; font-size: 0.9rem; color: var(--sp-muted); }
+
+.sp-alert {
+    display: flex; align-items: flex-start; gap: 0.55rem;
+    margin-bottom: 1.3rem; padding: 0.8rem 0.95rem; border-radius: 0.8rem;
+    font-size: 0.83rem; font-weight: 600; color: #a63d2f;
+    background: #fdecea; border: 1px solid #f5c6c0;
+}
+.sp-alert i { margin-top: 0.15rem; }
+
+.sp-form { display: flex; flex-direction: column; gap: 1.05rem; }
+.sp-field { display: flex; flex-direction: column; gap: 0.4rem; }
+.sp-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em; color: var(--sp-ink-soft); }
+
+.sp-input-wrap { position: relative; }
+.sp-input-icon {
+    position: absolute; left: 0.9rem; top: 50%; transform: translateY(-50%);
+    font-size: 0.95rem; color: var(--sp-dim); pointer-events: none; transition: color 0.18s ease;
+}
+.sp-input-wrap:focus-within .sp-input-icon { color: var(--sp-ink-soft); }
+.sp-input {
+    width: 100%; height: 3.05rem; padding: 0 0.9rem 0 2.55rem;
+    border-radius: 0.75rem; font-size: 0.92rem; color: var(--sp-ink); outline: none;
+    background: var(--sp-paper);
+    border: 1.5px solid #ddd9cb;
+    transition: border-color 0.18s ease, box-shadow 0.22s ease, background 0.18s ease;
+}
+.sp-input::placeholder { color: var(--sp-dim); }
+.sp-input:hover { border-color: #c9c4ab; }
+.sp-input:focus {
+    border-color: var(--sp-ink-soft); background: #fff;
+    box-shadow: 0 0 0 4px rgba(46, 42, 107, 0.1);
+}
+.sp-input:focus-visible { outline: 2px solid rgba(46, 42, 107, 0.7); outline-offset: 1px; }
+.sp-input.is-invalid { border-color: #d66a5e; box-shadow: 0 0 0 4px rgba(214, 106, 94, 0.13); }
+.sp-input-has-toggle { padding-right: 3rem; }
+.sp-error { display: flex; align-items: center; gap: 0.35rem; font-size: 0.75rem; font-weight: 600; color: #c63f31; }
+
+.sp-toggle {
+    position: absolute; right: 0.4rem; top: 50%; transform: translateY(-50%);
+    display: flex; align-items: center; justify-content: center;
+    width: 2.4rem; height: 2.4rem; border-radius: 0.65rem;
+    background: none; border: none; cursor: pointer; font-size: 1rem; color: var(--sp-dim);
+    transition: color 0.18s ease, background 0.18s ease;
+}
+.sp-toggle:hover { color: var(--sp-ink-soft); background: rgba(46, 42, 107, 0.06); }
+
+.sp-row { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem 0.75rem; flex-wrap: wrap; }
+.sp-check { display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; user-select: none; font-size: 0.84rem; font-weight: 500; color: var(--sp-muted); }
+.sp-check input { position: absolute; opacity: 0; width: 0; height: 0; }
+.sp-check-box {
     display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     width: 1.15rem; height: 1.15rem; border-radius: 0.35rem;
-    border: 1.5px solid rgba(255, 255, 255, 0.25);
-    background: rgba(255, 255, 255, 0.05);
-    transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+    border: 1.5px solid #ccc7b4; background: #fff; transition: all 0.16s ease;
 }
-.lg-check-box i {
-    font-size: 0.68rem; color: #1a1b23;
-    opacity: 0; transform: scale(0.4); transition: all 0.18s ease;
-}
-.lg-check:hover .lg-check-box { border-color: var(--lg-gold); }
-.lg-check input:checked + .lg-check-box { background: var(--lg-gold); border-color: var(--lg-gold); }
-.lg-check input:checked + .lg-check-box i { opacity: 1; transform: scale(1); }
-.lg-check input:focus-visible + .lg-check-box {
-    outline: 3px solid rgba(245, 166, 35, 0.55); outline-offset: 2px;
-}
-.lg-forgot {
+.sp-check-box i { font-size: 0.68rem; color: #fff; opacity: 0; transform: scale(0.4); transition: all 0.16s ease; }
+.sp-check:hover .sp-check-box { border-color: var(--sp-ink-soft); }
+.sp-check input:checked + .sp-check-box { background: var(--sp-ink-soft); border-color: var(--sp-ink-soft); }
+.sp-check input:checked + .sp-check-box i { opacity: 1; transform: scale(1); }
+.sp-forgot {
     display: inline-flex; align-items: center; gap: 0.35rem;
-    font-size: 0.82rem; font-weight: 600; color: var(--lg-gold); text-decoration: none;
-    transition: color 0.2s ease;
+    font-size: 0.84rem; font-weight: 600; color: var(--sp-mango-ink); text-decoration: none;
+    transition: color 0.18s ease;
 }
-.lg-forgot:hover { color: var(--lg-gold-2); text-decoration: underline; text-underline-offset: 3px; }
+.sp-forgot:hover { color: var(--sp-mango-deep); text-decoration: underline; text-underline-offset: 3px; }
 
-/* ---- Submit ---- */
-.lg-btn {
+.sp-btn {
     position: relative; overflow: hidden;
-    display: flex; align-items: center; justify-content: center; gap: 0.55rem;
-    width: 100%; height: 3.2rem; margin-top: 0.3rem;
-    border: none; border-radius: 0.85rem; cursor: pointer;
-    font-family: var(--lg-font-display); font-size: 0.95rem; font-weight: 700; letter-spacing: 0.01em;
-    color: #1a1b23;
-    background: linear-gradient(135deg, var(--lg-gold) 0%, #f7b733 55%, var(--lg-gold-deep) 100%);
-    box-shadow: 0 14px 34px -10px rgba(245, 166, 35, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.45);
-    transition: transform 0.18s ease, box-shadow 0.25s ease, filter 0.25s ease;
+    display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+    width: 100%; height: 3.2rem; margin-top: 0.35rem; border: none; border-radius: 0.8rem; cursor: pointer;
+    font-family: var(--sp-font-display); font-size: 0.95rem; font-weight: 700; color: #fff;
+    background: linear-gradient(135deg, var(--sp-ink-deep), var(--sp-ink-soft));
+    box-shadow: 0 14px 30px -12px rgba(46, 42, 107, 0.65);
+    transition: transform 0.18s ease, box-shadow 0.24s ease, filter 0.24s ease;
 }
-.lg-btn:hover { transform: translateY(-2px); filter: brightness(1.05); box-shadow: 0 20px 44px -12px rgba(245, 166, 35, 0.72); }
-.lg-btn:active { transform: translateY(0) scale(0.99); }
-.lg-btn:disabled { opacity: 0.75; cursor: wait; transform: none; }
-.lg-btn .spinner { display: none; animation: lgSpin 0.7s linear infinite; }
-.lg-btn .btn-text { white-space: nowrap; }
-.lg-btn.loading .btn-text,
-.lg-btn.loading > .bi { display: none; }
-.lg-btn.loading .spinner { display: inline-block; }
-@keyframes lgSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-/* Shine sweep */
-.lg-btn::after {
+.sp-btn:hover { transform: translateY(-2px); filter: brightness(1.08); box-shadow: 0 20px 40px -14px rgba(46, 42, 107, 0.75); }
+.sp-btn:active { transform: translateY(0) scale(0.99); }
+.sp-btn:disabled { opacity: 0.75; cursor: wait; transform: none; }
+.sp-btn .spinner { display: none; animation: spSpin 0.7s linear infinite; }
+.sp-btn .btn-text { white-space: nowrap; }
+.sp-btn.loading .btn-text, .sp-btn.loading > .bi:not(.spinner) { display: none; }
+.sp-btn.loading .spinner { display: inline-block; }
+@keyframes spSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.sp-btn::after {
     content: ""; position: absolute; inset: 0; pointer-events: none;
     transform: translateX(-130%) skewX(-18deg);
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.45), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
 }
-.lg-btn:hover::after { animation: lgShine 0.9s ease; }
-@keyframes lgShine { to { transform: translateX(130%) skewX(-18deg); } }
+.sp-btn:hover::after { animation: spShine 0.9s ease; }
+@keyframes spShine { to { transform: translateX(130%) skewX(-18deg); } }
 
-/* ---- Register CTA ---- */
-.lg-register {
-    margin-top: 1.4rem; padding: 0.95rem 1rem; text-align: center;
-    border-radius: 0.9rem;
-    background: rgba(74, 69, 153, 0.16);
-    border: 1px dashed rgba(148, 142, 255, 0.32);
-}
-.lg-register p { margin: 0 0 0.55rem; font-size: 0.83rem; color: var(--lg-muted); }
-.lg-register a {
-    display: inline-flex; align-items: center; gap: 0.45rem;
-    font-size: 0.85rem; font-weight: 700; color: var(--lg-gold-2); text-decoration: none;
-    transition: color 0.2s ease;
-}
-.lg-register a:hover { color: var(--lg-gold); text-decoration: none; }
+.sp-register { margin-top: 1.35rem; text-align: center; font-size: 0.86rem; color: var(--sp-muted); }
+.sp-register a { font-weight: 700; color: var(--sp-ink-soft); text-decoration: none; transition: color 0.18s ease; }
+.sp-register a:hover { color: var(--sp-mango-deep); text-decoration: underline; text-underline-offset: 3px; }
 
-/* ---- Trust strip ---- */
-.lg-trust { display: flex; align-items: center; justify-content: center; gap: 0.5rem; flex-wrap: wrap; margin-top: 1.3rem; }
-.lg-trust-item {
-    display: inline-flex; align-items: center; gap: 0.35rem;
-    padding: 0.32rem 0.7rem; border-radius: 999px;
-    font-size: 0.7rem; font-weight: 600; color: var(--lg-muted);
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+.sp-trust {
+    display: flex; align-items: center; justify-content: center; gap: 0.4rem 0.9rem; flex-wrap: wrap;
+    margin-top: 1.25rem; padding-top: 1.15rem; border-top: 1.5px solid var(--sp-line);
 }
-.lg-trust-item i { font-size: 0.72rem; color: var(--lg-gold); }
+.sp-trust-item { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.72rem; font-weight: 600; color: var(--sp-muted); }
+.sp-trust-item i { color: var(--sp-mango-ink); }
 
-/* ---- Footer ---- */
-.lg-foot {
-    display: flex; align-items: center; justify-content: center; gap: 0.45rem;
-    margin-top: 1.6rem; font-size: 0.75rem; color: var(--lg-dim);
+.sp-foot { margin-top: 1.3rem; text-align: center; font-size: 0.7rem; color: var(--sp-dim); }
+
+/* ---- Shared focus polish ---- */
+.sp-toggle:focus-visible,
+.sp-forgot:focus-visible,
+.sp-register a:focus-visible,
+.sp-btn:focus-visible,
+.sp-brand-logo:focus-visible {
+    outline: 3px solid rgba(245, 166, 35, 0.55); outline-offset: 2px;
 }
 
-/* ---- Entrance stagger ---- */
-.lg-form .lg-field { animation: lgUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) both; }
-.lg-form .lg-field:nth-child(1) { animation-delay: 0.16s; }
-.lg-form .lg-field:nth-child(2) { animation-delay: 0.24s; }
-.lg-row    { animation: lgUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.32s both; }
-.lg-btn    { animation: lgUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.4s both; }
-.lg-register { animation: lgUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.48s both; }
-.lg-trust  { animation: lgUp 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.56s both; }
-
-@media (max-width: 480px) {
-    .lg-card { padding: 1.7rem 1.25rem 1.5rem; border-radius: 1.25rem; }
-    .lg-head h1 { font-size: 1.55rem; }
-    .lg-wrap { padding-top: 4.5rem; }
-    .lg-btn .btn-text { font-size: 0.85rem; }
-    .lg-home { font-size: 0.72rem; padding: 0.45rem 0.8rem; }
+@media (max-width: 760px) {
+    .sp-panel { grid-template-columns: 1fr; max-width: 26.5rem; }
+    .sp-brand { justify-content: flex-start; padding: 1.7rem 1.6rem 1.2rem; }
+    .sp-brand-body { margin: 1.3rem 0 1rem; }
+    .sp-brand-body h2 { font-size: 1.5rem; }
+    .sp-features { display: none; }
+    .sp-form-side { padding: 1.9rem 1.5rem 1.7rem; }
+    .sp-scroll { padding: 1rem 0.75rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    #lgParticles { display: none; }
-    .lg-grid, .lg-blob, .lg-logo, .lg-card, .lg-logo-mark::after,
-    .lg-form .lg-field, .lg-row, .lg-btn, .lg-register, .lg-trust { animation: none !important; }
+    .sp-panel { animation: none; }
+    .sp-btn:hover::after { animation: none; }
 }
 </style>
 
-<canvas id="lgParticles" aria-hidden="true"></canvas>
+<div class="sp-scroll">
+    <div class="sp-panel">
 
-<div class="lg-bg">
-    <div class="lg-grid"></div>
-    <div class="lg-blob lg-blob-1"></div>
-    <div class="lg-blob lg-blob-2"></div>
-    <div class="lg-blob lg-blob-3"></div>
-    <div class="lg-grain"></div>
-    <div class="lg-vignette"></div>
-</div>
+        <aside class="sp-brand">
+            <a href="{{ url('/') }}" class="sp-brand-logo" aria-label="{{ storeName() }} home">
+                <span class="sp-brand-mark"><i class="bi bi-currency-exchange"></i></span>
+                <span class="sp-brand-name">{{ storeName() }}</span>
+            </a>
 
-<a href="{{ url('/') }}" class="lg-home"><i class="bi bi-arrow-left"></i> Back to store</a>
+            <div class="sp-brand-body">
+                <span class="sp-brand-eyebrow"><i class="bi bi-shield-lock-fill"></i> Secure sign in</span>
+                <h2>Own the <em>pace</em> of your money.</h2>
+                <p>Log in to track your plans, manage payments and pick up exactly where you left off.</p>
 
-<div class="lg-wrap">
-    <a href="{{ url('/') }}" class="lg-logo" aria-label="{{ storeName() }} home">
-        <span class="lg-logo-mark"><i class="bi bi-currency-exchange"></i></span>
-        <span class="lg-logo-name">{{ storeName() }}</span>
-    </a>
-
-    <div class="lg-card">
-        <div class="lg-head">
-            <span class="lg-badge"><i class="bi bi-shield-lock-fill"></i> Secure sign in</span>
-            <h1>Welcome <em>back</em></h1>
-            <p>Sign in to manage your plans, payments &amp; purchases.</p>
-        </div>
-
-        @if($errors->any())
-        <div class="lg-alert" role="alert">
-            <i class="bi bi-exclamation-triangle-fill"></i>
-            <span>{{ $errors->first() }}</span>
-        </div>
-        @endif
-
-        <form method="POST" action="{{ route('login') }}" class="lg-form" id="lgForm">
-            @csrf
-
-            <div class="lg-field">
-                <label for="email" class="lg-label">Email address</label>
-                <div class="lg-input-wrap">
-                    <i class="bi bi-envelope-fill lg-input-icon" aria-hidden="true"></i>
-                    <input id="email" type="email" name="email" value="{{ old('email') }}"
-                        class="lg-input @error('email') is-invalid @enderror"
-                        placeholder="you@example.com" required autocomplete="email" autofocus inputmode="email">
+                <div class="sp-features">
+                    <span class="sp-feature"><i class="bi bi-check-circle-fill"></i> Personalised dashboards &amp; plans</span>
+                    <span class="sp-feature"><i class="bi bi-check-circle-fill"></i> Payments tracked in real time</span>
+                    <span class="sp-feature"><i class="bi bi-check-circle-fill"></i> Global support, every step</span>
                 </div>
-                @error('email')
-                    <p class="lg-error"><i class="bi bi-info-circle-fill"></i> {{ $message }}</p>
-                @enderror
             </div>
 
-            <div class="lg-field">
-                <label for="password" class="lg-label">Password</label>
-                <div class="lg-input-wrap">
-                    <i class="bi bi-lock-fill lg-input-icon" aria-hidden="true"></i>
-                    <input id="password" type="password" name="password"
-                        class="lg-input lg-input-has-toggle @error('password') is-invalid @enderror"
-                        placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
-                        required autocomplete="current-password" spellcheck="false">
-                    <button type="button" class="lg-toggle" id="lgToggle" aria-label="Show password">
-                        <i class="bi bi-eye" id="lgIcon"></i>
-                    </button>
+            <span class="sp-brand-quote">
+                <i class="bi bi-quote"></i> {{ storeName() }} made budgeting feel effortless — the progress plan alone pays for itself.
+            </span>
+        </aside>
+
+        <section class="sp-form-side">
+            <header class="sp-title">
+                <h1>Sign in</h1>
+                <p>Enter your details to access your account.</p>
+            </header>
+
+            @if($errors->any())
+            <div class="sp-alert" role="alert">
+                <i class="bi bi-exclamation-triangle-fill"></i>
+                <span>{{ $errors->first() }}</span>
+            </div>
+            @endif
+
+            <form method="POST" action="{{ route('login') }}" class="sp-form" id="spForm">
+                @csrf
+
+                <div class="sp-field">
+                    <label for="email" class="sp-label">Email address</label>
+                    <div class="sp-input-wrap">
+                        <i class="bi bi-envelope-fill sp-input-icon" aria-hidden="true"></i>
+                        <input id="email" type="email" name="email" value="{{ old('email') }}"
+                            class="sp-input @error('email') is-invalid @enderror"
+                            placeholder="you@example.com" required autocomplete="email" autofocus inputmode="email">
+                    </div>
+                    @error('email')
+                        <p class="sp-error"><i class="bi bi-info-circle-fill"></i> {{ $message }}</p>
+                    @enderror
                 </div>
-                @error('password')
-                    <p class="lg-error"><i class="bi bi-info-circle-fill"></i> {{ $message }}</p>
-                @enderror
+
+                <div class="sp-field">
+                    <label for="password" class="sp-label">Password</label>
+                    <div class="sp-input-wrap">
+                        <i class="bi bi-lock-fill sp-input-icon" aria-hidden="true"></i>
+                        <input id="password" type="password" name="password"
+                            class="sp-input sp-input-has-toggle @error('password') is-invalid @enderror"
+                            placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
+                            required autocomplete="current-password" spellcheck="false">
+                        <button type="button" class="sp-toggle" id="spToggle" aria-label="Show password">
+                            <i class="bi bi-eye" id="spIcon"></i>
+                        </button>
+                    </div>
+                    @error('password')
+                        <p class="sp-error"><i class="bi bi-info-circle-fill"></i> {{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="sp-row">
+                    <label class="sp-check" for="remember">
+                        <input type="checkbox" name="remember" id="remember" value="1" {{ old('remember') ? 'checked' : '' }}>
+                        <span class="sp-check-box"><i class="bi bi-check-lg"></i></span>
+                        Remember me
+                    </label>
+                    @if(Route::has('password.request'))
+                    <a href="{{ route('password.request') }}" class="sp-forgot"><i class="bi bi-key-fill"></i> Forgot password?</a>
+                    @endif
+                </div>
+
+                <button type="submit" class="sp-btn" id="spBtn">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    <span class="btn-text">Sign in to {{ storeName() }}</span>
+                    <i class="bi bi-arrow-repeat spinner"></i>
+                </button>
+            </form>
+
+            <p class="sp-register">
+                New to {{ storeName() }}?
+                <a href="{{ route('register') }}"><i class="bi bi-person-plus-fill"></i> Create free account</a>
+            </p>
+
+            <div class="sp-trust">
+                <span class="sp-trust-item"><i class="bi bi-shield-fill-check"></i> Secured</span>
+                <span class="sp-trust-item"><i class="bi bi-patch-check-fill"></i> Verified</span>
+                <span class="sp-trust-item"><i class="bi bi-lock-fill"></i> Encrypted</span>
             </div>
-
-            <div class="lg-row">
-                <label class="lg-check" for="remember">
-                    <input type="checkbox" name="remember" id="remember" value="1" {{ old('remember') ? 'checked' : '' }}>
-                    <span class="lg-check-box"><i class="bi bi-check-lg"></i></span>
-                    Remember me
-                </label>
-                @if(Route::has('password.request'))
-                <a href="{{ route('password.request') }}" class="lg-forgot"><i class="bi bi-key-fill"></i> Forgot password?</a>
-                @endif
-            </div>
-
-            <button type="submit" class="lg-btn" id="lgBtn">
-                <i class="bi bi-box-arrow-in-right"></i>
-                <span class="btn-text">Sign in to {{ storeName() }}</span>
-                <i class="bi bi-arrow-repeat spinner"></i>
-            </button>
-        </form>
-
-        <div class="lg-register">
-            <p>New to {{ storeName() }}? Create an account in seconds.</p>
-            <a href="{{ route('register') }}"><i class="bi bi-person-plus-fill"></i> Create free account</a>
-        </div>
-
-        <div class="lg-trust">
-            <span class="lg-trust-item"><i class="bi bi-shield-fill-check"></i> Secured</span>
-            <span class="lg-trust-item"><i class="bi bi-patch-check-fill"></i> Verified</span>
-            <span class="lg-trust-item"><i class="bi bi-lock-fill"></i> Encrypted</span>
-        </div>
+        </section>
     </div>
 
-    <p class="lg-foot"><i class="bi bi-c-circle"></i> {{ date('Y') }} {{ storeName() }} &middot; Own at your own pace</p>
+    <p class="sp-foot"><i class="bi bi-c-circle"></i> {{ date('Y') }} {{ storeName() }} - Own at your own pace</p>
 </div>
 
 <script>
 (function () {
-    // Password visibility toggle
-    var toggle = document.getElementById('lgToggle');
+    var toggle = document.getElementById('spToggle');
     if (toggle) {
         toggle.addEventListener('click', function () {
             var input = document.getElementById('password');
-            var icon = document.getElementById('lgIcon');
+            var icon = document.getElementById('spIcon');
             var show = input.type === 'password';
             input.type = show ? 'text' : 'password';
             icon.className = show ? 'bi bi-eye-slash' : 'bi bi-eye';
@@ -486,56 +364,12 @@ body { scrollbar-color: rgba(245, 166, 35, 0.35) rgba(255, 255, 255, 0.05); }
         });
     }
 
-    // Loading state on submit
-    var form = document.getElementById('lgForm');
+    var form = document.getElementById('spForm');
     if (form) {
         form.addEventListener('submit', function () {
-            var btn = document.getElementById('lgBtn');
+            var btn = document.getElementById('spBtn');
             if (btn) { btn.classList.add('loading'); btn.disabled = true; }
         });
-    }
-
-    // Floating gold dust
-    var canvas = document.getElementById('lgParticles');
-    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (canvas && !reduce) {
-        var ctx = canvas.getContext('2d');
-        var W, H, animId, parts = [];
-
-        function resize() { W = canvas.width = window.innerWidth; H = canvas.height = window.innerHeight; }
-        resize();
-        window.addEventListener('resize', resize);
-
-        for (var i = 0; i < 26; i++) {
-            parts.push({
-                x: Math.random() * W, y: Math.random() * H,
-                s: Math.random() * 1.6 + 0.4,
-                vx: (Math.random() - 0.5) * 0.28,
-                vy: (Math.random() - 0.5) * 0.28,
-                o: Math.random() * 0.3 + 0.08
-            });
-        }
-
-        function draw() {
-            ctx.clearRect(0, 0, W, H);
-            for (var i = 0; i < parts.length; i++) {
-                var p = parts[i];
-                p.x += p.vx; p.y += p.vy;
-                if (p.x < 0 || p.x > W) p.vx *= -1;
-                if (p.y < 0 || p.y > H) p.vy *= -1;
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, p.s, 0, Math.PI * 2);
-                ctx.fillStyle = 'rgba(245,166,35,' + p.o + ')';
-                ctx.fill();
-            }
-            animId = requestAnimationFrame(draw);
-        }
-
-        document.addEventListener('visibilitychange', function () {
-            if (document.hidden) { if (animId) cancelAnimationFrame(animId); }
-            else { draw(); }
-        });
-        draw();
     }
 })();
 </script>
