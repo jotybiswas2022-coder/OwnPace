@@ -34,7 +34,9 @@ body{ scrollbar-color: rgba(140,123,255,0.4) rgba(255,255,255,0.05); }
 .cc-stage{
     position: relative; min-height: 100vh; min-height: 100dvh;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
-    padding: 3rem 1rem 2rem;
+    padding: 3rem max(1rem, env(safe-area-inset-left, 0px))
+        calc(2rem + env(safe-area-inset-bottom, 0px))
+        max(1rem, env(safe-area-inset-right, 0px));
     background:
         radial-gradient(900px 560px at 85% -12%, rgba(124,105,255,0.2), transparent 60%),
         radial-gradient(760px 500px at 0% 110%, rgba(243,193,90,0.1), transparent 55%),
@@ -49,6 +51,7 @@ body{ scrollbar-color: rgba(140,123,255,0.4) rgba(255,255,255,0.05); }
     -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 40%, #000 20%, transparent 78%);
     mask-image: radial-gradient(ellipse 70% 70% at 50% 40%, #000 20%, transparent 78%);
 }
+a, button, input, label, .cc-check, .cc-toggle{ -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 
 /* ---- Back link ---- */
 .cc-back{
@@ -248,10 +251,61 @@ body{ scrollbar-color: rgba(140,123,255,0.4) rgba(255,255,255,0.05); }
 /* ---- Footer ---- */
 .cc-foot{ margin-top: 1.4rem; text-align: center; font-size: 0.72rem; color: var(--cc-dim); position: relative; }
 
-@media (max-width: 480px){
-    .cc-card{ padding: 2.1rem 1.4rem 1.6rem; border-radius: 1.25rem; }
+@media (max-width: 600px){
+    /* Top-aligned flow so the card never gets clipped on short screens;
+       margin:auto keeps it vertically centred when there is room. */
+    .cc-stage{
+        justify-content: flex-start;
+        min-height: 100dvh;
+        padding-top: calc(max(3.2rem, env(safe-area-inset-top, 0px)));
+        padding-bottom: calc(1.6rem + env(safe-area-inset-bottom, 0px));
+    }
+    .cc-card{
+        width: 100%; max-width: 25rem; margin: auto;
+        padding: 2rem 1.4rem 1.5rem;
+        border-radius: 1.35rem;
+    }
+    .cc-back{
+        top: max(0.85rem, env(safe-area-inset-top, 0px));
+        left: max(0.85rem, env(safe-area-inset-left, 0px));
+        padding: 0; gap: 0;
+        width: 2.5rem; height: 2.5rem; justify-content: center;
+        font-size: 0;
+    }
+    .cc-back i{ font-size: 1rem; }
+
+    .cc-head{ margin-bottom: 1.45rem; }
+    .cc-mark{ width: 3rem; height: 3rem; border-radius: 0.9rem; font-size: 1.2rem; margin-bottom: 1rem; }
     .cc-head h2{ font-size: 1.5rem; }
-    .cc-back{ font-size: 0.72rem; padding: 0.45rem 0.8rem; }
+    .cc-head p{ font-size: 0.83rem; }
+
+    .cc-form{ gap: 1rem; }
+    .cc-field, .cc-btn{ max-width: 100%; }
+
+    /* 16px inputs stop iOS Safari auto-zoom on focus */
+    .cc-input{ font-size: 1rem; height: 3.1rem; }
+    .cc-toggle{ width: 2.6rem; height: 2.6rem; }
+
+    .cc-row{ gap: 0.55rem 0.9rem; }
+    .cc-btn{ height: 3.2rem; margin-top: 0.25rem; }
+
+    .cc-register{ margin-top: 1.1rem; }
+    .cc-trust{ margin-top: 1rem; padding-top: 1rem; gap: 0.4rem 0.9rem; }
+    .cc-foot{ margin-top: 1.1rem; font-size: 0.68rem; }
+}
+
+@media (max-height: 700px) and (orientation: landscape){
+    .cc-stage{ padding-top: 3rem; padding-bottom: 1.2rem; }
+    .cc-card{ padding-top: 1.5rem; padding-bottom: 1.2rem; }
+    .cc-head{ margin-bottom: 1rem; }
+    .cc-mark{ width: 2.5rem; height: 2.5rem; font-size: 1rem; margin-bottom: 0.7rem; }
+    .cc-head h2{ font-size: 1.3rem; }
+    .cc-form{ gap: 0.7rem; }
+    .cc-input{ height: 2.85rem; }
+    .cc-btn{ height: 2.9rem; }
+    .cc-register{ margin-top: 0.8rem; }
+    .cc-trust{ margin-top: 0.8rem; padding-top: 0.8rem; }
+    .cc-foot{ margin-top: 0.8rem; }
 }
 
 @media (prefers-reduced-motion: reduce){
