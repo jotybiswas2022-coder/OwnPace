@@ -72,8 +72,10 @@ a, button, input, label, .cc-check, .cc-toggle{ -webkit-tap-highlight-color: tra
 
 /* ---- Card ---- */
 .cc-card{
-    position: relative; overflow: hidden;
+    position: relative; overflow-y: auto; overflow-x: hidden;
+    -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
     width: 100%; max-width: 26rem;
+    max-height: calc(100dvh - max(3rem, env(safe-area-inset-top, 0px)) - calc(2rem + env(safe-area-inset-bottom, 0px)));
     padding: 2.6rem 2.2rem 1.9rem;
     border-radius: 1.5rem;
     background: var(--cc-panel);
