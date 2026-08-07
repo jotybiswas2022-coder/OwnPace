@@ -149,25 +149,21 @@ body{ scrollbar-color: rgba(140,123,255,0.4) rgba(255,255,255,0.05); }
 }
 
 /* ---- Form ---- */
-.cc-form{ display: flex; flex-direction: column; gap: 1.05rem; position: relative; text-align: center; }
-.cc-field{ display: flex; flex-direction: column; gap: 0.42rem; }
+.cc-form{ display: flex; flex-direction: column; gap: 1.05rem; position: relative; text-align: center; align-items: center; }
+.cc-field{ display: flex; flex-direction: column; gap: 0.42rem; width: 100%; max-width: 18rem; }
 .cc-label{ font-family: var(--cc-font-mono); font-size: 0.66rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--cc-muted); text-align: center; }
 
 .cc-input-wrap{ position: relative; }
-.cc-input-icon{
-    position: absolute; left: 1rem; top: 50%; transform: translateY(-50%);
-    font-size: 0.95rem; color: var(--cc-dim); pointer-events: none; transition: color 0.18s ease;
-}
-.cc-input-wrap:focus-within .cc-input-icon{ color: var(--cc-gold); }
 .cc-input{
-    width: 100%; height: 3.15rem; padding: 0 1rem 0 2.7rem;
+    width: 100%; height: 3.15rem; padding: 0 1rem;
     border-radius: 0.8rem; font-size: 0.92rem; color: var(--cc-ink); outline: none;
     background: rgba(255,255,255,0.035);
     border: 1.5px solid var(--cc-line-2);
     transition: border-color 0.18s ease, box-shadow 0.22s ease, background 0.18s ease;
 }
-.cc-input-has-toggle{ padding-right: 3.1rem; }
-.cc-input::placeholder{ color: var(--cc-dim); }
+.cc-input-has-toggle{ padding-right: 2.7rem; }
+.cc-input{ text-align: center; }
+.cc-input::placeholder{ color: var(--cc-dim); text-align: center; }
 .cc-input:hover{ border-color: rgba(255,255,255,0.24); }
 .cc-input:focus{
     border-color: rgba(243,193,90,0.8); background: rgba(255,255,255,0.05);
@@ -216,7 +212,7 @@ body{ scrollbar-color: rgba(140,123,255,0.4) rgba(255,255,255,0.05); }
 .cc-btn{
     position: relative; overflow: hidden;
     display: flex; align-items: center; justify-content: center; gap: 0.5rem;
-    width: 100%; height: 3.2rem; margin-top: 0.3rem; border: none; border-radius: 0.8rem; cursor: pointer;
+    width: 100%; max-width: 18rem; height: 3.2rem; margin-top: 0.35rem; border: none; border-radius: 0.8rem; cursor: pointer;
     font-family: var(--cc-font-display); font-size: 0.96rem; font-weight: 700; letter-spacing: 0.01em; color: #16131c;
     background: linear-gradient(135deg, var(--cc-gold-2) 0%, var(--cc-gold) 55%, #e6a93c 100%);
     box-shadow: 0 16px 38px -14px rgba(243,193,90,0.7);
@@ -293,35 +289,33 @@ body{ scrollbar-color: rgba(140,123,255,0.4) rgba(255,255,255,0.05); }
         <form method="POST" action="{{ route('login') }}" class="cc-form" id="ccForm">
             @csrf
 
-            <div class="cc-field">
-                <label for="email" class="cc-label">Email address</label>
-                <div class="cc-input-wrap">
-                    <i class="bi bi-envelope-fill cc-input-icon" aria-hidden="true"></i>
-                    <input id="email" type="email" name="email" value="{{ old('email') }}"
-                        class="cc-input @error('email') is-invalid @enderror"
-                        placeholder="you@example.com" required autocomplete="email" autofocus inputmode="email">
+<div class="cc-field">
+                    <label for="email" class="cc-label">Email address</label>
+                    <div class="cc-input-wrap">
+                        <input id="email" type="email" name="email" value="{{ old('email') }}"
+                            class="cc-input @error('email') is-invalid @enderror"
+                            placeholder="you@example.com" required autocomplete="email" autofocus inputmode="email">
+                    </div>
+                    @error('email')
+                        <p class="cc-error"><i class="bi bi-info-circle-fill"></i> {{ $message }}</p>
+                    @enderror
                 </div>
-                @error('email')
-                    <p class="cc-error"><i class="bi bi-info-circle-fill"></i> {{ $message }}</p>
-                @enderror
-            </div>
 
-            <div class="cc-field">
-                <label for="password" class="cc-label">Password</label>
-                <div class="cc-input-wrap">
-                    <i class="bi bi-lock-fill cc-input-icon" aria-hidden="true"></i>
-                    <input id="password" type="password" name="password"
-                        class="cc-input cc-input-has-toggle @error('password') is-invalid @enderror"
-                        placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
-                        required autocomplete="current-password" spellcheck="false">
-                    <button type="button" class="cc-toggle" id="ccToggle" aria-label="Show password">
-                        <i class="bi bi-eye" id="ccIcon"></i>
-                    </button>
+<div class="cc-field">
+                    <label for="password" class="cc-label">Password</label>
+                    <div class="cc-input-wrap">
+                        <input id="password" type="password" name="password"
+                            class="cc-input cc-input-has-toggle @error('password') is-invalid @enderror"
+                            placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
+                            required autocomplete="current-password" spellcheck="false">
+                        <button type="button" class="cc-toggle" id="ccToggle" aria-label="Show password">
+                            <i class="bi bi-eye" id="ccIcon"></i>
+                        </button>
+                    </div>
+                    @error('password')
+                        <p class="cc-error"><i class="bi bi-info-circle-fill"></i> {{ $message }}</p>
+                    @enderror
                 </div>
-                @error('password')
-                    <p class="cc-error"><i class="bi bi-info-circle-fill"></i> {{ $message }}</p>
-                @enderror
-            </div>
 
             <div class="cc-row">
                 <label class="cc-check" for="remember">
