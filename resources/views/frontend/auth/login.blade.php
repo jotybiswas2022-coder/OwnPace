@@ -266,7 +266,7 @@ a, button, input, label, .cc-check, .cc-toggle{ -webkit-tap-highlight-color: tra
         padding-right: max(0.8rem, env(safe-area-inset-right, 0px));
     }
     .cc-card{
-        width: 100%; max-width: 25rem;
+        width: 100%; max-width: 25rem; min-width: 0; margin-inline: auto;
         max-height: calc(100dvh - max(1.4rem, env(safe-area-inset-top, 0px)) - max(1.2rem, env(safe-area-inset-bottom, 0px)) - 0.8rem);
         overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
         padding: 1.6rem 1.35rem 1.3rem;
@@ -288,7 +288,7 @@ a, button, input, label, .cc-check, .cc-toggle{ -webkit-tap-highlight-color: tra
     .cc-alert{ margin-bottom: 1rem; padding: 0.7rem 0.85rem; font-size: 0.78rem; }
 
     .cc-form{ gap: 0.85rem; }
-    .cc-field, .cc-btn{ max-width: 100%; }
+    .cc-field, .cc-btn{ max-width: min(17rem, 100%); width: 100%; margin-inline: auto; }
     .cc-label{ font-size: 0.62rem; letter-spacing: 0.08em; }
     .cc-input{ height: 2.9rem; font-size: 1rem; }
     .cc-toggle{ width: 2.6rem; height: 2.6rem; }
