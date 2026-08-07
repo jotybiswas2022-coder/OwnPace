@@ -32,8 +32,9 @@ body{ scrollbar-color: rgba(140,123,255,0.4) rgba(255,255,255,0.05); }
 
 /* ---- Stage ---- */
 .cc-stage{
-    position: relative; min-height: 100vh; min-height: 100dvh;
+    position: relative; height: 100vh; height: 100dvh;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
+    overflow: hidden;
     padding: 3rem max(1rem, env(safe-area-inset-left, 0px))
         calc(2rem + env(safe-area-inset-bottom, 0px))
         max(1rem, env(safe-area-inset-right, 0px));
