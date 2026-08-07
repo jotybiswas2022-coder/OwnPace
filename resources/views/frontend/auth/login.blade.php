@@ -20,7 +20,11 @@
     --lg-line: rgba(255, 255, 255, 0.12);
     --lg-font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
     --lg-font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+    color-scheme: dark;
 }
+::selection { background: rgba(245, 166, 35, 0.4); color: #fff; }
+html, body { overflow-x: hidden; }
+body { scrollbar-color: rgba(245, 166, 35, 0.35) rgba(255, 255, 255, 0.05); }
 
 #lgParticles {
     position: fixed; inset: 0; z-index: 1;
@@ -78,9 +82,11 @@
     min-height: 100vh;
     min-height: 100dvh;
     display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    padding: 3.5rem 1rem 2rem;
+    align-items: center;
+    padding: 4.5rem 1rem 2rem;
 }
+.lg-wrap > .lg-logo { margin-top: auto; }
+.lg-wrap > .lg-foot { margin-bottom: auto; }
 
 /* Floating back-to-store pill */
 .lg-home {
@@ -207,6 +213,8 @@
 }
 .lg-input-has-toggle { padding-right: 3rem; }
 .lg-input::placeholder { color: var(--lg-dim); }
+.lg-input:hover { border-color: rgba(255, 255, 255, 0.22); }
+.lg-input:focus-visible { outline: 2px solid rgba(245, 166, 35, 0.75); outline-offset: 2px; }
 .lg-input:focus {
     border-color: rgba(245, 166, 35, 0.75);
     background: rgba(255, 255, 255, 0.08);
@@ -235,8 +243,19 @@
     transition: color 0.2s ease, background 0.2s ease;
 }
 .lg-toggle:hover { color: var(--lg-gold); background: rgba(245, 166, 35, 0.1); }
+.lg-toggle:focus-visible { outline: 2px solid rgba(245, 166, 35, 0.75); outline-offset: 2px; color: var(--lg-gold); }
 
-.lg-row { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+/* Consistent keyboard focus for every interactive element */
+.lg-home:focus-visible,
+.lg-logo:focus-visible,
+.lg-forgot:focus-visible,
+.lg-register a:focus-visible,
+.lg-btn:focus-visible {
+    outline: 2px solid rgba(245, 166, 35, 0.75);
+    outline-offset: 3px;
+}
+
+.lg-row { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem 0.75rem; flex-wrap: wrap; }
 .lg-check {
     display: inline-flex; align-items: center; gap: 0.5rem;
     cursor: pointer; user-select: none;
@@ -283,6 +302,7 @@
 .lg-btn:active { transform: translateY(0) scale(0.99); }
 .lg-btn:disabled { opacity: 0.75; cursor: wait; transform: none; }
 .lg-btn .spinner { display: none; animation: lgSpin 0.7s linear infinite; }
+.lg-btn .btn-text { white-space: nowrap; }
 .lg-btn.loading .btn-text,
 .lg-btn.loading > .bi { display: none; }
 .lg-btn.loading .spinner { display: inline-block; }
@@ -341,6 +361,8 @@
     .lg-card { padding: 1.7rem 1.25rem 1.5rem; border-radius: 1.25rem; }
     .lg-head h1 { font-size: 1.55rem; }
     .lg-wrap { padding-top: 4.5rem; }
+    .lg-btn .btn-text { font-size: 0.85rem; }
+    .lg-home { font-size: 0.72rem; padding: 0.45rem 0.8rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
