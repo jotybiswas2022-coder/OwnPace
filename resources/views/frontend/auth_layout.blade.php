@@ -24,12 +24,24 @@
         body.auth-immersive {
             background: #0e0c24;
         }
+        body.auth-immersive,
+        body.auth-immersive > .flex {
+            height: 100vh;
+            height: 100dvh;
+            overflow: hidden;
+        }
         body.auth-immersive > .flex > header,
         body.auth-immersive > .flex > footer {
             display: none;
         }
         body.auth-immersive > .flex > main {
             padding: 0;
+            overflow: hidden;
+        }
+        body.auth-immersive > .flex > main > div:first-child {
+            max-width: none;
+            width: 100%;
+            height: 100%;
         }
     </style>
 </head>
