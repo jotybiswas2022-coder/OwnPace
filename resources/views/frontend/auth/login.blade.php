@@ -251,61 +251,68 @@ a, button, input, label, .cc-check, .cc-toggle{ -webkit-tap-highlight-color: tra
 /* ---- Footer ---- */
 .cc-foot{ margin-top: 1.4rem; text-align: center; font-size: 0.72rem; color: var(--cc-dim); position: relative; }
 
-@media (max-width: 600px){
-    /* Top-aligned flow so the card never gets clipped on short screens;
-       margin:auto keeps it vertically centred when there is room. */
+@media (max-width: 680px){
+    /* Fixed, non-scrolling page: the card is locked to the viewport.
+       If the soft keyboard squeezes the screen, only the card itself
+       scrolls internally — never the whole page. */
     .cc-stage{
-        justify-content: flex-start;
-        min-height: 100dvh;
-        padding-top: calc(max(3.2rem, env(safe-area-inset-top, 0px)));
-        padding-bottom: calc(1.6rem + env(safe-area-inset-bottom, 0px));
+        height: 100dvh; justify-content: center; overflow: hidden;
+        padding-top: calc(max(1.4rem, env(safe-area-inset-top, 0px)));
+        padding-bottom: calc(max(1.2rem, env(safe-area-inset-bottom, 0px)));
+        padding-left: max(0.8rem, env(safe-area-inset-left, 0px));
+        padding-right: max(0.8rem, env(safe-area-inset-right, 0px));
     }
     .cc-card{
-        width: 100%; max-width: 25rem; margin: auto;
-        padding: 2rem 1.4rem 1.5rem;
-        border-radius: 1.35rem;
+        width: 100%; max-width: 25rem;
+        max-height: calc(100dvh - max(1.4rem, env(safe-area-inset-top, 0px)) - max(1.2rem, env(safe-area-inset-bottom, 0px)) - 0.8rem);
+        overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+        padding: 1.6rem 1.35rem 1.3rem;
+        border-radius: 1.3rem;
     }
     .cc-back{
-        top: max(0.85rem, env(safe-area-inset-top, 0px));
-        left: max(0.85rem, env(safe-area-inset-left, 0px));
+        top: max(0.7rem, env(safe-area-inset-top, 0px));
+        left: max(0.7rem, env(safe-area-inset-left, 0px));
         padding: 0; gap: 0;
         width: 2.5rem; height: 2.5rem; justify-content: center;
         font-size: 0;
     }
     .cc-back i{ font-size: 1rem; }
 
-    .cc-head{ margin-bottom: 1.45rem; }
-    .cc-mark{ width: 3rem; height: 3rem; border-radius: 0.9rem; font-size: 1.2rem; margin-bottom: 1rem; }
-    .cc-head h2{ font-size: 1.5rem; }
-    .cc-head p{ font-size: 0.83rem; }
+    .cc-mark{ width: 2.6rem; height: 2.6rem; border-radius: 0.85rem; font-size: 1.05rem; margin-bottom: 0.85rem; }
+    .cc-head{ margin-bottom: 1.2rem; }
+    .cc-head h2{ font-size: 1.4rem; }
+    .cc-head p{ font-size: 0.8rem; }
+    .cc-alert{ margin-bottom: 1rem; padding: 0.7rem 0.85rem; font-size: 0.78rem; }
 
-    .cc-form{ gap: 1rem; }
+    .cc-form{ gap: 0.85rem; }
     .cc-field, .cc-btn{ max-width: 100%; }
-
-    /* 16px inputs stop iOS Safari auto-zoom on focus */
-    .cc-input{ font-size: 1rem; height: 3.1rem; }
+    .cc-label{ font-size: 0.62rem; letter-spacing: 0.08em; }
+    .cc-input{ height: 2.9rem; font-size: 1rem; }
     .cc-toggle{ width: 2.6rem; height: 2.6rem; }
+    .cc-row{ gap: 0.5rem 0.85rem; font-size: 0.8rem; }
+    .cc-btn{ height: 3rem; margin-top: 0.15rem; font-size: 0.92rem; }
 
-    .cc-row{ gap: 0.55rem 0.9rem; }
-    .cc-btn{ height: 3.2rem; margin-top: 0.25rem; }
-
-    .cc-register{ margin-top: 1.1rem; }
-    .cc-trust{ margin-top: 1rem; padding-top: 1rem; gap: 0.4rem 0.9rem; }
-    .cc-foot{ margin-top: 1.1rem; font-size: 0.68rem; }
+    .cc-register{ margin-top: 0.9rem; font-size: 0.8rem; }
+    .cc-register p{ margin-bottom: 0.25rem; }
+    .cc-trust{ margin-top: 0.85rem; padding-top: 0.9rem; gap: 0.5rem 0.85rem; }
+    .cc-foot{ margin-top: 0.85rem; font-size: 0.66rem; }
 }
 
-@media (max-height: 700px) and (orientation: landscape){
-    .cc-stage{ padding-top: 3rem; padding-bottom: 1.2rem; }
-    .cc-card{ padding-top: 1.5rem; padding-bottom: 1.2rem; }
-    .cc-head{ margin-bottom: 1rem; }
-    .cc-mark{ width: 2.5rem; height: 2.5rem; font-size: 1rem; margin-bottom: 0.7rem; }
-    .cc-head h2{ font-size: 1.3rem; }
-    .cc-form{ gap: 0.7rem; }
-    .cc-input{ height: 2.85rem; }
-    .cc-btn{ height: 2.9rem; }
-    .cc-register{ margin-top: 0.8rem; }
-    .cc-trust{ margin-top: 0.8rem; padding-top: 0.8rem; }
-    .cc-foot{ margin-top: 0.8rem; }
+@media (max-height: 680px) and (orientation: landscape){
+    .cc-stage{ padding-top: calc(max(2.9rem, env(safe-area-inset-top, 0px))); padding-bottom: calc(0.8rem + env(safe-area-inset-bottom, 0px)); }
+    .cc-card{ padding-top: 1.1rem; padding-bottom: 0.9rem; max-height: calc(100dvh - 4rem); }
+    .cc-head{ margin-bottom: 0.6rem; }
+    .cc-mark{ width: 2rem; height: 2rem; font-size: 0.85rem; margin-bottom: 0.4rem; }
+    .cc-head h2{ font-size: 1.1rem; }
+    .cc-head p{ font-size: 0.72rem; }
+    .cc-form{ gap: 0.45rem; }
+    .cc-label{ margin-bottom: 0.15rem; }
+    .cc-input{ height: 2.5rem; }
+    .cc-row{ margin: 0.15rem 0; }
+    .cc-btn{ height: 2.6rem; margin-top: 0.1rem; }
+    .cc-register{ margin-top: 0.5rem; }
+    .cc-trust{ margin-top: 0.5rem; padding-top: 0.6rem; }
+    .cc-foot{ margin-top: 0.5rem; }
 }
 
 @media (prefers-reduced-motion: reduce){
