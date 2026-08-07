@@ -5,358 +5,440 @@
 @section('content')
 <style>
 /* ============================================================
-   {{ storeName() }} — Sign In (light split-panel redesign)
-   Mirrors the storefront design system (paper + indigo + mango):
-   a two-column card with a brand story panel on the left and the
-   login form on the right. Cohesive with the rest of the site.
+   {{ storeName() }} — Sign In (dark editorial premium)
+   Near-black stage, split editorial layout: a brand narrative with
+   a live stats rail on the left, a glassy neon-edged form card on
+   the right. Charcoal + champagne gold + electric cyan accents.
    ============================================================ */
 :root {
-    --sp-ink: #2e2a6b;          /* indigo — brand / trust  */
-    --sp-ink-deep: #211e52;
-    --sp-ink-soft: #4a4599;
-    --sp-mango: #f5a623;        /* accent                  */
-    --sp-mango-deep: #d98c0f;
-    --sp-mango-soft: #ffd28a;
-    --sp-mango-ink: #8a5800;
-    --sp-paper: #f6f6f4;
-    --sp-line: #e6e4de;
-    --sp-muted: #5d6771;
-    --sp-dim: #8b93a0;
-    --sp-font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
-    --sp-font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
-    color-scheme: light;
+    --dp-bg: #0c0c11;
+    --dp-panel: #101016;
+    --dp-panel-2: #15151d;
+    --dp-line: rgba(255, 255, 255, 0.09);
+    --dp-line-2: rgba(255, 255, 255, 0.14);
+    --dp-gold: #f3c15a;
+    --dp-gold-2: #ffd88f;
+    --dp-cyan: #56c7f4;
+    --dp-violet: #8c7bff;
+    --dp-ink: #ededf1;
+    --dp-muted: #a49fb5;
+    --dp-dim: #6f6a7e;
+    --dp-danger: #ff7a6e;
+    --dp-font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+    --dp-font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
+    --dp-font-mono: "IBM Plex Mono", ui-monospace, monospace;
+    color-scheme: dark;
 }
-::selection { background: rgba(245, 166, 35, 0.45); color: #2e2a6b; }
+::selection { background: rgba(243, 193, 90, 0.4); color: #fff; }
 html, body { overflow-x: hidden; }
+body { scrollbar-color: rgba(140, 123, 255, 0.4) rgba(255, 255, 255, 0.05); }
 
-.sp-scroll {
-    min-height: 100vh; min-height: 100dvh;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    padding: 1.5rem 1rem;
+/* ---- Scene ---- */
+.dp-scene {
+    position: relative; min-height: 100vh; min-height: 100dvh;
+    display: flex; align-items: center;
+    padding: 2rem clamp(1rem, 4vw, 4rem);
     background:
-        radial-gradient(1000px 520px at 110% -10%, rgba(245, 166, 35, 0.18), transparent 60%),
-        radial-gradient(820px 480px at -10% 110%, rgba(46, 42, 107, 0.14), transparent 60%),
-        var(--sp-paper);
+        radial-gradient(1100px 620px at 92% -12%, rgba(124, 105, 255, 0.22), transparent 60%),
+        radial-gradient(900px 520px at -8% 112%, rgba(243, 193, 90, 0.10), transparent 55%),
+        linear-gradient(180deg, var(--dp-bg), #0a0a0f);
 }
-
-/* ---- Split panel ---- */
-.sp-panel {
-    display: grid; grid-template-columns: 0.95fr 1.05fr;
-    width: 100%; max-width: 58rem;
-    border-radius: 1.6rem; overflow: hidden;
-    background: #fff;
-    border: 1px solid rgba(46, 42, 107, 0.08);
-    box-shadow: 0 30px 70px -30px rgba(46, 42, 107, 0.35);
-    animation: spUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-@keyframes spUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
-
-/* ---- Brand (left) ---- */
-.sp-brand {
-    position: relative; overflow: hidden; isolation: isolate;
-    display: flex; flex-direction: column; justify-content: space-between;
-    padding: 2.4rem 2.1rem;
-    color: #fff;
-    background: linear-gradient(160deg, #37327f 0%, var(--sp-ink-soft) 55%, var(--sp-ink-deep) 100%);
-}
-.sp-brand::before {
-    content: ""; position: absolute; inset: 0; z-index: -1;
+.dp-gridline {
+    position: absolute; inset: 0; pointer-events: none;
     background-image:
-        linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-    background-size: 34px 34px;
-    -webkit-mask-image: radial-gradient(ellipse 90% 90% at 50% 18%, #000 28%, transparent 76%);
-    mask-image: radial-gradient(ellipse 90% 90% at 50% 18%, #000 28%, transparent 76%);
+        linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+    background-size: 56px 56px;
+    -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 30%, #000 20%, transparent 78%);
+    mask-image: radial-gradient(ellipse 80% 80% at 50% 30%, #000 20%, transparent 78%);
 }
-.sp-brand::after {
-    content: ""; position: absolute; z-index: -1; border-radius: 50%; filter: blur(60px); opacity: 0.55;
-    width: 20rem; height: 20rem; right: -6rem; bottom: -7rem;
-    background: radial-gradient(circle, var(--sp-mango), transparent 65%);
+.dp-orb {
+    position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.34; pointer-events: none;
+    animation: dpFloat 14s ease-in-out infinite alternate;
 }
-.sp-brand-logo { display: inline-flex; align-items: center; gap: 0.7rem; text-decoration: none; }
-.sp-brand-logo:hover { text-decoration: none; }
-.sp-brand-mark {
-    display: flex; align-items: center; justify-content: center;
-    width: 2.7rem; height: 2.7rem; border-radius: 0.85rem; font-size: 1.15rem; color: var(--sp-ink-deep);
-    background: linear-gradient(135deg, var(--sp-mango-soft), var(--sp-mango));
-    box-shadow: 0 8px 22px -6px rgba(245, 166, 35, 0.7);
-}
-.sp-brand-name { font-family: var(--sp-font-display); font-weight: 700; font-size: 1.1rem; }
+.dp-orb-1 { width: 26rem; height: 26rem; top: -8rem; right: -6rem; background: radial-gradient(circle, var(--dp-violet), transparent 65%); }
+.dp-orb-2 { width: 22rem; height: 22rem; bottom: -9rem; left: 4%; background: radial-gradient(circle, rgba(243, 193, 90, 0.5), transparent 65%); animation-delay: -6s; }
+@keyframes dpFloat { from { transform: translateY(0); } to { transform: translateY(36px); } }
 
-.sp-brand-body { margin: 2.2rem 0 2.4rem; }
-.sp-brand-eyebrow {
+/* ---- Shell ---- */
+.dp-shell {
+    position: relative; z-index: 2;
+    width: 100%; max-width: 70rem; margin-inline: auto;
+    display: grid; grid-template-columns: 1.1fr 1fr; gap: clamp(1.5rem, 4vw, 4rem);
+    align-items: center;
+}
+
+/* ---- Left: manifesto ---- */
+.dp-brand { padding: 1rem 0; }
+.dp-brand-logo { display: inline-flex; align-items: center; gap: 0.7rem; text-decoration: none; margin-bottom: 2.4rem; }
+.dp-brand-logo:hover { text-decoration: none; }
+.dp-brand-mark {
+    position: relative; display: flex; align-items: center; justify-content: center;
+    width: 2.6rem; height: 2.6rem; border-radius: 0.8rem; font-size: 1.1rem; color: #16131c;
+    background: linear-gradient(135deg, var(--dp-gold-2), var(--dp-gold));
+    box-shadow: 0 10px 26px -8px rgba(243, 193, 90, 0.75);
+}
+.dp-brand-mark::after {
+    content: ""; position: absolute; inset: -3px; border-radius: 1rem;
+    border: 1px solid rgba(243, 193, 90, 0.45);
+    animation: dpMark 3s ease-in-out infinite;
+}
+@keyframes dpMark { 0%, 100% { opacity: 0.5; transform: scale(1); } 50% { opacity: 0; transform: scale(1.25); } }
+.dp-brand-name { font-family: var(--dp-font-display); font-size: 1.15rem; font-weight: 700; color: var(--dp-ink); }
+
+.dp-eyebrow {
+    display: inline-flex; align-items: center; gap: 0.45rem;
+    font-family: var(--dp-font-mono); font-size: 0.72rem; font-weight: 500;
+    letter-spacing: 0.18em; text-transform: uppercase; color: var(--dp-gold);
+    margin-bottom: 1.1rem;
+}
+.dp-eyebrow::before { content: ""; width: 1.6rem; height: 1px; background: var(--dp-gold); opacity: 0.7; }
+
+.dp-brand h1 {
+    margin: 0 0 1rem;
+    font-family: var(--dp-font-display);
+    font-size: clamp(2.1rem, 4.5vw, 3.4rem);
+    font-weight: 700; letter-spacing: -0.03em; line-height: 1.04; color: var(--dp-ink);
+}
+.dp-brand h1 .dp-accent-c { display: inline-block; }
+.dp-brand h1 .dp-accent-c b { font-weight: 700; }
+.dp-grad {
+    font-style: normal;
+    background: linear-gradient(92deg, var(--dp-gold-2) 0%, var(--dp-gold) 30%, #fff 100%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.dp-brand-sub { margin: 0; max-width: 30rem; font-size: 0.98rem; line-height: 1.7; color: var(--dp-muted); }
+
+/* ---- Stats rail ---- */
+.dp-stats {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem;
+    margin-top: 2rem; padding: 1rem;
+    border: 1px solid var(--dp-line); border-radius: 1rem;
+    background: rgba(255, 255, 255, 0.03);
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+}
+.dp-stat { display: flex; flex-direction: column; gap: 0.3rem; }
+.dp-stat-label { font-family: var(--dp-font-mono); font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dp-fg2, var(--dp-muted)); }
+.dp-stat-value { font-family: var(--dp-font-display); font-size: 1.35rem; font-weight: 700; color: var(--dp-ink); font-variant-numeric: tabular-nums; }
+.dp-stat-value small { font-size: 0.8rem; font-weight: 500; color: var(--dp-fg, var(--dp-muted)); }
+.dp-stat-violet .dp-stat-value { color: var(--dp-violet); }
+
+/* ---- Feature chips ---- */
+.dp-chips { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1.4rem; }
+.dp-chip {
+    display: inline-flex; align-items: center; gap: 0.45rem;
+    padding: 0.5rem 0.85rem; border-radius: 999px;
+    font-size: 0.78rem; font-weight: 600; color: var(--dp-muted);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--dp-line);
+    transition: color 0.18s ease, border-color 0.18s ease;
+}
+.dp-chip i { color: var(--dp-gold); }
+.dp-chip:hover { color: var(--dp-ink); border-color: var(--dp-line-2); }
+
+/* ---- Right: form card ---- */
+.dp-card {
+    position: relative; overflow: hidden;
+    padding: 2.3rem 2.1rem 1.9rem;
+    border-radius: 1.4rem;
+    background: var(--dp-panel);
+    border: 1px solid var(--dp-line-2);
+    box-shadow: 0 40px 90px -40px rgba(0, 0, 0, 0.9);
+    animation: dpUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes dpUp { from { opacity: 0; transform: translateY(26px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Gradient ring */
+.dp-card::before {
+    content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px;
+    background: linear-gradient(160deg, rgba(243, 193, 90, 0.55), rgba(124, 105, 255, 0.35) 45%, transparent 70%);
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none;
+}
+/* Top glow */
+.dp-card::after {
+    content: ""; position: absolute; top: -6rem; left: 50%; transform: translateX(-50%);
+    width: 22rem; height: 10rem; border-radius: 50%; pointer-events: none;
+    background: radial-gradient(circle, rgba(124, 105, 255, 0.22), transparent 70%);
+}
+
+.dp-card-head { text-align: center; margin-bottom: 1.6rem; position: relative; }
+.dp-card-badge {
     display: inline-flex; align-items: center; gap: 0.4rem;
-    font-size: 0.7rem; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase;
-    color: var(--sp-mango-soft); margin-bottom: 0.85rem;
+    padding: 0.32rem 0.8rem; border-radius: 999px;
+    font-size: 0.66rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--dp-gold-2); background: rgba(243, 193, 90, 0.1);
+    border: 1px solid rgba(243, 193, 90, 0.28);
 }
-.sp-brand-body h2 {
-    margin: 0 0 0.75rem; font-family: var(--sp-font-display);
-    font-size: 1.9rem; font-weight: 700; letter-spacing: -0.02em; line-height: 1.15;
+.dp-card-head h2 {
+    margin: 0.9rem 0 0.35rem; font-family: var(--dp-font-display);
+    font-size: 1.55rem; font-weight: 700; letter-spacing: -0.02em; color: var(--dp-ink);
 }
-.sp-brand-body h2 em { font-style: normal; color: var(--sp-mango-soft); }
-.sp-brand-body p { margin: 0; font-size: 0.92rem; line-height: 1.65; color: rgba(255, 255, 255, 0.78); }
+.dp-card-head p { margin: 0; font-size: 0.84rem; color: var(--dp-muted); }
 
-.sp-features { display: grid; gap: 0.7rem; margin-top: 1.6rem; }
-.sp-feature { display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.85rem; color: rgba(255, 255, 255, 0.88); }
-.sp-feature i { color: var(--sp-mango-soft); font-size: 0.95rem; margin-top: 0.08rem; }
-
-.sp-brand-quote {
-    display: block; padding: 0.9rem 1rem; border-radius: 0.9rem;
-    font-size: 0.8rem; line-height: 1.5; color: rgba(255, 255, 255, 0.85);
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.14);
+.dp-alert {
+    display: flex; align-items: flex-start; gap: 0.55rem; position: relative;
+    margin-bottom: 1.3rem; padding: 0.85rem 0.95rem; border-radius: 0.8rem;
+    font-size: 0.82rem; font-weight: 600; color: #ffb0a8;
+    background: rgba(255, 122, 110, 0.1); border: 1px solid rgba(255, 122, 110, 0.32);
 }
-.sp-brand-quote i { color: var(--sp-mango-soft); }
 
-/* ---- Form (right) ---- */
-.sp-form-side { padding: 2.6rem 2.4rem 2.2rem; display: flex; flex-direction: column; }
-.sp-title { margin-bottom: 1.7rem; }
-.sp-title h1 {
-    margin: 0 0 0.45rem; font-family: var(--sp-font-display);
-    font-size: 1.7rem; font-weight: 700; letter-spacing: -0.02em; color: var(--sp-ink);
+.dp-form { display: flex; flex-direction: column; gap: 1.1rem; position: relative; }
+.dp-field { display: flex; flex-direction: column; gap: 0.42rem; }
+.dp-label { font-family: var(--dp-font-mono); font-size: 0.68rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dp-muted); }
+
+.dp-input-wrap { position: relative; }
+.dp-input-icon {
+    position: absolute; left: 1rem; top: 50%; transform: translateY(-50%);
+    font-size: 0.95rem; color: var(--dp-f6, var(--dp-faint, var(--dp-muted))); pointer-events: none; transition: color 0.18s ease;
 }
-.sp-title p { margin: 0; font-size: 0.9rem; color: var(--sp-muted); }
-
-.sp-alert {
-    display: flex; align-items: flex-start; gap: 0.55rem;
-    margin-bottom: 1.3rem; padding: 0.8rem 0.95rem; border-radius: 0.8rem;
-    font-size: 0.83rem; font-weight: 600; color: #a63d2f;
-    background: #fdecea; border: 1px solid #f5c6c0;
-}
-.sp-alert i { margin-top: 0.15rem; }
-
-.sp-form { display: flex; flex-direction: column; gap: 1.05rem; }
-.sp-field { display: flex; flex-direction: column; gap: 0.4rem; }
-.sp-label { font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em; color: var(--sp-ink-soft); }
-
-.sp-input-wrap { position: relative; }
-.sp-input-icon {
-    position: absolute; left: 0.9rem; top: 50%; transform: translateY(-50%);
-    font-size: 0.95rem; color: var(--sp-dim); pointer-events: none; transition: color 0.18s ease;
-}
-.sp-input-wrap:focus-within .sp-input-icon { color: var(--sp-ink-soft); }
-.sp-input {
-    width: 100%; height: 3.05rem; padding: 0 0.9rem 0 2.55rem;
-    border-radius: 0.75rem; font-size: 0.92rem; color: var(--sp-ink); outline: none;
-    background: var(--sp-paper);
-    border: 1.5px solid #ddd9cb;
+.dp-input-wrap:focus-within .dp-input-icon { color: var(--dp-gold); }
+.dp-input {
+    width: 100%; height: 3.15rem; padding: 0 1rem 0 2.7rem;
+    border-radius: 0.8rem; font-size: 0.92rem; color: var(--dp-ink); outline: none;
+    background: rgba(255, 255, 255, 0.035);
+    border: 1.5px solid var(--dp-line-2);
     transition: border-color 0.18s ease, box-shadow 0.22s ease, background 0.18s ease;
 }
-.sp-input::placeholder { color: var(--sp-dim); }
-.sp-input:hover { border-color: #c9c4ab; }
-.sp-input:focus {
-    border-color: var(--sp-ink-soft); background: #fff;
-    box-shadow: 0 0 0 4px rgba(46, 42, 107, 0.1);
+.dp-input-has-toggle { padding-right: 3.1rem; }
+.dp-input::placeholder { color: var(--dp-f6, var(--dp-muted)); }
+.dp-input:hover { border-color: rgba(255, 255, 255, 0.24); }
+.dp-input:focus {
+    border-color: rgba(243, 193, 90, 0.8); background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 0 0 4px rgba(243, 193, 90, 0.14);
 }
-.sp-input:focus-visible { outline: 2px solid rgba(46, 42, 107, 0.7); outline-offset: 1px; }
-.sp-input.is-invalid { border-color: #d66a5e; box-shadow: 0 0 0 4px rgba(214, 106, 94, 0.13); }
-.sp-input-has-toggle { padding-right: 3rem; }
-.sp-error { display: flex; align-items: center; gap: 0.35rem; font-size: 0.75rem; font-weight: 600; color: #c63f31; }
-
-.sp-toggle {
-    position: absolute; right: 0.4rem; top: 50%; transform: translateY(-50%);
+.dp-input:focus-visible { outline: none; }
+.dp-input.is-invalid { border-color: rgba(255, 122, 110, 0.65); box-shadow: 0 0 0 4px rgba(255, 122, 110, 0.13); }
+.dp-input:-webkit-autofill,
+.dp-input:-webkit-autofill:hover,
+.dp-input:-webkit-autofill:focus {
+    -webkit-box-shadow: 0 0 0 1000px #17141f inset;
+    -webkit-text-fill-color: var(--dp-ink);
+    caret-color: var(--dp-ink);
+    transition: background-color 9999s ease-in-out 0s;
+}
+.dp-error { display: flex; align-items: center; gap: 0.35rem; font-size: 0.74rem; font-weight: 600; color: var(--dp-danger); }
+.dp-toggle {
+    position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%);
     display: flex; align-items: center; justify-content: center;
-    width: 2.4rem; height: 2.4rem; border-radius: 0.65rem;
-    background: none; border: none; cursor: pointer; font-size: 1rem; color: var(--sp-dim);
+    width: 2.4rem; height: 2.4rem; border-radius: 0.7rem;
+    background: none; border: none; cursor: pointer; font-size: 1rem; color: var(--dp-muted);
     transition: color 0.18s ease, background 0.18s ease;
 }
-.sp-toggle:hover { color: var(--sp-ink-soft); background: rgba(46, 42, 107, 0.06); }
+.dp-toggle:hover { color: var(--dp-gold); background: rgba(243, 193, 90, 0.1); }
 
-.sp-row { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem 0.75rem; flex-wrap: wrap; }
-.sp-check { display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; user-select: none; font-size: 0.84rem; font-weight: 500; color: var(--sp-muted); }
-.sp-check input { position: absolute; opacity: 0; width: 0; height: 0; }
-.sp-check-box {
+.dp-row { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem 0.75rem; flex-wrap: wrap; }
+.dp-check { display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; user-select: none; font-size: 0.82rem; font-weight: 500; color: var(--dp-muted); }
+.dp-check input { position: absolute; opacity: 0; width: 0; height: 0; }
+.dp-check-box {
     display: flex; align-items: center; justify-content: center; flex-shrink: 0;
     width: 1.15rem; height: 1.15rem; border-radius: 0.35rem;
-    border: 1.5px solid #ccc7b4; background: #fff; transition: all 0.16s ease;
+    border: 1.5px solid rgba(255, 255, 255, 0.24); background: rgba(255, 255, 255, 0.04); transition: all 0.16s ease;
 }
-.sp-check-box i { font-size: 0.68rem; color: #fff; opacity: 0; transform: scale(0.4); transition: all 0.16s ease; }
-.sp-check:hover .sp-check-box { border-color: var(--sp-ink-soft); }
-.sp-check input:checked + .sp-check-box { background: var(--sp-ink-soft); border-color: var(--sp-ink-soft); }
-.sp-check input:checked + .sp-check-box i { opacity: 1; transform: scale(1); }
-.sp-forgot {
+.dp-check-box i { font-size: 0.68rem; color: #16131c; opacity: 0; transform: scale(0.4); transition: all 0.16s ease; }
+.dp-check:hover .dp-check-box { border-color: var(--dp-gold); }
+.dp-check input:checked + .dp-check-box { background: var(--dp-gold); border-color: var(--dp-gold); }
+.dp-check input:checked + .dp-check-box i { opacity: 1; transform: scale(1); }
+.dp-check input:focus-visible + .dp-check-box { outline: 3px solid rgba(243, 193, 90, 0.55); outline-offset: 2px; }
+.dp-forgot {
     display: inline-flex; align-items: center; gap: 0.35rem;
-    font-size: 0.84rem; font-weight: 600; color: var(--sp-mango-ink); text-decoration: none;
-    transition: color 0.18s ease;
+    font-size: 0.82rem; font-weight: 600; color: var(--dp-gold); text-decoration: none; transition: color 0.18s ease;
 }
-.sp-forgot:hover { color: var(--sp-mango-deep); text-decoration: underline; text-underline-offset: 3px; }
+.dp-forgot:hover { color: var(--dp-gold-2); text-decoration: underline; text-underline-offset: 3px; }
 
-.sp-btn {
+.dp-btn {
     position: relative; overflow: hidden;
     display: flex; align-items: center; justify-content: center; gap: 0.5rem;
     width: 100%; height: 3.2rem; margin-top: 0.35rem; border: none; border-radius: 0.8rem; cursor: pointer;
-    font-family: var(--sp-font-display); font-size: 0.95rem; font-weight: 700; color: #fff;
-    background: linear-gradient(135deg, var(--sp-ink-deep), var(--sp-ink-soft));
-    box-shadow: 0 14px 30px -12px rgba(46, 42, 107, 0.65);
+    font-family: var(--dp-font-display); font-size: 0.96rem; font-weight: 700; letter-spacing: 0.01em; color: #16131c;
+    background: linear-gradient(135deg, var(--dp-gold-2) 0%, var(--dp-gold) 55%, #e6a93c 100%);
+    box-shadow: 0 16px 38px -14px rgba(243, 193, 90, 0.7);
     transition: transform 0.18s ease, box-shadow 0.24s ease, filter 0.24s ease;
 }
-.sp-btn:hover { transform: translateY(-2px); filter: brightness(1.08); box-shadow: 0 20px 40px -14px rgba(46, 42, 107, 0.75); }
-.sp-btn:active { transform: translateY(0) scale(0.99); }
-.sp-btn:disabled { opacity: 0.75; cursor: wait; transform: none; }
-.sp-btn .spinner { display: none; animation: spSpin 0.7s linear infinite; }
-.sp-btn .btn-text { white-space: nowrap; }
-.sp-btn.loading .btn-text, .sp-btn.loading > .bi:not(.spinner) { display: none; }
-.sp-btn.loading .spinner { display: inline-block; }
-@keyframes spSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-.sp-btn::after {
+.dp-btn:hover { transform: translateY(-2px); filter: brightness(1.05); box-shadow: 0 22px 48px -16px rgba(243, 193, 90, 0.85); }
+.dp-btn:active { transform: translateY(0) scale(0.99); }
+.dp-btn:disabled { opacity: 0.75; cursor: wait; transform: none; }
+.dp-btn .spinner { display: none; animation: dpSpin 0.7s linear infinite; }
+.dp-btn .btn-text { white-space: nowrap; }
+.dp-btn.loading .btn-text, .dp-btn.loading > .bi:not(.spinner) { display: none; }
+.dp-btn.loading .spinner { display: inline-block; }
+@keyframes dpSpin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.dp-btn::after {
     content: ""; position: absolute; inset: 0; pointer-events: none;
     transform: translateX(-130%) skewX(-18deg);
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
 }
-.sp-btn:hover::after { animation: spShine 0.9s ease; }
-@keyframes spShine { to { transform: translateX(130%) skewX(-18deg); } }
+.dp-btn:hover::after { animation: dpShine 0.9s ease; }
+@keyframes dpShine { to { transform: translateX(130%) skewX(-18deg); } }
 
-.sp-register { margin-top: 1.35rem; text-align: center; font-size: 0.86rem; color: var(--sp-muted); }
-.sp-register a { font-weight: 700; color: var(--sp-ink-soft); text-decoration: none; transition: color 0.18s ease; }
-.sp-register a:hover { color: var(--sp-mango-deep); text-decoration: underline; text-underline-offset: 3px; }
+.dp-register { margin-top: 1.3rem; text-align: center; }
+.dp-register p { margin: 0 0 0.35rem; font-size: 0.82rem; color: var(--dp-muted); }
+.dp-register a { font-size: 0.86rem; font-weight: 700; color: var(--dp-gold-2); text-decoration: none; transition: color 0.18s ease; }
+.dp-register a:hover { color: var(--dp-gold); text-decoration: none; }
 
-.sp-trust {
-    display: flex; align-items: center; justify-content: center; gap: 0.4rem 0.9rem; flex-wrap: wrap;
-    margin-top: 1.25rem; padding-top: 1.15rem; border-top: 1.5px solid var(--sp-line);
-}
-.sp-trust-item { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.72rem; font-weight: 600; color: var(--sp-muted); }
-.sp-trust-item i { color: var(--sp-mango-ink); }
+.dp-trust { display: flex; align-items: center; justify-content: center; gap: 0.5rem 1rem; flex-wrap: wrap; margin-top: 1.1rem; padding-top: 1.1rem; border-top: 1px solid var(--dp-line); }
+.dp-trust-item { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.7rem; font-weight: 600; color: var(--dp-faint, var(--dp-muted)); }
+.dp-trust-item i { color: var(--dp-gold); }
 
-.sp-foot { margin-top: 1.3rem; text-align: center; font-size: 0.7rem; color: var(--sp-dim); }
-
-/* ---- Shared focus polish ---- */
-.sp-toggle:focus-visible,
-.sp-forgot:focus-visible,
-.sp-register a:focus-visible,
-.sp-btn:focus-visible,
-.sp-brand-logo:focus-visible {
-    outline: 3px solid rgba(245, 166, 35, 0.55); outline-offset: 2px;
+/* ---- Focus polish ---- */
+.dp-toggle:focus-visible,
+.dp-forgot:focus-visible,
+.dp-register a:focus-visible,
+.dp-btn:focus-visible,
+.dp-brand-logo:focus-visible {
+    outline: 3px solid rgba(243, 193, 90, 0.55); outline-offset: 2px;
 }
 
-@media (max-width: 760px) {
-    .sp-panel { grid-template-columns: 1fr; max-width: 26.5rem; }
-    .sp-brand { justify-content: flex-start; padding: 1.7rem 1.6rem 1.2rem; }
-    .sp-brand-body { margin: 1.3rem 0 1rem; }
-    .sp-brand-body h2 { font-size: 1.5rem; }
-    .sp-features { display: none; }
-    .sp-form-side { padding: 1.9rem 1.5rem 1.7rem; }
-    .sp-scroll { padding: 1rem 0.75rem; }
+/* ---- Responsive ---- */
+@media (max-width: 880px) {
+    .dp-shell { grid-template-columns: 1fr; gap: 1.5rem; }
+    .dp-brand { animation: none; }
+    .dp-brand h1 { font-size: clamp(1.9rem, 6vw, 2.5rem); }
+    .dp-card { max-width: 26.5rem; margin-inline: auto; width: 100%; }
+    .dp-stats { margin-top: 1.5rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .sp-panel { animation: none; }
-    .sp-btn:hover::after { animation: none; }
+    .dp-orb, .dp-brand-mark::after { animation: none; }
+    .dp-card { animation: none; }
 }
 </style>
 
-<div class="sp-scroll">
-    <div class="sp-panel">
+<div class="dp-scene">
+    <div class="dp-gridline" aria-hidden="true"></div>
+    <div class="dp-orb dp-orb-1" aria-hidden="true"></div>
+    <div class="dp-orb dp-orb-2" aria-hidden="true"></div>
 
-        <aside class="sp-brand">
-            <a href="{{ url('/') }}" class="sp-brand-logo" aria-label="{{ storeName() }} home">
-                <span class="sp-brand-mark"><i class="bi bi-currency-exchange"></i></span>
-                <span class="sp-brand-name">{{ storeName() }}</span>
+    <div class="dp-shell">
+
+        <!-- Left: manifesto -->
+        <div class="dp-brand">
+            <a href="{{ url('/') }}" class="dp-brand-logo" aria-label="{{ storeName() }} home">
+                <span class="dp-brand-mark"><i class="bi bi-currency-exchange"></i></span>
+                <span class="dp-brand-name">{{ storeName() }}</span>
             </a>
 
-            <div class="sp-brand-body">
-                <span class="sp-brand-eyebrow"><i class="bi bi-shield-lock-fill"></i> Secure sign in</span>
-                <h2>Own the <em>pace</em> of your money.</h2>
-                <p>Log in to track your plans, manage payments and pick up exactly where you left off.</p>
+            <span class="dp-eyebrow">Own at your own pace</span>
 
-                <div class="sp-features">
-                    <span class="sp-feature"><i class="bi bi-check-circle-fill"></i> Personalised dashboards &amp; plans</span>
-                    <span class="sp-feature"><i class="bi bi-check-circle-fill"></i> Payments tracked in real time</span>
-                    <span class="sp-feature"><i class="bi bi-check-circle-fill"></i> Global support, every step</span>
+            <h1>
+                Turn <span class="dp-accent-c"><b class="dp-grad">plans</b></span>
+                into
+                <span class="dp-accent-c"><b class="dp-grad">payoffs.</b></span>
+            </h1>
+            <p class="dp-brand-sub">
+                Sign in to bring your budget, savings and payment plans
+                together in one calm, beautifully-tuned dashboard.
+            </p>
+
+            <div class="dp-stats" id="dpStats">
+                <div class="dp-stat">
+                    <span class="dp-stat-label">On track</span>
+                    <span class="dp-stat-value"><span id="dpStatOnTrack">94</span><small>%</small></span>
+                </div>
+                <div class="dp-stat dp-stat-violet">
+                    <span class="dp-stat-label">Goals hit</span>
+                    <span class="dp-stat-value"><span id="dpStatGoals">1.<span id="dpStatGoalsDec">2</span></span><small>k</small></span>
+                </div>
+                <div class="dp-stat">
+                    <span class="dp-stat-label">Members</span>
+                    <span class="dp-stat-value"><span id="dpStatMembers">38</span><small>k</small></span>
                 </div>
             </div>
 
-            <span class="sp-brand-quote">
-                <i class="bi bi-quote"></i> {{ storeName() }} made budgeting feel effortless — the progress plan alone pays for itself.
-            </span>
-        </aside>
+            <div class="dp-chips">
+                <span class="dp-chip"><i class="bi bi-graph-up-arrow"></i> Progress plans</span>
+                <span class="dp-chip"><i class="bi bi-shield-lock-fill"></i> Bank-grade security</span>
+                <span class="dp-chip"><i class="bi bi-headset"></i> 24/7 support</span>
+            </div>
+        </div>
 
-        <section class="sp-form-side">
-            <header class="sp-title">
-                <h1>Sign in</h1>
-                <p>Enter your details to access your account.</p>
+        <!-- Right: form -->
+        <div class="dp-card">
+            <header class="dp-card-head">
+                <span class="dp-card-badge"><i class="bi bi-shield-lock-fill"></i> Secure sign in</span>
+                <h2>Welcome <em class="dp-grad">back</em></h2>
+                <p>Enter your details below to get straight in.</p>
             </header>
 
             @if($errors->any())
-            <div class="sp-alert" role="alert">
+            <div class="dp-alert" role="alert">
                 <i class="bi bi-exclamation-triangle-fill"></i>
                 <span>{{ $errors->first() }}</span>
             </div>
             @endif
 
-            <form method="POST" action="{{ route('login') }}" class="sp-form" id="spForm">
+            <form method="POST" action="{{ route('login') }}" class="dp-form" id="dpForm">
                 @csrf
 
-                <div class="sp-field">
-                    <label for="email" class="sp-label">Email address</label>
-                    <div class="sp-input-wrap">
-                        <i class="bi bi-envelope-fill sp-input-icon" aria-hidden="true"></i>
+                <div class="dp-field">
+                    <label for="email" class="dp-label">Email address</label>
+                    <div class="dp-input-wrap">
+                        <i class="bi bi-envelope-fill dp-input-icon" aria-hidden="true"></i>
                         <input id="email" type="email" name="email" value="{{ old('email') }}"
-                            class="sp-input @error('email') is-invalid @enderror"
+                            class="dp-input @error('email') is-invalid @enderror"
                             placeholder="you@example.com" required autocomplete="email" autofocus inputmode="email">
                     </div>
                     @error('email')
-                        <p class="sp-error"><i class="bi bi-info-circle-fill"></i> {{ $message }}</p>
+                        <p class="dp-error"><i class="bi bi-info-circle-fill"></i> {{ $message }}</p>
                     @enderror
                 </div>
 
-                <div class="sp-field">
-                    <label for="password" class="sp-label">Password</label>
-                    <div class="sp-input-wrap">
-                        <i class="bi bi-lock-fill sp-input-icon" aria-hidden="true"></i>
+                <div class="dp-field">
+                    <label for="password" class="dp-label">Password</label>
+                    <div class="dp-input-wrap">
+                        <i class="bi bi-lock-fill dp-input-icon" aria-hidden="true"></i>
                         <input id="password" type="password" name="password"
-                            class="sp-input sp-input-has-toggle @error('password') is-invalid @enderror"
+                            class="dp-input dp-input-has-toggle @error('password') is-invalid @enderror"
                             placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"
                             required autocomplete="current-password" spellcheck="false">
-                        <button type="button" class="sp-toggle" id="spToggle" aria-label="Show password">
-                            <i class="bi bi-eye" id="spIcon"></i>
+                        <button type="button" class="dp-toggle" id="dpToggle" aria-label="Show password">
+                            <i class="bi bi-eye" id="dpIcon"></i>
                         </button>
                     </div>
                     @error('password')
-                        <p class="sp-error"><i class="bi bi-info-circle-fill"></i> {{ $message }}</p>
+                        <p class="dp-error"><i class="bi bi-info-circle-fill"></i> {{ $message }}</p>
                     @enderror
                 </div>
 
-                <div class="sp-row">
-                    <label class="sp-check" for="remember">
+                <div class="dp-row">
+                    <label class="dp-check" for="remember">
                         <input type="checkbox" name="remember" id="remember" value="1" {{ old('remember') ? 'checked' : '' }}>
-                        <span class="sp-check-box"><i class="bi bi-check-lg"></i></span>
+                        <span class="dp-check-box"><i class="bi bi-check-lg"></i></span>
                         Remember me
                     </label>
                     @if(Route::has('password.request'))
-                    <a href="{{ route('password.request') }}" class="sp-forgot"><i class="bi bi-key-fill"></i> Forgot password?</a>
+                    <a href="{{ route('password.request') }}" class="dp-forgot"><i class="bi bi-key-fill"></i> Forgot password?</a>
                     @endif
                 </div>
 
-                <button type="submit" class="sp-btn" id="spBtn">
+                <button type="submit" class="dp-btn" id="dpBtn">
                     <i class="bi bi-box-arrow-in-right"></i>
                     <span class="btn-text">Sign in to {{ storeName() }}</span>
                     <i class="bi bi-arrow-repeat spinner"></i>
                 </button>
             </form>
 
-            <p class="sp-register">
-                New to {{ storeName() }}?
+            <div class="dp-register">
+                <p>New to {{ storeName() }}?</p>
                 <a href="{{ route('register') }}"><i class="bi bi-person-plus-fill"></i> Create free account</a>
-            </p>
-
-            <div class="sp-trust">
-                <span class="sp-trust-item"><i class="bi bi-shield-fill-check"></i> Secured</span>
-                <span class="sp-trust-item"><i class="bi bi-patch-check-fill"></i> Verified</span>
-                <span class="sp-trust-item"><i class="bi bi-lock-fill"></i> Encrypted</span>
             </div>
-        </section>
-    </div>
 
-    <p class="sp-foot"><i class="bi bi-c-circle"></i> {{ date('Y') }} {{ storeName() }} - Own at your own pace</p>
+            <div class="dp-trust">
+                <span class="dp-trust-item"><i class="bi bi-shield-fill-check"></i> Secured</span>
+                <span class="dp-trust-item"><i class="bi bi-patch-check-fill"></i> Verified</span>
+                <span class="dp-trust-item"><i class="bi bi-lock-fill"></i> Encrypted</span>
+            </div>
+        </div>
+    </div>
 </div>
 
 <script>
 (function () {
-    var toggle = document.getElementById('spToggle');
+    var toggle = document.getElementById('dpToggle');
     if (toggle) {
         toggle.addEventListener('click', function () {
             var input = document.getElementById('password');
-            var icon = document.getElementById('spIcon');
+            var icon = document.getElementById('dpIcon');
             var show = input.type === 'password';
             input.type = show ? 'text' : 'password';
             icon.className = show ? 'bi bi-eye-slash' : 'bi bi-eye';
@@ -364,12 +446,30 @@ html, body { overflow-x: hidden; }
         });
     }
 
-    var form = document.getElementById('spForm');
+    var form = document.getElementById('dpForm');
     if (form) {
         form.addEventListener('submit', function () {
-            var btn = document.getElementById('spBtn');
+            var btn = document.getElementById('dpBtn');
             if (btn) { btn.classList.add('loading'); btn.disabled = true; }
         });
+    }
+
+    var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var el1 = document.getElementById('dpStatOnTrack');
+    var elG = document.getElementById('dpStatGoalsDec') || document.getElementById('dpStatGoals');
+    var elM = document.getElementById('dpStatMembers');
+    var vals = { a: 94, b: 1.2, c: 38 };
+    if (el1 && elG && elM && !reduce) {
+        var tick = function () {
+            vals.a = vals.a >= 98 ? 92 : vals.a + (Math.random() > 0.5 ? 1 : -1);
+            vals.b = Math.max(1.0, Math.min(1.9, +(vals.b + ((Math.random() - 0.5) * 0.1)).toFixed(1)));
+            vals.c = vals.c >= 42 ? 36 + Math.floor(Math.random() * 4) : (vals.c + Math.floor(Math.random() * 3));
+            el1.textContent = vals.a;
+            elG.textContent = vals.b.toFixed(1);
+            elM.textContent = vals.c;
+        };
+        tick();
+        setInterval(tick, 2400);
     }
 })();
 </script>
