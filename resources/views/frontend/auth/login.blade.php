@@ -93,6 +93,27 @@ body{ scrollbar-color: rgba(140,123,255,0.4) rgba(255,255,255,0.05); }
 }
 @keyframes ccUp{ from{ opacity:0; transform: translateY(28px) scale(0.99); } to{ opacity:1; transform: translateY(0) scale(1); } }
 
+/* ---- Centered gold dust inside the box ---- */
+.cc-dust{ position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+.cc-dust i{
+    position: absolute; bottom: -6px; border-radius: 50%;
+    background: radial-gradient(circle, var(--cc-gold-2), var(--cc-gold));
+    opacity: 0; animation: ccDust var(--d, 7s) linear var(--dl, 0s) infinite;
+}
+.cc-dust .d1{ left: 18%; --d: 8s;  --dl: 0.2s; width: 3px; height: 3px; }
+.cc-dust .d2{ left: 34%; --d: 10s; --dl: 2.4s; width: 2px; height: 2px; }
+.cc-dust .d3{ left: 50%; --d: 9s;  --dl: 1s;   width: 3px; height: 3px; }
+.cc-dust .d4{ left: 62%; --d: 11s; --dl: 3.4s; width: 2px; height: 2px; }
+.cc-dust .d5{ left: 78%; --d: 8.5s; --dl: 1.8s; width: 3px; height: 3px; }
+.cc-dust .d6{ left: 28%; --d: 12s; --dl: 4.5s; width: 2px; height: 2px; }
+.cc-dust .d7{ left: 72%; --d: 9.5s; --dl: 0.9s; width: 2px; height: 2px; }
+@keyframes ccDust{
+    0%   { transform: translateY(0) scale(0.6); opacity: 0; }
+    12%  { opacity: 0.9; }
+    85%  { opacity: 0.25; }
+    100% { transform: translateY(-330px) scale(1); opacity: 0; }
+}
+
 /* ---- Header ---- */
 .cc-head{ text-align: center; position: relative; margin-bottom: 1.7rem; }
 .cc-mark{
@@ -128,9 +149,9 @@ body{ scrollbar-color: rgba(140,123,255,0.4) rgba(255,255,255,0.05); }
 }
 
 /* ---- Form ---- */
-.cc-form{ display: flex; flex-direction: column; gap: 1.05rem; position: relative; }
+.cc-form{ display: flex; flex-direction: column; gap: 1.05rem; position: relative; text-align: center; }
 .cc-field{ display: flex; flex-direction: column; gap: 0.42rem; }
-.cc-label{ font-family: var(--cc-font-mono); font-size: 0.66rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--cc-muted); }
+.cc-label{ font-family: var(--cc-font-mono); font-size: 0.66rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: var(--cc-muted); text-align: center; }
 
 .cc-input-wrap{ position: relative; }
 .cc-input-icon{
@@ -172,7 +193,7 @@ body{ scrollbar-color: rgba(140,123,255,0.4) rgba(255,255,255,0.05); }
 .cc-toggle:hover{ color: var(--cc-gold); background: rgba(243,193,90,0.1); }
 .cc-toggle:focus-visible{ outline: 3px solid rgba(243,193,90,0.55); outline-offset: 2px; }
 
-.cc-row{ display: flex; align-items: center; justify-content: space-between; gap: 0.6rem 0.75rem; flex-wrap: wrap; }
+.cc-row{ display: flex; align-items: center; justify-content: center; gap: 0.6rem 1.1rem; flex-wrap: wrap; }
 .cc-check{ display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; user-select: none; font-size: 0.82rem; font-weight: 500; color: var(--cc-muted); }
 .cc-check input{ position: absolute; opacity: 0; width: 0; height: 0; }
 .cc-check-box{
@@ -241,6 +262,7 @@ body{ scrollbar-color: rgba(140,123,255,0.4) rgba(255,255,255,0.05); }
     .cc-card, .cc-mark::after{ animation: none; }
     .cc-btn:hover::after{ animation: none; }
     .cc-gridline{ animation: none; }
+    .cc-dust i{ animation: none; opacity: 0; }
 }
 </style>
 
@@ -250,6 +272,11 @@ body{ scrollbar-color: rgba(140,123,255,0.4) rgba(255,255,255,0.05); }
     <a href="{{ url('/') }}" class="cc-back"><i class="bi bi-arrow-left"></i> Back to store</a>
 
     <div class="cc-card">
+        <div class="cc-dust" aria-hidden="true">
+            <i class="d1"></i><i class="d2"></i><i class="d3"></i>
+            <i class="d4"></i><i class="d5"></i><i class="d6"></i><i class="d7"></i>
+        </div>
+
         <header class="cc-head">
             <span class="cc-mark"><i class="bi bi-currency-exchange"></i></span>
             <h2>Welcome <span>back</span></h2>
