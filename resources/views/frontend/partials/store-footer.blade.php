@@ -19,15 +19,35 @@ $description = $settings?->store_description ?: "Nigeria's installment store. Ow
     <div class="grain" aria-hidden="true"></div>
 
     <div class="relative mx-auto max-w-7xl px-4 py-16 sm:px-6">
+        <!-- Mobile compact footer -->
+        <div class="flex flex-col items-center gap-6 md:hidden">
+            <a href="{{ url('/') }}" class="flex items-center gap-2.5" aria-label="{{ storeName() }} home">
+                <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand to-brand-soft text-mango">
+                    <svg viewBox="0 0 24 24" fill="none" class="h-5 w-5" aria-hidden="true">
+                        <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2" opacity="0.45"/>
+                        <circle cx="12" cy="12" r="4.5" fill="currentColor"/>
+                    </svg>
+                    <span class="absolute -right-1 -top-1 h-2.5 w-2.5 rounded-full bg-mango ring-2 ring-white/20"></span>
+                </span>
+                <span class="font-display text-lg font-bold tracking-tight text-white">{{ storeName() }}</span>
+            </a>
+            <nav class="flex items-center gap-4 text-xs font-semibold text-white/70" aria-label="Footer">
+                <a href="{{ url('/shop') }}" class="transition-colors hover:text-mango">Shop</a>
+                <a href="{{ url('/faq') }}" class="transition-colors hover:text-mango">FAQs</a>
+                <a href="{{ url('/contact') }}" class="transition-colors hover:text-mango">Contact</a>
+                <a href="{{ url('/legal') }}" class="transition-colors hover:text-mango">Policies</a>
+            </nav>
+        </div>
+
         <!-- Trust strip -->
-        <div class="flex flex-wrap items-center justify-center gap-x-7 gap-y-2.5 border-b border-white/10 pb-8 text-xs font-semibold text-white/60 sm:justify-between">
+        <div class="hidden flex-wrap items-center justify-center gap-x-7 gap-y-2.5 border-b border-white/10 pb-8 text-xs font-semibold text-white/60 sm:justify-between md:flex">
             <span class="flex items-center gap-1.5"><i class="bi bi-shield-check text-mango"></i> 256-bit SSL payments</span>
             <span class="flex items-center gap-1.5"><i class="bi bi-coin text-mango"></i> 0% interest plans</span>
             <span class="flex items-center gap-1.5"><i class="bi bi-arrow-repeat text-mango"></i> 30-day easy exchange</span>
             <span class="flex items-center gap-1.5"><i class="bi bi-truck text-mango"></i> Nationwide delivery</span>
         </div>
 
-        <div class="mt-12 grid gap-12 md:grid-cols-2 lg:grid-cols-4">
+        <div class="mt-12 hidden gap-12 md:grid md:grid-cols-2 lg:grid-cols-4">
             <!-- Brand -->
             <div class="lg:col-span-1">
                 <a href="{{ url('/') }}" class="group flex items-center gap-2.5" aria-label="{{ storeName() }} home">
@@ -128,7 +148,7 @@ $description = $settings?->store_description ?: "Nigeria's installment store. Ow
                 @endforeach
             </div>
 
-            <div class="flex items-center gap-3">
+            <div class="hidden items-center gap-3 md:flex">
                 <span class="glass-dark flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold text-white/85"><span class="h-1.5 w-1.5 rounded-full bg-grass shadow-[0_0_8px_2px_rgba(47,158,68,0.5)]"></span> Secured payments</span>
                 <span class="glass-dark flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-semibold text-white/85"><span class="h-1.5 w-1.5 rounded-full bg-mango shadow-[0_0_8px_2px_rgba(245,166,35,0.5)]"></span> 256-bit SSL</span>
             </div>
